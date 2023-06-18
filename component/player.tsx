@@ -24,6 +24,7 @@ export default function Home() {
     const onPlayerReady: YouTubeProps['onReady'] = (event: YouTubePlayer) => {
         videoElement = event.target;
         setPlaySongTitle(playList[playerCount].title);
+        videoElement.playVideo();
     }
 
     const onPlayerPlay: YouTubeProps['onPlay'] = (event: YouTubePlayer) => {
@@ -31,7 +32,8 @@ export default function Home() {
             setPlayCount(playCount+1);
             setPlaySongTitle(playList[playCount].title);
         }
-        setIsPlay(true);event.target.playVideo();
+        setIsPlay(true);
+        event.target.playVideo();
     }
   
     const onPlayerEnd: YouTubeProps['onEnd'] = (event: YouTubePlayer) => {
