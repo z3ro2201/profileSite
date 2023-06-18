@@ -4,6 +4,7 @@ import YouTube, {YouTubeProps,YouTubePlayer} from 'react-youtube';
 
 export default function Home() {
     let playerCount: number = 0;
+    const playerBody = useRef<HTMLDivElement>(null);
     const [playCount, setPlayCount] = useState(0);
     const playList = [
       {link: 'T_MYHHb1Ib0', title: '[LostArk ll 모야] 모코코 Remix '},
@@ -20,6 +21,7 @@ export default function Home() {
     const [isPlay, setIsPlay] = useState(false);
     const [playId, setPlayId] = useState(playList[0].link);
     const [playSongTitle, setPlaySongTitle] = useState(playList[0].title + ' (버퍼링중)');
+    const [playerDisplay, setPlayerDisplay] = useState(false);
   
     const onPlayerReady: YouTubeProps['onReady'] = (event: YouTubePlayer) => {
         videoElement = event.target;
@@ -50,9 +52,14 @@ export default function Home() {
     }
 
     const playerState = () => {
+        console.log(videoElement);
         if(isPlay === false) videoElement.playVideo();
     }
 
+    const playerDisplayEvent = () => {
+        (playerDisplay === true) ? setPlayerDisplay(false):setPlayerDisplay(true);
+        if(playerBody.current) playerBody.current.classList.toggle('hidden');
+    }
   
     const opts: YouTubeProps['opts'] = {
       width: 640,
@@ -71,8 +78,13 @@ export default function Home() {
                 <button className={(isPlay === true) ? 'hidden': ''} onClick={playerState}>
                     재생
                 </button>
+                <button onClick={playerDisplayEvent}>
+                    플레이어창 {playerDisplay===true ? '보이기' : '감추기'}
+                </button>
             </div>
-            <YouTube videoId={playId} opts={opts} onReady={onPlayerReady} onPause={onPlayerPause} onStateChange={onPlayerState} onPlay={onPlayerPlay} onEnd={onPlayerEnd} className="hidden"/>
+            <div className="hidden" ref={playerBody}>
+                <YouTube videoId={playId} opts={opts} onReady={onPlayerReady} onPause={onPlayerPause} onStateChange={onPlayerState} onPlay={onPlayerPlay} onEnd={onPlayerEnd} />
+            </div>
         </>
     )
 
