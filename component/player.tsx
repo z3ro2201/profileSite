@@ -24,9 +24,8 @@ export default function Home() {
     const [playerDisplay, setPlayerDisplay] = useState(false);
   
     const onPlayerReady: YouTubeProps['onReady'] = (event: YouTubePlayer) => {
-        videoElement = event.target;
         setPlaySongTitle(playList[playerCount].title);
-        videoElement.playVideo();
+        event.target.playVideo();
     }
 
     const onPlayerPlay: YouTubeProps['onPlay'] = (event: YouTubePlayer) => {
@@ -47,6 +46,7 @@ export default function Home() {
         if(event.data !== 2 && event.data !== 3) event.target.playVideo();
     }
 
+<<<<<<< HEAD
     const onPlayerPause: YouTubeProps['onPause'] = (event: YouTubePlayer) => {
         setIsPlay(false);
     }
@@ -60,6 +60,8 @@ export default function Home() {
         (playerDisplay === true) ? setPlayerDisplay(false):setPlayerDisplay(true);
         if(playerBody.current) playerBody.current.classList.toggle('hidden');
     }
+=======
+>>>>>>> eeb1cbec566f191effb5d19c6a2b3c0b0869715a
   
     const opts: YouTubeProps['opts'] = {
       width: 640,
@@ -75,6 +77,7 @@ export default function Home() {
         <>
             <div className="playSongTitle">
                 {playSongTitle}
+<<<<<<< HEAD
                 <button className={(isPlay === true) ? 'hidden': ''} onClick={playerState}>
                     재생
                 </button>
@@ -85,6 +88,10 @@ export default function Home() {
             <div className="hidden" ref={playerBody}>
                 <YouTube videoId={playId} opts={opts} onReady={onPlayerReady} onPause={onPlayerPause} onStateChange={onPlayerState} onPlay={onPlayerPlay} onEnd={onPlayerEnd} />
             </div>
+=======
+            </div>
+            <YouTube videoId={playId} opts={opts} onReady={onPlayerReady} onStateChange={onPlayerState} onPlay={onPlayerPlay} onEnd={onPlayerEnd} className="hidden"/>
+>>>>>>> eeb1cbec566f191effb5d19c6a2b3c0b0869715a
         </>
     )
 
