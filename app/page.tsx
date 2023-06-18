@@ -34,6 +34,7 @@ export default function Home() {
           <h1 className="m-1 text-2xl font-bold">환영메시지에요.</h1>
           <p className="text-base">홈페이지에 오신것을 환영해요.</p>
           <p className="text-base">브금이 흘러나오니 소리를 켜주세요.</p>
+          <p className="text-base">(만약 브금이 나오지 않으면 하단에 플레이어 보이기를 통해 수동으로 해주세요~!)</p>
         </div>
         <div className="quickLink">
           <Link className="linkProfile" href="#" onClick={openProfile}>

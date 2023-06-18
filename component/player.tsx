@@ -75,9 +75,6 @@ export default function Home() {
         <>
             <div className="playSongTitle">
                 {playSongTitle}
-                <button className="mx-2 border border-1 border-white border-solid" className={(isPlay === true) ? 'hidden': ''} onClick={playerState}>
-                    [재생]
-                </button>
                 <button className="mx-2 border border-1 border-white border-solid" onClick={playerDisplayEvent}>
                     [플레이어창 {playerDisplay===false ? '보이기' : '감추기'}]
                 </button>

@@ -1,0 +1,1 @@
+                <button className="mx-2 border border-1 border-white border-solid{(isPlay === true) ? 'hidden': ''}" onClick={playerState}>
