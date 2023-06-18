@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,body{
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.theme-elgasia{
+    @apply flex w-full h-full bg-[url('/elgasia.jpg')] flex-col items-center justify-center bg-no-repeat bg-cover bg-center text-white;
+}
+
+#pageMain{
+    @apply flex-col justify-center items-center;
+}
+
+#pageProfile{
+    @apply w-full h-full flex-col justify-center items-center ;
+}
+
+.quickLink {
+    @apply flex flex-row;
+}
+
+.quickLink a{
+    @apply py-2 text-white text-2xl bg-neutral-700 border-0 rounded-full;
+}
+
+.quickLink a:not(.linkGithub){
+    @apply mr-3 text-xl
+}
+
+.linkProfile {
+    @apply px-5;
+}
+
+.linkBlog{
+    @apply px-4;
+}
+
+.linkGithub{
+    @apply px-3;
+}
+
+.playSongTitle{
+    @apply absolute bottom-0 right-0 m-4 p-2 border border-white/50 bg-neutral-800/50;
+}
