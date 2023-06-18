@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import YouTube, {YouTubeProps} from 'react-youtube';
+import YouTube, {YouTubeProps,YouTubePlayer} from 'react-youtube';
 
 
 export default function Home() {
@@ -15,30 +15,42 @@ export default function Home() {
       {link: 'H-Ngv9OVqP8', title: '[LostArk ll Official] 아리안오브 (Aryanorb)'},
     ]
 
+    let videoElement:YouTubePlayer = null
+
+    const [isPlay, setIsPlay] = useState(false);
     const [playId, setPlayId] = useState(playList[0].link);
     const [playSongTitle, setPlaySongTitle] = useState(playList[0].title + ' (버퍼링중)');
   
-    const onPlayerReady: YouTubeProps['onReady'] = (event) => {
-      setPlaySongTitle(playList[playerCount].title);
-      event.target.playVideo();
-      console.log(playerCount);
+    const onPlayerReady: YouTubeProps['onReady'] = (event: YouTubePlayer) => {
+        videoElement = event.target;
+        setPlaySongTitle(playList[playerCount].title);
     }
 
-    const onPlayerPlay: YouTubeProps['onPlay'] = (event) => {
+    const onPlayerPlay: YouTubeProps['onPlay'] = (event: YouTubePlayer) => {
         if(playCount <= playList.length) {
             setPlayCount(playCount+1);
             setPlaySongTitle(playList[playCount].title);
         }
+        setIsPlay(true);event.target.playVideo();
     }
   
-    const onPlayerEnd: YouTubeProps['onEnd'] = (event) => {
+    const onPlayerEnd: YouTubeProps['onEnd'] = (event: YouTubePlayer) => {
         const playId:any = playList[playCount].link;
         setPlayId(playId);
     }
 
-    const onPlayerState: YouTubeProps['onStateChange'] = (event) => {
+    const onPlayerState: YouTubeProps['onStateChange'] = (event: YouTubePlayer) => {
         if(event.data !== 2 && event.data !== 3) event.target.playVideo();
     }
+
+    const onPlayerPause: YouTubeProps['onPause'] = (event: YouTubePlayer) => {
+        setIsPlay(false);
+    }
+
+    const playerState = () => {
+        if(isPlay === false) videoElement.playVideo();
+    }
+
   
     const opts: YouTubeProps['opts'] = {
       width: 640,
@@ -52,8 +64,13 @@ export default function Home() {
 
     return (
         <>
-            <div className="playSongTitle">{playSongTitle}</div>
-            <YouTube videoId={playId} opts={opts} onReady={onPlayerReady} onStateChange={onPlayerState} onPlay={onPlayerPlay} onEnd={onPlayerEnd} className="hidden"/>
+            <div className="playSongTitle">
+                {playSongTitle}
+                <button className={(isPlay === true) ? 'hidden': ''} onClick={playerState}>
+                    재생
+                </button>
+            </div>
+            <YouTube videoId={playId} opts={opts} onReady={onPlayerReady} onPause={onPlayerPause} onStateChange={onPlayerState} onPlay={onPlayerPlay} onEnd={onPlayerEnd} className="hidden"/>
         </>
     )
 

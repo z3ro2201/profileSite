@@ -18,7 +18,7 @@ html,body{
 }
 
 #pageProfile{
-    @apply w-full h-full flex-col justify-center items-center ;
+    @apply w-full h-full flex-col items-center ;
 }
 
 .quickLink {
@@ -30,7 +30,7 @@ html,body{
 }
 
 .quickLink a:not(.linkGithub){
-    @apply mr-3 text-xl
+    @apply mr-3 text-xl;
 }
 
 .linkProfile {
