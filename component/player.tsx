@@ -22,9 +22,8 @@ export default function Home() {
     const [playSongTitle, setPlaySongTitle] = useState(playList[0].title + ' (버퍼링중)');
   
     const onPlayerReady: YouTubeProps['onReady'] = (event: YouTubePlayer) => {
-        videoElement = event.target;
         setPlaySongTitle(playList[playerCount].title);
-        videoElement.playVideo();
+        event.target.playVideo();
     }
 
     const onPlayerPlay: YouTubeProps['onPlay'] = (event: YouTubePlayer) => {
@@ -45,14 +44,6 @@ export default function Home() {
         if(event.data !== 2 && event.data !== 3) event.target.playVideo();
     }
 
-    const onPlayerPause: YouTubeProps['onPause'] = (event: YouTubePlayer) => {
-        setIsPlay(false);
-    }
-
-    const playerState = () => {
-        if(isPlay === false) videoElement.playVideo();
-    }
-
   
     const opts: YouTubeProps['opts'] = {
       width: 640,
@@ -68,11 +59,8 @@ export default function Home() {
         <>
             <div className="playSongTitle">
                 {playSongTitle}
-                <button className={(isPlay === true) ? 'hidden': ''} onClick={playerState}>
-                    재생
-                </button>
             </div>
-            <YouTube videoId={playId} opts={opts} onReady={onPlayerReady} onPause={onPlayerPause} onStateChange={onPlayerState} onPlay={onPlayerPlay} onEnd={onPlayerEnd} className="hidden"/>
+            <YouTube videoId={playId} opts={opts} onReady={onPlayerReady} onStateChange={onPlayerState} onPlay={onPlayerPlay} onEnd={onPlayerEnd} className="hidden"/>
         </>
     )
 
