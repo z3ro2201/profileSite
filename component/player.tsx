@@ -84,7 +84,7 @@ export default function Home() {
                     <FontAwesomeIcon icon={faArrowUpRightFromSquare} className={playerDisplay===false ? 'open' : 'close'}/>
                 </button>
             </div>
-            <div className="hidden player" ref={playerBody}>
+            <div className="player" ref={playerBody}>
                 <YouTube videoId={playId} opts={opts} onReady={onPlayerReady} onPause={onPlayerPause} onStateChange={onPlayerState} onPlay={onPlayerPlay} onEnd={onPlayerEnd} />
             </div>
         </div>
