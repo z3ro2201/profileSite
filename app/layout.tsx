@@ -1,7 +1,7 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
-import Player from '../component/player'
 const inter = Inter({ subsets: ['latin'] })
+import Player from '../component/player'
 
 export const metadata = {
   title: 'start all over again',

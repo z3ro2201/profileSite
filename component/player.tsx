@@ -1,6 +1,8 @@
 'use client'
 import React, { useRef, useState } from "react";
 import YouTube, {YouTubeProps,YouTubePlayer} from 'react-youtube';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowUpRightFromSquare,faMusic } from "@fortawesome/free-solid-svg-icons";
 
 export default function Home() {
     let playerCount: number = 0;
@@ -72,14 +74,17 @@ export default function Home() {
     }
 
     return (
-        <div className="absolute z-10">
+        <div className="relative">
             <div className="playSongTitle">
-                {playSongTitle}
+                <FontAwesomeIcon icon={faMusic} className="p-1"/>
+                <span className="songTitle">
+                    {playSongTitle}
+                </span>
                 <button className="mx-2 border border-1 border-white border-solid" onClick={playerDisplayEvent}>
-                    [플레이어창 {playerDisplay===false ? '보이기' : '감추기'}]
+                    <FontAwesomeIcon icon={faArrowUpRightFromSquare} className={playerDisplay===false ? 'open' : 'close'}/>
                 </button>
             </div>
-            <div className="hidden" ref={playerBody}>
+            <div className="hidden player" ref={playerBody}>
                 <YouTube videoId={playId} opts={opts} onReady={onPlayerReady} onPause={onPlayerPause} onStateChange={onPlayerState} onPlay={onPlayerPlay} onEnd={onPlayerEnd} />
             </div>
         </div>

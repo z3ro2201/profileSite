@@ -48,3 +48,23 @@ html,body{
 .playSongTitle{
     @apply absolute bottom-0 right-0 m-4 p-2 border border-white/50 bg-neutral-800/50;
 }
+
+.player{
+    position: absolute;
+    z-index: 999;
+    top: 0;
+    left: 0;
+}
+
+.open{
+    transform: rotate(0deg);
+}
+
+.close{
+    transform: rotate(180deg);
+}
+
+.songTitle{
+    display: inline-block;
+    padding: 0px 10px;
+}
