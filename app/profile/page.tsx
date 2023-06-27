@@ -5,8 +5,7 @@ import Link from 'next/link'
 export default function Home() {
 
   return (
-    <div className="theme-elgasia">
-      <div id="pageProfile" className="flex">
+      <div className="flex w-full h-full flex-col	">
         <div className="flex p-2 w-full flex-row justify-end">
           <nav className="flex">
             <Link href="/" className="py-2 px-4">
@@ -20,7 +19,7 @@ export default function Home() {
             </Link>
           </nav>
         </div>
-        <div className="flex w-9/12 h-[calc(100%-56px)] justify-center items-center">
+        <div className="flex w-full h-[calc(100%-56px)] justify-center items-center">
           <div className="m-4 p-4 w-96 bg-neutral-500 rounded-md">
             <div className="mb-4 pb-2 border-b">
               <h1 className="text-xl font-bold">2ER0</h1>
@@ -63,6 +62,5 @@ export default function Home() {
           </div>
         </div>
       </div>
-    </div>
   )
 }

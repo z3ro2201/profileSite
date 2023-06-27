@@ -2,20 +2,20 @@
 import React, { useRef, useState } from "react";
 import YouTube, {YouTubeProps,YouTubePlayer} from 'react-youtube';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowUpRightFromSquare,faMusic } from "@fortawesome/free-solid-svg-icons";
+import { faEject } from "@fortawesome/free-solid-svg-icons";
 
-export default function Home() {
+export default function Player() {
     let playerCount: number = 0;
     const playerBody = useRef<HTMLDivElement>(null);
     const [playCount, setPlayCount] = useState(0);
     const playList = [
-      {link: 'T_MYHHb1Ib0', title: '[LostArk ll 모야] 모코코 Remix '},
-      {link: 'ffI42h6L_KI', title: '[LostArk ll Official] 모코콩 아일랜드 (Mokokong Island) '},
-      {link: '9iw2NJyV6dg', title: '[LostArk ll Official] 모코코마을 (Mokoko Village)'},
-      {link: 'gnm1_MFcwm0', title: '[LostArk ll Official] 별빛 등대의 섬(jazz Ver.) (Star Light Island jazz Ver.)'},
-      {link: 'jZwv83Stl60', title: '[LostArk ll Official] 라제니스의 노래 (Song of Lazernes) '},
-      {link: 'ENB-BSYCg1c', title: '[LostArk ll Official] Sweet Dreams, My Dear - 소향(SoHyang)'},
-      {link: 'H-Ngv9OVqP8', title: '[LostArk ll Official] 아리안오브 (Aryanorb)'},
+      {link: 'T_MYHHb1Ib0', title: '모코코 Remix '},
+      {link: 'ffI42h6L_KI', title: '모코콩 아일랜드 (Mokokong Island) '},
+      {link: '9iw2NJyV6dg', title: '모코코마을 (Mokoko Village)'},
+      {link: 'gnm1_MFcwm0', title: '별빛 등대의 섬(jazz Ver.) (Star Light Island jazz Ver.)'},
+      {link: 'jZwv83Stl60', title: '라제니스의 노래 (Song of Lazernes) '},
+      {link: 'ENB-BSYCg1c', title: 'Sweet Dreams, My Dear - 소향(SoHyang)'},
+      {link: 'H-Ngv9OVqP8', title: '아리안오브 (Aryanorb)'},
     ]
 
     let videoElement:YouTubePlayer = null
@@ -74,17 +74,18 @@ export default function Home() {
     }
 
     return (
-        <div className="relative">
-            <div className="playSongTitle">
-                <FontAwesomeIcon icon={faMusic} className="p-1"/>
-                <span className="songTitle">
-                    {playSongTitle}
-                </span>
-                <button className="mx-2 border border-1 border-white border-solid" onClick={playerDisplayEvent}>
-                    <FontAwesomeIcon icon={faArrowUpRightFromSquare} className={playerDisplay===false ? 'open' : 'close'}/>
-                </button>
+        <div className="fixed t-0 l-0 m-2 z-[99]">
+            <div className="flex border-2 border-slate-200/50 border-radius-lg bg-slate-800/50 overflow-hidden shadow-md">
+                <span className="pl-3 pr-1 py-2">♬</span>
+                <span className="songTitle max-w-[280px] overflow-hidden whitespace-nowrap block p-2">{playSongTitle}</span>
+                <span className="w-[15px] skew-x-[30deg] bg-cyan-900/50"></span>                    
+                <div className="flex w-auto bg-slate-800/50">
+                    <FontAwesomeIcon icon={faEject} className="absolute mt-[11px] ml-[15px] z-[999]" onClick={playerDisplayEvent}/>
+                    <span className="flex items-center justify-center w-[40px] skew-x-[30deg] bg-slate-800/50">                        
+                    </span>
+                </div>
             </div>
-            <div className="player hidden" ref={playerBody}>
+            <div className="absolute mt-4 hidden" ref={playerBody}>
                 <YouTube videoId={playId} opts={opts} onReady={onPlayerReady} onPause={onPlayerPause} onStateChange={onPlayerState} onPlay={onPlayerPlay} onEnd={onPlayerEnd} />
             </div>
         </div>

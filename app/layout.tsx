@@ -1,8 +1,7 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'] })
-import Player from '../component/player'
-
+import Player from './player'
 export const metadata = {
   title: 'start all over again',
   description: '처음부터 다시 시작하다.',
@@ -35,8 +34,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={inter.className}>
-        {children}
-        <Player/>
+        <Player />
+        <div className="theme-elgasia">
+          {children}
+        </div>
       </body>
     </html>
   )
