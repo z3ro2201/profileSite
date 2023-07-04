@@ -17,6 +17,14 @@ export default function Player() {
       {link: 'jZwv83Stl60', title: '라제니스의 노래 (Song of Lazernes) '},
       {link: 'ENB-BSYCg1c', title: 'Sweet Dreams, My Dear - 소향(SoHyang)'},
       {link: 'H-Ngv9OVqP8', title: '아리안오브 (Aryanorb)'},
+      {link: 'WZgiTJova1Q', title: '위대한 기억의 오르골'},
+      {link: '7F4QS5OWlG8', title: '별모래 해변'},
+      {link: 'P0qtL25eD7Q', title: '그대 기억 하나요?'},
+      {link: 'PwAD4uVeDgU', title: '해상 낙원 페이토'},
+      {link: 'wsEq1itieOo', title: '기에나의 바다'},
+      {link: 'btM_zzqtt90', title: '리베하임'},
+      {link: 'YdMZeIdpnNw', title: '로맨틱 웨폰'},
+      {link: '8sxhDyBlpCk', title: 'Dreaming Your Melody'}
     ]
 
     let videoElement:YouTubePlayer = null
@@ -31,7 +39,7 @@ export default function Player() {
             setPlaySongTitle(event.target.videoTitle + ' (버퍼링중)');
             event.target.playVideo();
         } else if (event.data === 1) {
-            setPlayCount(playCount+1);
+            setPlayCount(Math.floor(Math.random() * playList.length));
             setPlaySongTitle(event.target.videoTitle);
         } else if (event.data === 2) {
         }
