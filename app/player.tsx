@@ -5,9 +5,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEject } from "@fortawesome/free-solid-svg-icons";
 
 export default function Player() {
-    let playerCount: number = 0;
+    const player = useRef<HTMLDivElement>(null);
     const playerBody = useRef<HTMLDivElement>(null);
     const [playCount, setPlayCount] = useState(0);
+
     const playList = [
       {link: 'T_MYHHb1Ib0', title: '모코코 Remix '},
       {link: 'ffI42h6L_KI', title: '모코콩 아일랜드 (Mokokong Island) '},
@@ -20,42 +21,20 @@ export default function Player() {
 
     let videoElement:YouTubePlayer = null
 
-    const [isPlay, setIsPlay] = useState(false);
     const [playId, setPlayId] = useState(playList[0].link);
     const [playSongTitle, setPlaySongTitle] = useState(playList[0].title + ' (버퍼링중)');
     const [playerDisplay, setPlayerDisplay] = useState(false);
   
-    const onPlayerReady: YouTubeProps['onReady'] = (event: YouTubePlayer) => {
-        videoElement = event.target;
-        setPlaySongTitle(playList[playerCount].title);
-        videoElement.playVideo();
-    }
-
-    const onPlayerPlay: YouTubeProps['onPlay'] = (event: YouTubePlayer) => {
-        if(playCount <= playList.length) {
-            setPlayCount(playCount+1);
-            setPlaySongTitle(playList[playCount].title);
-        }
-        setIsPlay(true);
-        event.target.playVideo();
-    }
-  
-    const onPlayerEnd: YouTubeProps['onEnd'] = (event: YouTubePlayer) => {
-        const playId:any = playList[playCount].link;
-        setPlayId(playId);
-    }
-
     const onPlayerState: YouTubeProps['onStateChange'] = (event: YouTubePlayer) => {
-        if(event.data !== 2 && event.data !== 3) event.target.playVideo();
-    }
-
-    const onPlayerPause: YouTubeProps['onPause'] = (event: YouTubePlayer) => {
-        setIsPlay(false);
-    }
-
-    const playerState = () => {
-        console.log(videoElement);
-        if(isPlay === false) videoElement.playVideo();
+        if(event.data === -1 || event.data === 0) {
+            setPlayId(playList[playCount].link);
+            setPlaySongTitle(event.target.videoTitle + ' (버퍼링중)');
+            event.target.playVideo();
+        } else if (event.data === 1) {
+            setPlayCount(playCount+1);
+            setPlaySongTitle(event.target.videoTitle);
+        } else if (event.data === 2) {
+        }
     }
 
     const playerDisplayEvent = () => {
@@ -74,10 +53,12 @@ export default function Player() {
     }
 
     return (
-        <div className="fixed t-0 l-0 m-2 z-[99]">
+        <div className="fixed t-0 l-0 m-2 z-[99] cursor-grab active:cursor-grabbing" ref={player}>
             <div className="flex border-2 border-slate-200/50 border-radius-lg bg-slate-800/50 overflow-hidden shadow-md">
                 <span className="pl-3 pr-1 py-2">♬</span>
-                <span className="songTitle max-w-[280px] overflow-hidden whitespace-nowrap block p-2">{playSongTitle}</span>
+                <span className="songTitle max-w-[280px] relative overflow-hidden block p-2 mx-2">
+                    <span className="block animate-marquee whitespace-nowrap">{playSongTitle}</span>
+                </span>
                 <span className="w-[15px] skew-x-[30deg] bg-cyan-900/50"></span>                    
                 <div className="flex w-auto bg-slate-800/50">
                     <FontAwesomeIcon icon={faEject} className="absolute mt-[11px] ml-[15px] z-[999]" onClick={playerDisplayEvent}/>
@@ -86,7 +67,7 @@ export default function Player() {
                 </div>
             </div>
             <div className="absolute mt-4 hidden" ref={playerBody}>
-                <YouTube videoId={playId} opts={opts} onReady={onPlayerReady} onPause={onPlayerPause} onStateChange={onPlayerState} onPlay={onPlayerPlay} onEnd={onPlayerEnd} />
+                <YouTube videoId={playId} opts={opts} onStateChange={onPlayerState}  />
             </div>
         </div>
     )
