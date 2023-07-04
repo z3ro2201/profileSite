@@ -29,8 +29,8 @@ export default function Player() {
 
     let videoElement:YouTubePlayer = null
 
-    const [playId, setPlayId] = useState(playList[0].link);
-    const [playSongTitle, setPlaySongTitle] = useState(playList[0].title + ' (버퍼링중)');
+    const [playId, setPlayId] = useState(playList[Math.floor(Math.random() * playList.length)].link);
+    const [playSongTitle, setPlaySongTitle] = useState('Youtube Player');
     const [playerDisplay, setPlayerDisplay] = useState(false);
   
     const onPlayerState: YouTubeProps['onStateChange'] = (event: YouTubePlayer) => {
