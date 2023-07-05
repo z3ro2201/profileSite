@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEject } from "@fortawesome/free-solid-svg-icons";
 
 export default function Player() {
-    const player = useRef<HTMLDivElement>(null);
     const playerBody = useRef<HTMLDivElement>(null);
     const [playCount, setPlayCount] = useState(0);
 
@@ -28,6 +27,9 @@ export default function Player() {
     ]
 
     let videoElement:YouTubePlayer = null
+    const [playerDragging, setPlayerDragging] = useState(false);
+    const [playerPosition, setPlayerPosition] = useState({x: 0, y: 0});
+    const [initialPosition, setInitialPosition] = useState({ x: 0, y: 0 });
 
     const [playId, setPlayId] = useState(playList[Math.floor(Math.random() * playList.length)].link);
     const [playSongTitle, setPlaySongTitle] = useState('Youtube Player');
@@ -49,6 +51,21 @@ export default function Player() {
         (playerDisplay === true) ? setPlayerDisplay(false):setPlayerDisplay(true);
         if(playerBody.current) playerBody.current.classList.toggle('hidden')
     }
+
+    const handleDrag = (e: any) => {
+        //if (!playerDragging) return;
+        const newX = e.clientX;
+        const newY = e.clientY;
+    
+        setPlayerPosition({ x: newX, y: newY });
+    }
+    const handleDragEnd = (e:any) => {
+        setPlayerDragging(false);
+        setPlayerPosition({
+            x: e.clientX ,
+            y: e.clientY
+        })
+    }
   
     const opts: YouTubeProps['opts'] = {
       width: 640,
@@ -61,10 +78,12 @@ export default function Player() {
     }
 
     return (
-        <div className="fixed t-0 l-0 m-2 z-[99] cursor-grab active:cursor-grabbing" ref={player}>
+        <div draggable onDrag={handleDrag}  onDragEnd={handleDragEnd}
+        className="z-[99] cursor-grab active:cursor-grabbing absolute select-none	"
+        style={{left: `${playerPosition.x}px`, top: `${playerPosition.y}px`}}>
             <div className="flex border-2 border-slate-200/50 border-radius-lg bg-slate-800/50 overflow-hidden shadow-md">
                 <span className="pl-3 pr-1 py-2">♬</span>
-                <span className="songTitle max-w-[280px] relative overflow-hidden block p-2 mx-2">
+                <span className="songTitle max-w-[150px] w-[150px] relative overflow-hidden block p-2 mx-2">
                     <span className="block animate-marquee whitespace-nowrap">{playSongTitle}</span>
                 </span>
                 <span className="w-[15px] skew-x-[30deg] bg-cyan-900/50"></span>                    
