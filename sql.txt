@@ -1,0 +1,36 @@
+CREATE TABLE `blog_users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3
+
+CREATE TABLE `blog_post` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `post_title` varchar(255) NOT NULL,
+  `post_content` text NOT NULL,
+  `post_created_time` timestamp NOT NULL DEFAULT current_timestamp(),
+  `post_modified_time` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+  `post_writer_id` int(11) NOT NULL,
+  `post_writer_name` varchar(50) NOT NULL,
+  `post_attachment` int(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `post_writer_id` (`post_writer_id`),
+  CONSTRAINT `blog_post_ibfk_1` FOREIGN KEY (`post_writer_id`) REFERENCES `blog_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
+
+CREATE TABLE `blog_post_comment` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `post_id` int(11) NOT NULL,
+  `author_open_id` varchar(80) DEFAULT NULL,
+  `author_name` varchar(50) NOT NULL,
+  `author_passwd` varchar(255) NOT NULL,
+  `author_site` varchar(255) DEFAULT NULL,
+  `author_content` text NOT NULL,
+  `author_created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `author_modified_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `post_id` (`post_id`),
+  CONSTRAINT `blog_post_comment_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `blog_post` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3

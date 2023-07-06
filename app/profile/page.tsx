@@ -5,9 +5,9 @@ import Link from 'next/link'
 export default function Home() {
 
   return (
-      <div className="flex w-full h-full flex-col	">
-        <div className="flex p-2 w-full flex-row justify-end">
-          <nav className="flex">
+      <div className="flex w-full h-full flex-col">
+        <div className="flex p-2 w-full justify-end">
+          <nav className="flex flex-col sm:hidden md:flex-row">
             <Link href="/" className="py-2 px-4">
               <span>처음화면</span>
             </Link>
