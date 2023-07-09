@@ -1,9 +1,18 @@
 'use client'
 import React, {useState, useRef} from "react";
 import Link from 'next/link';
+import axios from 'axios';
+import jwt,{Secret} from 'jsonwebtoken';
+
+require('dotenv').config({
+    path: '.env.local'
+});
+
 export default function Blog() {
     const [txtLoginId, setTxtLoginId] = useState("");
     const [txtLoginPw, setTxtLoginPw] = useState("");
+
+    const secretKey: Secret = 'aberanaernaern';
 
     const loginId = useRef<HTMLInputElement>(null);
     const loginPw = useRef<HTMLInputElement>(null);
@@ -17,21 +26,32 @@ export default function Blog() {
     }
 
     const login = () => {
-        const api = fetch('/api/blog/oauth/authenticate', {
-            method: 'POST',
-            body: JSON.stringify({
-                username: txtLoginId,
+        let returnToken;
+        const api = axios.post('/api/blog/oauth/authenticate', {
+                email: txtLoginId,
                 passwds: txtLoginPw
-            })
+            
         })
-        .then(res => res.json())
         .then(res => {
-            if(res.status !== 200) {
-                return alert(res.messages);
+            if(res.data.status !== 200) {
+                return alert(res.data.messages);
             }
-            alert('로그인 성공!')
+            const data = res.data.data;
+            const payload = {
+                type: 'JWT',
+                id: data.email,
+                username: data.username
+            };
+            
+            const options = {
+                expiresIn: '8h',
+            };
+
+            let token = jwt.sign(payload, secretKey, options)
+            console.log(token);
         })
-    }
+
+    }    
 
     return(
         <section className="text-gray-600 body-font bg-white">
