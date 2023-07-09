@@ -2,7 +2,7 @@
 import React, {useState, useRef} from "react";
 import Link from 'next/link';
 import axios from 'axios';
-import jwt,{Secret} from 'jsonwebtoken';
+import {sign} from '@/controllers/sign';
 
 require('dotenv').config({
     path: '.env.local'
@@ -12,7 +12,7 @@ export default function Blog() {
     const [txtLoginId, setTxtLoginId] = useState("");
     const [txtLoginPw, setTxtLoginPw] = useState("");
 
-    const secretKey: Secret = 'aberanaernaern';
+    const secretKey:string = 'e325f28f16b707695afc4ea40168456cb067e9138234140df0d35fbc5e9c7d6c';
 
     const loginId = useRef<HTMLInputElement>(null);
     const loginPw = useRef<HTMLInputElement>(null);
@@ -38,17 +38,13 @@ export default function Blog() {
             }
             const data = res.data.data;
             const payload = {
-                type: 'JWT',
-                id: data.email,
-                username: data.username
-            };
-            
-            const options = {
-                expiresIn: '8h',
+                id: 'sky14723',
+                email: 'sky14723@naver.com',
+                username: 'ksw1991',
             };
 
-            let token = jwt.sign(payload, secretKey, options)
-            console.log(token);
+            console.log(sign(payload, secretKey));
+              
         })
 
     }    
