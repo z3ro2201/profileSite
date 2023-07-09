@@ -16,7 +16,6 @@ export default function Blog() {
             <div className="flex p-4 w-full h-12">
                 <a href="">test</a>
             </div>
-            <button onClick={apiTest}>testButton</button>
         </div>
     )
 }

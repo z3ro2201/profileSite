@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHome,faUser,faRss } from "@fortawesome/free-solid-svg-icons";
@@ -14,9 +14,7 @@ export default function Fnb() {
             <nav className="flex justify-between items-center">
                 <Link href="/">처음화면</Link>
                 <Link href="/profile">프로필</Link>
-                <Link href="/blog/prologue">프롤로그</Link>
-                <Link href="/blog/post">블로그</Link>
-                <Link href="/blog/guestbook">방명록</Link>
+                <Link href="/blog/login">로그인</Link>
             </nav>
             <div className="">
                 <div className=""></div>

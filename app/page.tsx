@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faInfo } from "@fortawesome/free-solid-svg-icons";
+import { faInfo, faRss } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 
 import Link from 'next/link'
@@ -26,6 +26,9 @@ export default function Home() {
       <div className="flex justify-center">
         <Link className="mr-5 flex justify-center items-center w-[60px] h-[60px] rounded-full bg-slate-800 text-[1.5em]" href="/profile">
           <FontAwesomeIcon icon={faInfo} />
+        </Link>
+        <Link className="mr-5 flex justify-center items-center w-[60px] h-[60px] rounded-full bg-slate-800 text-[1.5em]" href="/blog">
+          <FontAwesomeIcon icon={faRss} />
         </Link>
         <Link className="flex justify-center items-center w-[60px] h-[60px] rounded-full bg-slate-800 text-[1.5em]" href="//github.com/z3ro2201" target={'_blank'}>
           <FontAwesomeIcon icon={faGithub} />
