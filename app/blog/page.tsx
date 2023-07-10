@@ -4,12 +4,6 @@ import Gnb from './gnb'
 import Fnb from './fnb'
 
 export default function Blog() {
-    function apiTest() {
-        fetch('/api/blog')
-        .then(res => res.json())
-        .then(data => console.log(data));
-    }
-
     return(
         <div className="w-full h-full bg-zinc-900">
             <Gnb/>
