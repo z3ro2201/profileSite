@@ -59,10 +59,10 @@ export default function Blog() {
         }
     }
     
-    const [isAuth, setIsAuth] = useState(false);
+    const [isAuth, setIsAuth] = useState<boolean>();
     useEffect(() => {
         if(localStorage.getItem('key')) {
-            setIsAuth(!isAuth);
+            setIsAuth(isAuth);
         } else {
             setIsAuth(false)
         }

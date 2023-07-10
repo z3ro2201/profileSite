@@ -7,22 +7,16 @@ import {sign, verify} from '@/controllers/sign';
 
 
 export default function logout() {
-    const [isAuth, setIsAuth] = useState(false);
+    const [isAuth, setIsAuth] = useState<boolean>();
     useEffect(() => {
         if(localStorage.getItem('key')) {
-            setIsAuth(!isAuth);
-        } else {
-            setIsAuth(false)
-        }
-    }, [])
-
-    useEffect(() => {
-        if(isAuth) {
+            localStorage.removeItem('key');
             if(alert('로그아웃 되었습니다') === undefined) location.href = '/blog';
         } else {
             if(alert('로그인이 필요합니다.') === undefined) location.href = '/blog/login';
+
         }
-    },[]);
+    }, []);
 
     return null;
 }

@@ -7,12 +7,14 @@ import { faHome,faUser,faRss } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 
 export default function Fnb() {
-    const [isAuth, setIsAuth] = useState(false);
+    const [isAuth, setIsAuth] = useState<boolean>();
     useEffect(() => {
         if(localStorage.getItem('key')) {
+            console.log(true)
             setIsAuth(!isAuth);
         } else {
             setIsAuth(false)
+            console.log('test')
         }
     }, [])
 
@@ -27,11 +29,12 @@ export default function Fnb() {
                 <Link href="/profile">프로필</Link>
                 {
                     isAuth ? 
-                        (<Link href="/blog/login">로그인</Link>)
-                      : (<>
+                        <>
                             <Link href="/blog/write">글쓰기</Link>
                             <Link href="/blog/logout">로그아웃</Link>
-                        </>)
+                        </>
+                      : 
+                        <Link href="/blog/login">로그인</Link>
                 }
             </nav>
             <div className="">
