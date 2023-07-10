@@ -8,14 +8,6 @@ import Link from 'next/link'
 
 
 export default function Home() {
-
-  const openBlog = (e:any) => {
-    e.preventDefault();
-    alert('곧 조만간 오픈할게요');
-  }
-
-  
-
   return (
     <div className="flex flex-col">
       <div className="mb-4 p-2 text-center">

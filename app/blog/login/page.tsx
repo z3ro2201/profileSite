@@ -1,6 +1,7 @@
 'use client'
-import React, {useState, useRef} from "react";
+import React, {useState, useRef, useEffect} from "react";
 import Link from 'next/link';
+import Router from "next/router";
 import axios from 'axios';
 import {sign, verify} from '@/controllers/sign';
 
@@ -21,33 +22,57 @@ export default function Blog() {
         setTxtLoginPw(e.currentTarget.value)
     }
 
-    const login = () => {
-        let returnToken;
-        const api = axios.post('/api/blog/oauth/authenticate', {
-                email: txtLoginId,
-                passwds: txtLoginPw
-        })
-        .then(res => {
-            if(res.data.status !== 200) {
+    const login = async () => {
+        try {
+            const response = await axios.post('/api/blog/oauth/authenticate', {
+                    email: txtLoginId,
+                    passwds: txtLoginPw
+            })
+            const res = response.data;
+            
+            if(res.status !== 200) {
                 return alert(res.data.messages);
             }
-            const data = res.data.data;
+
+            const data = res.data;
             const payload = {
-                email: 'ksw1991@naver.com',
-                username: 'ksw1991',
+                email: data.email,
+                username: data.username,
                 iss: 'http://localhost:3000/',
                 iat: iat
             };
-            
+                
             const token = sign(payload);
             const verifyToken = verify(token);
-            console.log(verifyToken);
-
             localStorage.setItem('key', token);
-              
-        })
+            alert(`${data.username}님 안녕하세요!`);
 
-    }    
+            const setTime = setTimeout(() => {
+                location.href = '/blog';
+            }, 2500);
+
+            return () => {
+                clearTimeout(setTime);
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
+    
+    const [isAuth, setIsAuth] = useState(false);
+    useEffect(() => {
+        if(localStorage.getItem('key')) {
+            setIsAuth(!isAuth);
+        } else {
+            setIsAuth(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        if(isAuth && alert('이미 로그인 중 입니다.') === undefined)
+            location.href = '/blog';
+    },[]);
+
 
     return(
         <section className="text-gray-600 body-font bg-white">
