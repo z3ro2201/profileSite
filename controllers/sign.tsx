@@ -42,6 +42,7 @@ export function verify(token: any) {
     const reEncodedHeader = base64UrlFromBase64(Buffer.from(JSON.stringify(decodedHeader)).toString('base64'));
     const encodedPayload = base64UrlFromBase64(Buffer.from(JSON.stringify(decodedPayload)).toString('base64'));
 
+    // 서명
     const signature = base64UrlFromBase64(
         crypto
             .createHmac('sha256', secretKeys) // secretKeys 변수 사용
@@ -49,7 +50,7 @@ export function verify(token: any) {
             .digest('base64')
             .replace('=', '')
     );
-    console.log(sign, signature)
-    if(sign === signature) return true;
-    else return false;
+
+    // 서명 된 키와 토큰에 포함된 서명값을 비교
+    return (sign === signature) ? true : false;
 }
