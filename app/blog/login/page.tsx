@@ -2,20 +2,16 @@
 import React, {useState, useRef} from "react";
 import Link from 'next/link';
 import axios from 'axios';
-import {sign} from '@/controllers/sign';
+import {sign, verify} from '@/controllers/sign';
 
-require('dotenv').config({
-    path: '.env.local'
-});
 
 export default function Blog() {
     const [txtLoginId, setTxtLoginId] = useState("");
     const [txtLoginPw, setTxtLoginPw] = useState("");
-
-    const secretKey:string = 'e325f28f16b707695afc4ea40168456cb067e9138234140df0d35fbc5e9c7d6c';
-
     const loginId = useRef<HTMLInputElement>(null);
     const loginPw = useRef<HTMLInputElement>(null);
+    const date = new Date();
+    const iat:number = date.getTime();
 
     const onIdHandler = (e:any) => {
         setTxtLoginId(e.currentTarget.value)
@@ -30,7 +26,6 @@ export default function Blog() {
         const api = axios.post('/api/blog/oauth/authenticate', {
                 email: txtLoginId,
                 passwds: txtLoginPw
-            
         })
         .then(res => {
             if(res.data.status !== 200) {
@@ -38,12 +33,17 @@ export default function Blog() {
             }
             const data = res.data.data;
             const payload = {
-                id: 'sky14723',
-                email: 'sky14723@naver.com',
+                email: 'ksw1991@naver.com',
                 username: 'ksw1991',
+                iss: 'http://localhost:3000/',
+                iat: iat
             };
+            
+            const token = sign(payload);
+            const verifyToken = verify(token);
+            console.log(verifyToken);
 
-            console.log(sign(payload, secretKey));
+            localStorage.setItem('key', token);
               
         })
 

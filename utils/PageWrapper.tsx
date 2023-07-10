@@ -1,12 +1,11 @@
 import React, { ReactNode } from 'react';
 import dotenv from 'dotenv';
 import { useRouter } from 'next/router';
-import jwt,{Secret} from 'jsonwebtoken';
 dotenv.config({
     path: '@/.env.local'
 });
 
-const secretKey: Secret = process.env.SECRET_KEY || 'default_secret_key';
+const secretKey: String = process.env.SECRET_KEY || 'default_secret_key';
 
 const PageWrapper = ({ children }: { children: ReactNode}) => {
     const router = useRouter();

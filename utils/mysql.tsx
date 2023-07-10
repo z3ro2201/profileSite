@@ -1,8 +1,4 @@
-import dotenv from 'dotenv';
 import mysql, { Connection, Pool, PoolOptions, RowDataPacket  } from 'mysql2/promise';
-require('dotenv').config({
-    path: '.env.local'
-});
 
 let pool: Pool;
 
