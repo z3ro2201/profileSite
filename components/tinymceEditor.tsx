@@ -2,8 +2,6 @@ import React, { useRef, useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import { Editor as TinyMCEEditor } from 'tinymce';
 
-TinyMceEditor.defaultProps = {}
-
 const TinyMceEditor = () => {
 	const editorRef = useRef<TinyMCEEditor | null>(null);
     const [editorText, setEditorText] = useState('');

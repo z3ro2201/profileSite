@@ -1,20 +1,17 @@
 'use client'
 import React, {useState, useRef, useEffect} from "react";
-import Link from 'next/link';
-import Router from "next/router";
-import axios from 'axios';
-import {sign, verify} from '@/controllers/sign';
 import Gnb from '../gnb'
+import TinyMceEditor from '@/components/tinymceEditor';
 
-
-export default function logout() {
-
-    return(
+export default function Write() {
+    
+    return (
         <div className="w-full h-full bg-zinc-900">
             <Gnb/>
-            <div className="flex p-4 w-full h-12">
-                <a href="">test</a>
+            <h1>글 작성하기</h1>
+            <div className="flex p-4 w-full h-auto">
+                <TinyMceEditor />
             </div>
         </div>
-    )
+    );
 }
