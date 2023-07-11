@@ -1,5 +1,5 @@
 'use client'
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import YouTube, {YouTubeProps,YouTubePlayer} from 'react-youtube';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEject } from "@fortawesome/free-solid-svg-icons";
@@ -29,7 +29,6 @@ export default function Player() {
     let videoElement:YouTubePlayer = null
     const [playerDragging, setPlayerDragging] = useState(false);
     const [playerPosition, setPlayerPosition] = useState({x: 0, y: 0});
-    const [initialPosition, setInitialPosition] = useState({ x: 0, y: 0 });
 
     const [playId, setPlayId] = useState(playList[Math.floor(Math.random() * playList.length)].link);
     const [playSongTitle, setPlaySongTitle] = useState('Youtube Player');
@@ -53,7 +52,7 @@ export default function Player() {
     }
 
     const handleDrag = (e: any) => {
-        //if (!playerDragging) return;
+        if (!playerDragging) return;
         const newX = e.clientX;
         const newY = e.clientY;
     
@@ -65,6 +64,12 @@ export default function Player() {
             x: e.clientX ,
             y: e.clientY
         })
+        if(localStorage.getItem('playerPosition')) {
+            localStorage.removeItem('playerPostion');
+        }
+
+        // 플레이어 위치 기억
+        localStorage.setItem('playerPosition', JSON.stringify({x: e.clientX, y: e.clientY}))
     }
   
     const opts: YouTubeProps['opts'] = {
@@ -76,6 +81,13 @@ export default function Player() {
         modestbranding: 1
       }
     }
+
+    useEffect(() => {
+        if(localStorage.getItem('playerPosition')) {
+            const initItem = localStorage.getItem('playerPosition') || null;
+            initItem !== null ? setPlayerPosition(JSON.parse(initItem)) : '';
+        }
+    }, [])
 
     return (
         <div draggable onDrag={handleDrag}  onDragEnd={handleDragEnd}
