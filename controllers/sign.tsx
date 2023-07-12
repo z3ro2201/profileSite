@@ -54,3 +54,15 @@ export function verify(token: any) {
     // 서명 된 키와 토큰에 포함된 서명값을 비교
     return (sign === signature) ? true : false;
 }
+
+
+export function decodedPayload(token: any) {
+    // 토큰을 분리해서 각각 배열에 넣어줌
+    const [header, payload, sign] = token.split('.');
+
+    // 페이로드만 디코딩
+    const decodedPayload = JSON.parse(Buffer.from(payload, 'base64').toString('utf-8'));
+
+    // 페이로드 반환
+    return decodedPayload;
+}
