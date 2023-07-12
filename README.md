@@ -14,7 +14,7 @@
 - <img src="https://img.shields.io/badge/JavaScript-ffffff?style=flat-square&logo=Javascript&logoColor=yellow" alt="JavaScript">
 
 ## 그 외 사용된 라이브러리 등..
-- <img src="https://img.setka.io/clients/D3SuW9_Vtk6NhYeFXfduUy55A4Dromkt/post_images/tiny-logo-2022012607475757.svg" alt="tinyMCE" height="80px"> 
+- <img src="https://img.setka.io/clients/D3SuW9_Vtk6NhYeFXfduUy55A4Dromkt/post_images/tiny-logo-2022012607475757.svg" alt="tinyMCE" height="20px"> 
 
 ## IDE
 - <img src="https://img.shields.io/badge/Visual%20Studio%20Code-ffffff?style=flat-square&logo=Visual%20Studio%20Code&logoColor=blue" alt="Visual Studio Code">
