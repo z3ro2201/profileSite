@@ -14,7 +14,7 @@ CREATE TABLE `blog_post` (
   `post_modified_time` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `post_writer_id` int(11) NOT NULL,
   `post_writer_name` varchar(50) NOT NULL,
-  `post_attachment` int(1) NOT NULL DEFAULT 0,
+  `post_attachment` int(1) NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `post_writer_id` (`post_writer_id`),
   CONSTRAINT `blog_post_ibfk_1` FOREIGN KEY (`post_writer_id`) REFERENCES `blog_users` (`id`)

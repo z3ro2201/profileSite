@@ -1,10 +1,16 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useEffect, useState, ChangeEvent } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import { Editor as TinyMCEEditor } from 'tinymce';
+const TINYMCE_API = process.env.NEXT_PUBLIC_TINYMCE_APIKEY
 
-const TinyMceEditor = () => {
+interface TinyMCEEditorProps {
+  editorText: string;
+  onEditorTextChange: (text: string) => void
+}
+
+const TinyMceEditor: React.FC<TinyMCEEditorProps> = ({ editorText, onEditorTextChange }) => {
 	const editorRef = useRef<TinyMCEEditor | null>(null);
-    const [editorText, setEditorText] = useState('');
+  const [ length, setLength ] = useState(0);
 
   	const tinymcePlugins = ['link', 'lists', 'autoresize'];
   	const tinymceToolbar =
@@ -13,17 +19,25 @@ const TinyMceEditor = () => {
     	'alignleft aligncenter alignright alignjustify |' +
     	'bullist numlist blockquote link';
 
-    const realtimeTextEdit = (e:any) => {
-        setEditorText(e);
-        console.log(editorText)
-    }
-
+      useEffect(() => {
+        if (editorRef.current && editorRef.current.getContent() !== editorText) {
+          editorRef.current.setContent(editorText);
+          console.log('eee')
+        }
+      }, [editorText]);
+    
+      const realtimeTextEdit = (text:string, editor:TinyMCEEditor) => {
+        const editText = text;
+        console.log(editor)
+        onEditorTextChange(text);
+      };
+    
 	return (
     	<Editor
-        onInit={(e, editor) => (editorRef.current = editor)}
-        id ="tinyEditor"
-        apiKey=""
-        onEditorChange={e=>realtimeTextEdit(e)}
+      onInit={(evt, editor) => (editorRef.current = editor)}
+      id="tinyEditor"
+      apiKey={TINYMCE_API}
+      onEditorChange={(text, editor) => realtimeTextEdit(text)}
         init={{
           plugins: tinymcePlugins,
           toolbar: tinymceToolbar,
