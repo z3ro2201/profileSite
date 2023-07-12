@@ -4,9 +4,9 @@
 - **사이트 주소: http://2er0.io**
 
 ## 목적
-- 완전한 탈PHP이 아니더라도, 새로운 기술스택을 보면서 만들어보고자 작성함
+- 완전한 탈PHP이 아니더라도, 새로운 기술을 보면서 만들어보고자 작성함
 
-## 기술 스택
+## 기술
 - <img src="https://img.shields.io/badge/tailwindcss-FFFFFF?style=flat-square&logo=tailwindcss&logoColor=skyblue" alt="tailwindCSS">
 - <img src="https://img.shields.io/badge/Next.js-FFFFFF?style=flat-square&logo=Next.js&logoColor=black" alt="Next.JS">
 - <img src="https://img.shields.io/badge/axios-ffffff?style=flat-square&logo=axios&logoColor=purple" alt="axios">
