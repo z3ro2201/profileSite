@@ -27,6 +27,7 @@ export default function Fnb() {
             <nav className="flex justify-between items-center">
                 <Link href="/">처음화면</Link>
                 <Link href="/profile">프로필</Link>
+                <Link href="/blog">블로그</Link>
                 {
                     isAuth ? 
                         <>
