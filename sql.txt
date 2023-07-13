@@ -1,20 +1,43 @@
 CREATE TABLE `blog_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) NOT NULL,
+  `author_name` varchar(50) NOT NULL,
+  `user_id` varchar(50) NOT NULL,
+  `last_login` DATETIME NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3
 
+CREATE TABLE `blog_attachments` (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  parent int(11) NOT NULL default '0',
+  name varchar(64) NOT NULL default '',
+  label varchar(64) NOT NULL default '',
+  mime varchar(32) NOT NULL default '',
+  size int(11) NOT NULL default '0',
+  width int(11) NOT NULL default '0',
+  height int(11) NOT NULL default '0',
+  attached int(11) NOT NULL default '0',
+  downloads int(11) NOT NULL default '0',
+  enclosure tinyint(1) NOT NULL default '0',
+  PRIMARY KEY  (id,name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
+
 CREATE TABLE `blog_post` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `post_title` varchar(255) NOT NULL,
   `post_content` text NOT NULL,
+  `post_visibility` tinyint(4) NOT NULL default '0',
+  `post_category` int(11) NOT NULL default '0',
   `post_created_time` timestamp NOT NULL DEFAULT current_timestamp(),
   `post_modified_time` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `post_writer_id` int(11) NOT NULL,
   `post_writer_name` varchar(50) NOT NULL,
   `post_attachment` int(1) NULL DEFAULT 0,
+  `post_location` varchar(255) NOT NULL default '/',
+  `post_longitude` FLOAT(10) NULL,
+  `post_latitude` FLOAT(10) NULL,
+  `post_password` varchar(32) default NULL,
   PRIMARY KEY (`id`),
   KEY `post_writer_id` (`post_writer_id`),
   CONSTRAINT `blog_post_ibfk_1` FOREIGN KEY (`post_writer_id`) REFERENCES `blog_users` (`id`)
@@ -27,10 +50,49 @@ CREATE TABLE `blog_post_comment` (
   `author_name` varchar(50) NOT NULL,
   `author_passwd` varchar(255) NOT NULL,
   `author_site` varchar(255) DEFAULT NULL,
+  `author_ip` varchar(100) NOT NULL,
+  `author_secret` int(1) NULL DEFAULT 0,
   `author_content` text NOT NULL,
   `author_created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `author_modified_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `post_id` (`post_id`),
   CONSTRAINT `blog_post_comment_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `blog_post` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
+
+CREATE TABLE `blog_settings` (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  name varchar(32) NOT NULL default '',
+  value TEXT NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
+
+CREATE TABLE `blog_categories` (
+  id int(11) NOT NULL default '0',
+  categoryid int(11) NOT NULL,
+  parent int(11) default NULL,
+  name varchar(127) NOT NULL default '',
+  priority int(11) NOT NULL default '0',
+  entries int(11) NOT NULL default '0',
+  entriesinlogin int(11) NOT NULL default '0',
+  label varchar(255) NOT NULL default '',
+  visibility tinyint(4) NOT NULL default '2',
+  bodyid varchar(20) default NULL,
+  PRIMARY KEY (id,categoryid)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
+
+
+CREATE TABLE `blog_tags` (
+  id int(11) NOT NULL auto_increment,
+  name varchar(255) NOT NULL default '',
+  PRIMARY KEY  (id),
+  UNIQUE KEY name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
+
+CREATE TABLE `blog_tagRelations` (
+  id int(11) NOT NULL default '0',
+  tag int(11) NOT NULL default '0',
+  entry int(11) NOT NULL default '0',
+  PRIMARY KEY  (id, tag, entry),
+  KEY id (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
