@@ -43,7 +43,7 @@ const Page = ({params, searchParams} : { params: {slug: string}, searchParams: {
             </div>
             <div className="w-full box-sizing p-2">
                 {
-                    postList && postList.length > 0 ? postList.map((item, key) => (
+                    postList  ? postList.map((item, key) => (
                             <div className="flex w-full my-2 justify-center items-center" key={key}>
                                 <div className="w-full lg:w-11/12 xl:w-1/2 lg:px-0">
                                     <h1>{item.post_title}</h1>
@@ -60,13 +60,12 @@ const Page = ({params, searchParams} : { params: {slug: string}, searchParams: {
                             </div>
                         )
                     
-                    ) : (
+                    ) : 
                         <div className="w-full flex justify-center my-2">
                             <div className="w-11/12 text-center">
                             등록된 글이 없습니다.
                             </div>
                         </div>
-                    )
                     
                 }
             </div>

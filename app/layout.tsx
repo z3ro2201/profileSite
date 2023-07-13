@@ -34,10 +34,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={inter.className}>
-        <Player />
         <div className="theme-elgasia">
           {children}
         </div>
+        <Player />
       </body>
     </html>
   )
