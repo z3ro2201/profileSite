@@ -2,11 +2,17 @@ import Image from "next/image";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub, faInstagram } from "@fortawesome/free-brands-svg-icons";
-import { faQuestion, faEnvelope } from "@fortawesome/free-solid-svg-icons";
+import { faQuestion, faEnvelope, faReply } from "@fortawesome/free-solid-svg-icons";
+
+import { resolveLocale } from "@/lib/resolveLocale";
+import { getDict } from "@/lib/dict";
 
 import Link from "next/link";
 
-const Season3Main = () => {
+const Season3Main = async () => {
+  const locale = await resolveLocale();
+  const { social } = getDict(locale);
+
   return (
     <div className="w-full h-full flex flex-col items-center justify-center gap-2">
       <Image src="/s3/profile.webp" width={250} height={250} alt="메인페이지 프로필 사진, 뭐해야 해요 모코콩?" className="mb-4" />
@@ -32,7 +38,14 @@ const Season3Main = () => {
       </ul>
 
       <div className="mt-4">
-        <Link href="mailto:hello@2er0.io" className="flex gap-1 items-center underline-offset-auto">
+        <Link href="/s2/" className="flex items-center gap-2 underline">
+          <FontAwesomeIcon icon={faReply} className="w-4" />
+          {social.oldsite}
+        </Link>
+      </div>
+
+      <div className="mt-4">
+        <Link href="mailto:hello@2er0.io" className="flex gap-1 items-center underline">
           <FontAwesomeIcon icon={faEnvelope} className="w-4 h-4" />
           hello@2er0.io
         </Link>

@@ -1,4 +1,5 @@
 import "./globals.css";
+import Player from "@/components/player";
 
 export const metadata = {
   title: "start all over again",
@@ -14,7 +15,7 @@ export const metadata = {
     siteName: "2er0.io",
     images: [
       {
-        url: "/elgasia.jpg",
+        url: "/s2/elgasia.jpg",
         width: 3408,
         height: 1432,
       },
@@ -27,7 +28,10 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body>
+        {children}
+        <Player />
+      </body>
     </html>
   );
 }

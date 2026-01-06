@@ -1,8 +1,4 @@
-@reference "tailwindcss";
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   --primary-bg: #caf289;
@@ -45,11 +41,16 @@ body {
 }
 
 .s3-menu {
-  @apply fixed top-0 left-0 p-2 w-full flex justify-end z-99;
+  @apply fixed hidden top-0 left-0 w-full z-99;
+}
+
+.s3-menu.active {
+  @apply block p-4 pt-[calc(2rem+34px)] w-full h-screen bg-[var(--primary-bg)];
 }
 
 .s3-menu a {
-  display: inline-block;
+  display: block;
+  width: 100%;
   color: var(--navTabLink);
   font-size: 1.2rem;
   padding: 12px 24px;
@@ -59,10 +60,6 @@ body {
   transition: background-color 0.3s ease;
   font-family: "CookieRun-Regular";
   color: var(--primary-text);
-}
-
-.s3-menu a:not(:last-child) {
-  margin-right: 1.5rem;
 }
 
 .s3-menu a:hover {
@@ -75,6 +72,20 @@ body {
   color: #fff;
   background-color: var(--navTabLinkHover);
   text-decoration: underline;
+}
+
+@media (min-width: 1024px) {
+  .s3-menu {
+    @apply p-2 flex justify-end;
+  }
+  .s3-menu a {
+    display: inline-block;
+    width: unset;
+  }
+
+  .s3-menu a:not(:last-child) {
+    margin-right: 1.5rem;
+  }
 }
 
 .s3-main {
@@ -105,9 +116,9 @@ body {
 }
 
 .s3-row h3 {
-  @apply text-xl font-bold;
+  @apply text-lg font-bold;
 }
 
 .s3-row span {
-  @apply block text-lg;
+  @apply block text-[14px];
 }

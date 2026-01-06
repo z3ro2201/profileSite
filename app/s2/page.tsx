@@ -1,11 +1,12 @@
 "use client";
 import React from "react";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faInfo, faRss } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 
-import Link from 'next/link'
+import { faReply } from "@fortawesome/free-solid-svg-icons";
 
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -16,16 +17,19 @@ export default function Home() {
         <p className="text-base">브금이 흘러나오니 소리를 켜주세요.</p>
       </div>
       <div className="flex justify-center">
-        <Link className="mr-5 flex justify-center items-center w-[60px] h-[60px] rounded-full bg-slate-800 text-[1.5em]" href="/profile">
+        <Link className="mr-5 flex justify-center items-center w-[60px] h-[60px] rounded-full bg-slate-800 text-[1.5em]" href="/s2/profile">
           <FontAwesomeIcon icon={faInfo} />
         </Link>
-        <Link className="mr-5 flex justify-center items-center w-[60px] h-[60px] rounded-full bg-slate-800 text-[1.5em]" href="/blog">
-          <FontAwesomeIcon icon={faRss} />
-        </Link>
-        <Link className="flex justify-center items-center w-[60px] h-[60px] rounded-full bg-slate-800 text-[1.5em]" href="//github.com/z3ro2201" target={'_blank'}>
+        <Link className="flex justify-center items-center w-[60px] h-[60px] rounded-full bg-slate-800 text-[1.5em]" href="//github.com/z3ro2201" target={"_blank"}>
           <FontAwesomeIcon icon={faGithub} />
         </Link>
       </div>
+      <div className="mt-4">
+        <Link href="/s3" className="flex justify-center items-center gap-1 underline">
+          <FontAwesomeIcon icon={faReply} className="w-4" />
+          리뉴얼 된 사이트로 이동
+        </Link>
+      </div>
     </div>
-  )
+  );
 }
