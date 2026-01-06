@@ -19,7 +19,7 @@ export default function ClientShell({ children }: { children: React.ReactNode })
         {children}
       </div>
 
-      <Player bgFolder="lostark" onBgImageChange={setBgImage} />
+      <Player onBgImageChange={setBgImage} />
     </>
   );
 }
