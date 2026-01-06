@@ -251,10 +251,8 @@ const Player = ({ onBgImageChange }: PlayerProps) => {
 
   /** ✅ 최초 마운트용 videoId */
   const initialVideoId = useMemo(() => {
-    if (!hasValid) return "";
-    const firstIndex = valid.validIndexes[0];
-    return valid.idByIndex.get(firstIndex) ?? "";
-  }, [hasValid, valid.validIndexes, valid.idByIndex]);
+    return valid.idByIndex.get(index) ?? "";
+  }, [index, valid.idByIndex]);
 
   return (
     <div className="z-[1000] fixed select-none touch-none" style={{ left: x, top: y }} onPointerMove={onPointerMove} onPointerUp={onPointerUp}>
