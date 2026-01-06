@@ -24,8 +24,12 @@ export default function Season3LayoutClient({ children, social }: { children: Re
   const [mobileMenuActive, setMobileMenuActive] = useState<boolean>(false);
 
   return (
-    <div className="w-full h-full flex flex-col bg-[var(--primary-bg)] text-[var(--primary-text)]">
-      <button type="button" className={cn(isMain ? "hidden" : "fixed top-2 right-2 w-[35px] h-[35px] flex lg:hidden items-center justify-center bg-gray-200 rounded-full text-black z-100")} onClick={() => setMobileMenuActive((prev) => !prev)}>
+    <div className="min-w-[500px] w-full min-h-[600px] h-full flex flex-col bg-[var(--primary-bg)] text-[var(--primary-text)] overflow-auto">
+      <button
+        type="button"
+        className={cn(isMain ? "hidden" : "fixed top-2 right-2 w-[35px] h-[35px] flex lg:hidden items-center justify-center bg-gray-200 rounded-full text-black z-100")}
+        onClick={() => setMobileMenuActive((prev) => !prev)}
+      >
         <MenuIcon size={14} />
       </button>
       <nav className={cn(isMain ? "hidden" : `${mobileMenuActive ? "active" : ""} s3-menu`)}>

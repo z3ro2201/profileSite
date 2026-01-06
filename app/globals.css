@@ -122,3 +122,31 @@ body {
 .s3-row span {
   @apply block text-[14px];
 }
+
+.marquee-track {
+  display: inline-flex;
+  gap: 2rem; /* 글 사이 간격 */
+  will-change: transform;
+  animation: marquee 12s linear infinite;
+}
+
+.marquee-item {
+  display: inline-block;
+  padding-right: 2rem; /* 끝-시작 사이 여백 */
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* 접근성: 사용자가 motion 줄이기 설정이면 애니메이션 끔 */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
