@@ -2,7 +2,7 @@ export type TitleI18n = { ko: string; ja: string; en: string };
 
 export type PlayItem = {
   link: string;
-  bgImage: "lostark" | "mapelstory" | "kartrider" | "onepiece" | "unchartedwartersonline";
+  bgImage: "lostark" | "maplestory" | "kartrider" | "onepiece" | "unchartedwartersonline";
   title: TitleI18n;
 };
 
@@ -38,7 +38,7 @@ export const playList: PlayItem[] = [
 
   {
     link: "v8aX4sQjSpU",
-    bgImage: "mapelstory",
+    bgImage: "maplestory",
     title: {
       ko: "The Raindrop Flower [MapleStory Symphony in Budapest] / 메이플스토리 오케스트라 앨범",
       ja: "The Raindrop Flower [MapleStory Symphony in Budapest] / 메이플스토리 오케스트라 앨범",
@@ -47,7 +47,7 @@ export const playList: PlayItem[] = [
   },
   {
     link: "ODOEt3_A6qM",
-    bgImage: "mapelstory",
+    bgImage: "maplestory",
     title: {
       ko: "The Queen's Garden [MapleStory Symphony in Budapest] / 메이플스토리 오케스트라 앨범",
       ja: "The Queen's Garden [MapleStory Symphony in Budapest] / 메이플스토리 오케스트라 앨범",
@@ -56,7 +56,7 @@ export const playList: PlayItem[] = [
   },
   {
     link: "kizi98UD5ak",
-    bgImage: "mapelstory",
+    bgImage: "maplestory",
     title: {
       ko: "The Raindrop Flower (Jazz Ver.)｜메이플스토리 (MapleStory) OST : Jazz of Maple",
       ja: "The Raindrop Flower (Jazz Ver.)｜메이플스토리 (MapleStory) OST : Jazz of Maple",
@@ -65,7 +65,7 @@ export const playList: PlayItem[] = [
   },
   {
     link: "NKt5NMCyZvg",
-    bgImage: "mapelstory",
+    bgImage: "maplestory",
     title: {
       ko: "The Tune of The Azure Light [MapleStory Symphony in Budapest] / 메이플스토리 오케스트라 앨범",
       ja: "The Tune of The Azure Light [MapleStory Symphony in Budapest] / 메이플스토리 오케스트라 앨범",
@@ -74,7 +74,7 @@ export const playList: PlayItem[] = [
   },
   {
     link: "WihYiw2S8hU",
-    bgImage: "mapelstory",
+    bgImage: "maplestory",
     title: {
       ko: "Start The Adventure (Orchestral Ver.) [MapleStory Symphony in Budapest] / 메이플스토리 오케스트라 앨범",
       ja: "Start The Adventure (Orchestral Ver.) [MapleStory Symphony in Budapest] / 메이플스토리 오케스트라 앨범",
@@ -83,7 +83,7 @@ export const playList: PlayItem[] = [
   },
   {
     link: "SWOEVxpuiqE",
-    bgImage: "mapelstory",
+    bgImage: "maplestory",
     title: { ko: "MapleStory Symphony in Budapest - When The Morning Comes", ja: "MapleStory Symphony in Budapest - When The Morning Comes", en: "MapleStory Symphony in Budapest - When The Morning Comes" },
   },
 
