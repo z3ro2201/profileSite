@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 import Season3LayoutClient from "./Season3LayoutClient";
 
-import { resolveLocale } from "@/lib/resolveLocale";
-import { getDict } from "@/lib/dict";
+import { resolveLocale } from "@/lib/i18n/resolveLocale";
+import { getDict } from "@/lib/i18n/dict";
 
 export default async function Season3Layout({ children }: { children: ReactNode }) {
   const locale = await resolveLocale();

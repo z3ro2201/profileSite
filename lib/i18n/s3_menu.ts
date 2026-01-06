@@ -5,7 +5,7 @@ const socialLinks = {
     blog: "블로그",
     github: "GitHub",
     instagram: "인스타그램",
-    player: "재생",
+    player: "브금이 흘러나오니 소리를 켜주세요.\n나오지 않는 경우 플레이어의 재생 버튼을 눌러주세요.",
     oldsite: "리뉴얼전 페이지로 돌아가기",
   },
   en: {
@@ -14,7 +14,7 @@ const socialLinks = {
     blog: "Blog",
     github: "GitHub",
     instagram: "Instagram",
-    player: "Play",
+    player: "Background music is playing — turn on the sound.\nIf there’s no sound, tap the play button.",
     oldsite: "Return to the Previous Page",
   },
   ja: {
@@ -23,7 +23,7 @@ const socialLinks = {
     blog: "ブログ",
     github: "GitHub",
     instagram: "Instagram",
-    player: "音楽をプレイ",
+    player: "BGMを再生しています。音量をオンにしてください。\n聞こえない場合は、再生ボタンをタップしてください。",
     oldsite: "リニューアル前のページに戻る",
   },
 };

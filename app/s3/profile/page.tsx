@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { resolveLocale } from "@/lib/resolveLocale";
-import { getDict } from "@/lib/dict";
+import { resolveLocale } from "@/lib/i18n/resolveLocale";
+import { getDict } from "@/lib/i18n/dict";
 
 const Season3Profile = async () => {
   const locale = await resolveLocale();
