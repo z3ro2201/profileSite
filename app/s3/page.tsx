@@ -2,7 +2,8 @@ import Image from "next/image";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub, faInstagram } from "@fortawesome/free-brands-svg-icons";
-import { faQuestion, faEnvelope, faReply } from "@fortawesome/free-solid-svg-icons";
+import { faQuestion, faEnvelope, faReply, faBlog } from "@fortawesome/free-solid-svg-icons";
+import { GalleryVerticalEndIcon } from "lucide-react";
 
 import { resolveLocale } from "@/lib/i18n/resolveLocale";
 import { getDict } from "@/lib/i18n/dict";
@@ -23,18 +24,35 @@ const Season3Main = async () => {
           <Link href="/s3/profile">
             <FontAwesomeIcon icon={faQuestion} />
           </Link>
+          <span className="textSubtitles">{social.simpleProfile}</span>
         </li>
 
         <li>
           <Link href="https://instagram.com/doit.2er0" target="_blank">
             <FontAwesomeIcon icon={faInstagram} />
           </Link>
+          <span className="textSubtitles">{social.instagram}</span>
         </li>
 
         <li>
-          <Link href="https://github.com/2er0" target="_blank">
+          <Link href="https://github.com/z3ro2201" target="_blank">
             <FontAwesomeIcon icon={faGithub} />
           </Link>
+          <span className="textSubtitles">{social.github}</span>
+        </li>
+
+        <li>
+          <Link href="/blog">
+            <FontAwesomeIcon icon={faBlog} />
+          </Link>
+          <span className="textSubtitles">{social.blog}</span>
+        </li>
+
+        <li>
+          <Link href="/s3/portfolio">
+            <GalleryVerticalEndIcon />
+          </Link>
+          <span className="textSubtitles">{social.portfolio}</span>
         </li>
       </ul>
 

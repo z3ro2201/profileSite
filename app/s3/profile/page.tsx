@@ -41,7 +41,20 @@ const Season3Profile = async () => {
         </div>
         <div className="s3-row">
           <h3>{profile.programLanguageTitle}</h3>
-          <span>JavaScript, CSS, PHP</span>
+          <ul>
+            <li>
+              <strong>Frontend:</strong> HTML · CSS · JavaScript · React · Next.js
+            </li>
+            <li>
+              <strong>Backend:</strong> Node.js · PHP · Spring Boot
+            </li>
+            <li>
+              <strong>Database:</strong> MySQL (MariaDB) · NoSQL
+            </li>
+            <li>
+              <strong>Linux / Server:</strong> Ubuntu · Rocky Linux · Debian
+            </li>
+          </ul>
         </div>
       </div>
     </div>

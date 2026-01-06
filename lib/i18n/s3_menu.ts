@@ -7,6 +7,7 @@ const socialLinks = {
     instagram: "인스타그램",
     player: "브금이 흘러나오니 소리를 켜주세요.\n나오지 않는 경우 플레이어의 재생 버튼을 눌러주세요.",
     oldsite: "리뉴얼전 페이지로 돌아가기",
+    portfolio: "포트폴리오",
   },
   en: {
     home: "Home",
@@ -16,6 +17,7 @@ const socialLinks = {
     instagram: "Instagram",
     player: "Background music is playing — turn on the sound.\nIf there’s no sound, tap the play button.",
     oldsite: "Return to the Previous Page",
+    portfolio: "Portfolio",
   },
   ja: {
     home: "ホーム",
@@ -25,6 +27,7 @@ const socialLinks = {
     instagram: "Instagram",
     player: "BGMを再生しています。音量をオンにしてください。\n聞こえない場合は、再生ボタンをタップしてください。",
     oldsite: "リニューアル前のページに戻る",
+    portfolio: "ポートフォリオ",
   },
 };
 
@@ -35,7 +38,7 @@ const profiles = {
     nameTitle: "별명",
     name: "컴맹",
     gameNameTitle: "로스트아크 별명",
-    gameName: "자유를향한외침",
+    gameName: "자유를찾아서외쳐라",
     emailTitle: "전자우편",
     githubTitle: "GitHub",
     programLanguageTitle: "기술",
@@ -46,7 +49,7 @@ const profiles = {
     nameTitle: "Nickname",
     name: "컴맹(ko)",
     gameNameTitle: "Game Nickname",
-    gameName: "자유를향한외침(ko, lostark)",
+    gameName: "자유를찾아서외쳐라(ko, lostark)",
     emailTitle: "email",
     githubTitle: "GitHub",
     programLanguageTitle: "stack",
@@ -57,7 +60,7 @@ const profiles = {
     nameTitle: "あだ名",
     name: "컴맹(ko)",
     gameNameTitle: "ゲームネーム",
-    gameName: "자유를향한외침(ko, lostark)",
+    gameName: "자유를찾아서외쳐라(ko, lostark)",
     emailTitle: "メール",
     githubTitle: "GitHub",
     programLanguageTitle: "テックスタック",
