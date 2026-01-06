@@ -9,9 +9,9 @@ const GalleryContainer = ({ children }: { children: ReactNode }) => {
 
 const GalleryInfo = ({ title, date }: { title?: string; date?: string }) => {
   return (
-    <div className="flex justify-between items-center text-[var(--primary-text)]">
-      <span className="block">{title}</span>
-      <span className="block">{date}</span>
+    <div className="flex justify-between items-center text-[var(--primary-text)] font-bold">
+      <span className="block w-[calc(100%-80px-0.5rem)] lg:truncate">{title}</span>
+      <span className="block min-w-[80px] text-right">{date}</span>
     </div>
   );
 };
