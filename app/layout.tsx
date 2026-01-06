@@ -1,44 +1,33 @@
-import './globals.css'
-import { Inter } from 'next/font/google'
-const inter = Inter({ subsets: ['latin'] })
-import Player from './player'
+import "./globals.css";
+
 export const metadata = {
-  title: 'start all over again',
-  description: '처음부터 다시 시작하다.',
-  colorScheme: 'dark',
+  title: "start all over again",
+  description: "처음부터 다시 시작하다.",
+  colorScheme: "dark",
   authors: {
-    name: '2ER0'
+    name: "2ER0",
   },
   openGraph: {
-    title: 'start all over agin',
-    description: '처음부터 다시 시작하다.',
-    url: 'https://2er0.io',
-    siteName: '2er0.io',
+    title: "start all over agin",
+    description: "처음부터 다시 시작하다.",
+    url: "https://2er0.io",
+    siteName: "2er0.io",
     images: [
       {
-        url: '/elgasia.jpg',
+        url: "/elgasia.jpg",
         width: 3408,
-        height: 1432
-      }
+        height: 1432,
+      },
     ],
-    locale: 'ko-KR',
-    type: 'website'
-  }
-}
+    locale: "ko-KR",
+    type: "website",
+  },
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body className={inter.className}>
-        <div className="theme-elgasia">
-          {children}
-        </div>
-        <Player />
-      </body>
+      <body>{children}</body>
     </html>
-  )
+  );
 }
