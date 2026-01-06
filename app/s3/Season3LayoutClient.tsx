@@ -24,7 +24,7 @@ export default function Season3LayoutClient({ children, social }: { children: Re
   const [mobileMenuActive, setMobileMenuActive] = useState<boolean>(false);
 
   return (
-    <div className="min-w-[500px] w-full min-h-[600px] h-full flex flex-col bg-[var(--primary-bg)] text-[var(--primary-text)] overflow-auto">
+    <div className="min-w-[500px] w-full min-h-[600px] h-full flex flex-col bg-[#caf289]/50 text-[var(--primary-text)] overflow-auto">
       <button
         type="button"
         className={cn(isMain ? "hidden" : "fixed top-2 right-2 w-[35px] h-[35px] flex lg:hidden items-center justify-center bg-gray-200 rounded-full text-black z-100")}

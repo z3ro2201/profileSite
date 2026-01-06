@@ -3,6 +3,10 @@
 import dynamic from "next/dynamic";
 const YouTube = dynamic(() => import("react-youtube"), { ssr: false });
 const MarqueeTitle = dynamic(() => import("@/components/maquee"), { ssr: false });
+type PlayerProps = {
+  onBgImageChange?: (bgImage: string) => void;
+  bgFolder?: "kartrider" | "lostark" | "onepiece" | "unchartedwartersonline"; // 필요하면 string으로
+};
 
 import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import { Volume2Icon, VolumeOffIcon, PlayIcon, SquareIcon, PanelBottomOpen, PanelTopOpen, SkipForwardIcon } from "lucide-react";
@@ -11,7 +15,7 @@ import type { YouTubeEvent, YouTubePlayer, YouTubeProps } from "react-youtube";
 import { playList } from "@/lib/playList";
 
 /** link(URL/ID) -> 11자리 videoId로 정규화 (아니면 "") */
-function toVideoId(input: string) {
+const toVideoId = (input: string) => {
   if (!input) return "";
   if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
 
@@ -33,9 +37,9 @@ function toVideoId(input: string) {
   } catch {
     return "";
   }
-}
+};
 
-export default function Player() {
+const Player = ({ onBgImageChange, bgFolder = "lostark" }: PlayerProps) => {
   // --- draggable ---
   const [x, setX] = useState<number>(10);
   const [y, setY] = useState<number>(10);
@@ -70,6 +74,33 @@ export default function Player() {
     }
   }
   const [index, setIndex] = useState<number>(initialIndexRef.current);
+
+  useEffect(() => {
+    // 곡 변경마다 배경 바꾸고 싶으면 index를 dependency로 두면 됨
+    if (!bgFolder) return;
+
+    (async () => {
+      try {
+        const res = await fetch(`/api/bg?folder=${bgFolder}`, { cache: "no-store" });
+        const data = await res.json();
+        if (data?.ok && typeof data.url === "string") {
+          onBgImageChange?.(data.url); // ✅ 여기서 Player 밖으로 리턴
+        }
+      } catch {
+        // 실패 시 조용히 무시
+      }
+    })();
+  }, [index, bgFolder, onBgImageChange]);
+
+  /** ✅ bgImage 계산 (URL만) */
+  const bgImage = useMemo(() => {
+    return playList?.[index]?.bgImage ?? "";
+  }, [index]);
+
+  /** ✅ index(곡) 바뀔 때 부모로 전달 */
+  useEffect(() => {
+    onBgImageChange?.(bgImage);
+  }, [bgImage, onBgImageChange]);
 
   /** ✅ 현재 videoId */
   const videoId = useMemo(() => {
@@ -127,7 +158,7 @@ export default function Player() {
   const onPlayerState: YouTubeProps["onStateChange"] = (e: YouTubeEvent<number>) => {
     const title = e.target.getVideoData()?.title ?? "";
 
-    if (e.data === 3) setPlayerSongTitle(title ? `${title} (버퍼링중)` : "버퍼링중");
+    if (e.data === 3) setPlayerSongTitle(title ? `${title} (버퍼링중)` : "대기중");
     else if (e.data === 1) setPlayerSongTitle(title);
     else if (e.data === 0) pickNextRandom();
   };
@@ -255,4 +286,6 @@ export default function Player() {
       </div>
     </div>
   );
-}
+};
+
+export default Player;
