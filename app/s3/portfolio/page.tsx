@@ -42,6 +42,13 @@ const PortfolioPage = () => {
 
         <GalleryContainer>
           <GalleryPicture>
+            <NoImage />
+          </GalleryPicture>
+          <GalleryInfo title="RPBX (Asterisk, 인터넷전화 연동)" date="2025-01-20" />
+        </GalleryContainer>
+
+        <GalleryContainer>
+          <GalleryPicture>
             <Image src={"/portfolio/omniController.png"} width={295} height={195} alt="옴니컨트롤러" />
           </GalleryPicture>
           <GalleryInfo title="옴니 컨트롤러 (회사용)" date="2025-12-30" />
