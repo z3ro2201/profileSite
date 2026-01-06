@@ -137,15 +137,15 @@ body {
 }
 
 .marquee-track {
-  display: inline-flex;
-  gap: 2rem; /* 글 사이 간격 */
-  will-change: transform;
+  display: flex;
+  width: max-content;
+  gap: 2rem;
   animation: marquee 12s linear infinite;
 }
 
 .marquee-item {
-  display: inline-block;
-  padding-right: 2rem; /* 끝-시작 사이 여백 */
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 @keyframes marquee {
