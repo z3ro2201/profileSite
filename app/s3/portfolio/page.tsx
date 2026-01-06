@@ -9,6 +9,20 @@ const PortfolioPage = () => {
           <GalleryPicture>
             <NoImage />
           </GalleryPicture>
+          <GalleryInfo title="'08 동서울대 홈페이지 경진대회 [장려]" date="2008-11-18" />
+        </GalleryContainer>
+
+        <GalleryContainer>
+          <GalleryPicture>
+            <NoImage />
+          </GalleryPicture>
+          <GalleryInfo title="'09 동서울대 홈페이지 경진대회 [우수]" date="2009-11-13" />
+        </GalleryContainer>
+
+        <GalleryContainer>
+          <GalleryPicture>
+            <NoImage />
+          </GalleryPicture>
           <GalleryInfo title="nuribom.kr (PHP, 그누보드)" date="2015" />
         </GalleryContainer>
 
@@ -17,6 +31,13 @@ const PortfolioPage = () => {
             <NoImage />
           </GalleryPicture>
           <GalleryInfo title="아이폰프렌즈 (PHP, 그누보드)" date="2016" />
+        </GalleryContainer>
+
+        <GalleryContainer>
+          <GalleryPicture>
+            <NoImage />
+          </GalleryPicture>
+          <GalleryInfo title="전자문서 시스템 (PHP)" date="2018-05-10" />
         </GalleryContainer>
 
         <GalleryContainer>
