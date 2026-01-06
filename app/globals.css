@@ -1,4 +1,8 @@
-@import "tailwindcss";
+@reference "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --primary-bg: #caf289;
@@ -54,6 +58,7 @@ body {
   border-radius: 25px;
   transition: background-color 0.3s ease;
   font-family: "CookieRun-Regular";
+  color: var(--primary-text);
 }
 
 .s3-menu a:not(:last-child) {
@@ -73,16 +78,36 @@ body {
 }
 
 .s3-main {
-  @apply mt-2 flex gap-4;
+  @apply m-0 p-0 mt-2 flex gap-4 list-none;
 }
 
 .s3-main li a {
   @apply inline-flex items-center justify-center w-10 h-10 rounded-full border border-1 border-[var(--primary-text)];
 }
+
+.s3-main a:visited,
+.s3-main a:link,
+.s3-main a:active {
+  color: var(--primary-text) !important;
+}
+
 .s3-main li a:hover {
-  @apply bg-[var(--primary-text)] text-white;
+  color: #fff !important;
+  background-color: var(--primary-text) !important;
 }
 
 .s3-main li a svg {
   @apply w-6 h-6;
+}
+
+.s3-row {
+  @apply mb-2;
+}
+
+.s3-row h3 {
+  @apply text-xl font-bold;
+}
+
+.s3-row span {
+  @apply block text-lg;
 }
