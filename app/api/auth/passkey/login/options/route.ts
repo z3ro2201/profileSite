@@ -1,41 +1,60 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
 import { prisma } from "@/lib/prisma";
-import { seal } from "@/lib/secure-cookie";
-
 import { toBase64Url } from "@/lib/base64url";
 
+/**
+ * DB에서 가져온 credentialId를
+ * WebAuthn이 요구하는 Uint8Array로 정규화
+ */
+function asUint8Array(v: string | Uint8Array | Buffer): Uint8Array {
+  // Buffer, Uint8Array는 그대로 사용 가능
+  if (typeof v !== "string") {
+    return v;
+  }
+
+  /**
+   * 문자열로 저장된 경우 (base64url 기준)
+   * - WebAuthn credentialId는 보통 base64url
+   */
+  const base64 = v.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((v.length + 3) % 4);
+
+  return Buffer.from(base64, "base64");
+}
+
 export async function POST(req: Request) {
-  const { email } = await req.json();
+  try {
+    const { userId } = await req.json();
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) return NextResponse.json({ error: "사용자를 찾을 수 없어요" }, { status: 404 });
+    if (!userId) {
+      return NextResponse.json({ error: "userId is required" }, { status: 400 });
+    }
 
-  const creds = await prisma.passkeyCredential.findMany({
-    where: { userId: user.id },
-    select: { credentialId: true },
-  });
+    const rpID = process.env.WEBAUTHN_RP_ID ?? "localhost";
 
-  const rpID = process.env.RP_ID!;
-  const origin = process.env.APP_ORIGIN!;
+    /**
+     * Passkey(credential) 조회
+     * credentialId 타입:
+     *   Buffer | Uint8Array | string (환경/이전 데이터에 따라)
+     */
+    const creds = await prisma.passkeyCredential.findMany({
+      where: { userId },
+      select: {
+        credentialId: true,
+      },
+    });
 
-  const options = await generateAuthenticationOptions({
-    rpID,
-    allowCredentials: creds.map((c) => ({
-      id: toBase64Url(c.credentialId),
-    })),
-    userVerification: "preferred",
-  });
+    const options = await generateAuthenticationOptions({
+      rpID,
+      allowCredentials: creds.map((c) => ({
+        id: toBase64Url(asUint8Array(c.credentialId)),
+      })),
+      userVerification: "preferred",
+    });
 
-  const token = await seal({ challenge: options.challenge, userId: user.id, origin, rpID }, 300);
-  (await cookies()).set("webauthn_auth", token, {
-    httpOnly: true,
-    secure: origin.startsWith("https://"),
-    sameSite: "lax",
-    path: "/",
-    maxAge: 300,
-  });
-
-  return NextResponse.json(options);
+    return NextResponse.json(options);
+  } catch (err) {
+    console.error("[PASSKEY_LOGIN_OPTIONS_ERROR]", err);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }
