@@ -5,19 +5,20 @@ import { faGithub, faInstagram } from "@fortawesome/free-brands-svg-icons";
 import { faQuestion, faEnvelope, faReply, faBlog } from "@fortawesome/free-solid-svg-icons";
 import { GalleryVerticalEndIcon } from "lucide-react";
 
-import { resolveLocale } from "@/lib/i18n/resolveLocale";
+import { DEFAULT_LOCALE } from "@/lib/i18n/i18n";
 import { getDict } from "@/lib/i18n/dict";
 
 import Link from "next/link";
 
+export const dynamic = "force-static";
+
 const Season3Main = async () => {
-  const locale = await resolveLocale();
-  const { social } = getDict(locale);
+  const { social } = getDict(DEFAULT_LOCALE);
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center gap-2">
       <Image src="/s3/profile.webp" width={250} height={250} alt="메인페이지 프로필 사진, 뭐해야 해요 모코콩?" className="mb-4" />
-      <h3 className="font-bold text-lg">SEASON 3</h3>
+      <h1 className="font-bold text-lg">2ERO HOME SEASON 3</h1>
       <div className="my-2 p-2 whitespace-pre-line text-center font-bold bg-[rgba(255,255,255,.5)] rounded-lg underline">{social.player}</div>
       <ul className="s3-main mb-2">
         <li>

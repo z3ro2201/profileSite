@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { resolveLocale } from "@/lib/i18n/resolveLocale";
+import { DEFAULT_LOCALE } from "@/lib/i18n/i18n";
 import { getDict } from "@/lib/i18n/dict";
 
+export const dynamic = "force-static";
+
 const Season3Profile = async () => {
-  const locale = await resolveLocale();
-  const { profile } = getDict(locale);
+  const { profile } = getDict(DEFAULT_LOCALE);
 
   return (
     <div className="w-full h-full flex justify-center items-center select-none">
