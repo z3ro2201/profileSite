@@ -31,7 +31,7 @@ export default function Season3LayoutClient({ children, social }: { children: Re
   }, [isMobile]);
 
   return (
-    <div className="min-w-[300px] w-full min-h-[600px] h-full flex flex-col bg-[#caf289]/50 text-[var(--primary-text)] overflow-auto">
+    <div className="min-w-[300px] w-full min-h-[600px] h-full flex flex-col bg-[#caf289]/50 text-[var(--primary-text)] overflow-auto" role="main">
       <button
         type="button"
         className={cn(isMain ? "hidden" : "fixed top-2 right-2 w-[35px] h-[35px] flex lg:hidden items-center justify-center bg-gray-200 rounded-full text-black z-100")}
@@ -42,20 +42,20 @@ export default function Season3LayoutClient({ children, social }: { children: Re
       >
         <MenuIcon size={14} />
       </button>
-      <nav className={cn(isMain ? "hidden" : "s3-menu", isMobile && mobileMenuActive && "active")}>
-        <Link href="/s3" onClick={() => setMobileMenuActive((prev) => !prev)}>
+      <nav className={cn(isMain ? "hidden" : "s3-menu", isMobile && mobileMenuActive && "active")} role="menu">
+        <Link href="/s3" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.home}>
           {social.home}
         </Link>
-        <Link href="/s3/profile" onClick={() => setMobileMenuActive((prev) => !prev)}>
+        <Link href="/s3/profile" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.simpleProfile}>
           {social.simpleProfile}
         </Link>
-        <Link href="//github.com/z3ro2201" target="_blank" onClick={() => setMobileMenuActive((prev) => !prev)}>
+        <Link href="//github.com/z3ro2201" target="_blank" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.github}>
           {social.github}
         </Link>
-        <Link href="//instagram.com/doit.2er0" target="_blank" onClick={() => setMobileMenuActive((prev) => !prev)}>
+        <Link href="//instagram.com/doit.2er0" target="_blank" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.instagram}>
           {social.instagram}
         </Link>
-        <Link href="/s3/portfolio" onClick={() => setMobileMenuActive((prev) => !prev)}>
+        <Link href="/s3/portfolio" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.portfolio}>
           {social.portfolio}
         </Link>
       </nav>

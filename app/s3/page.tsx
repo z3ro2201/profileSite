@@ -18,39 +18,41 @@ const Season3Main = async () => {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center gap-2">
       <Image src="/s3/profile.webp" width={250} height={250} alt="메인페이지 프로필 사진, 뭐해야 해요 모코콩?" className="mb-4" />
-      <h1 className="font-bold text-lg">2ERO HOME SEASON 3</h1>
+      <h1 className="font-bold text-lg" role="banner">
+        2ERO HOME SEASON 3
+      </h1>
       <div className="my-2 p-2 whitespace-pre-line text-center font-bold bg-[rgba(255,255,255,.5)] rounded-lg underline">{social.player}</div>
       <ul className="s3-main mb-2">
         <li>
-          <Link href="/s3/profile">
+          <Link href="/s3/profile" title={social.simpleProfile}>
             <FontAwesomeIcon icon={faQuestion} />
           </Link>
           <span className="textSubtitles">{social.simpleProfile}</span>
         </li>
 
         <li>
-          <Link href="https://instagram.com/doit.2er0" target="_blank">
+          <Link href="https://instagram.com/doit.2er0" target="_blank" title={social.instagram}>
             <FontAwesomeIcon icon={faInstagram} />
           </Link>
           <span className="textSubtitles">{social.instagram}</span>
         </li>
 
         <li>
-          <Link href="https://github.com/z3ro2201" target="_blank">
+          <Link href="https://github.com/z3ro2201" target="_blank" title={social.github}>
             <FontAwesomeIcon icon={faGithub} />
           </Link>
           <span className="textSubtitles">{social.github}</span>
         </li>
 
         <li>
-          <Link href="/blog">
+          <Link href="/blog" title={social.blog}>
             <FontAwesomeIcon icon={faBlog} />
           </Link>
           <span className="textSubtitles">{social.blog}</span>
         </li>
 
         <li>
-          <Link href="/s3/portfolio">
+          <Link href="/s3/portfolio" title={social.portfolio}>
             <GalleryVerticalEndIcon />
           </Link>
           <span className="textSubtitles">{social.portfolio}</span>
@@ -58,14 +60,14 @@ const Season3Main = async () => {
       </ul>
 
       <div className="mt-4">
-        <Link href="/s2/" className="flex items-center gap-2 underline">
+        <Link href="/s2/" className="flex items-center gap-2 underline" title={social.oldsite}>
           <FontAwesomeIcon icon={faReply} className="w-4" />
           {social.oldsite}
         </Link>
       </div>
 
       <div className="mt-4">
-        <Link href="mailto:hello@2er0.io" className="flex gap-1 items-center underline">
+        <Link href="mailto:hello@2er0.io" className="flex gap-1 items-center underline" title="전자우편으로 연락하기">
           <FontAwesomeIcon icon={faEnvelope} className="w-4 h-4" />
           hello@2er0.io
         </Link>

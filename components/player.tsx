@@ -259,22 +259,22 @@ const Player = ({ onBgImageChange }: PlayerProps) => {
   return (
     <div className="z-[1000] fixed select-none touch-none" style={{ left: x, top: y }} onPointerMove={onPointerMove} onPointerUp={onPointerUp}>
       {/* drag header */}
-      <div className="flex items-center gap-2 px-3 py-2 border-2 border-slate-200 bg-slate-800 overflow-hidden shadow-md text-white rounded cursor-grab active:cursor-grabbing" onPointerDown={onPointerDown}>
+      <div className="flex items-center gap-2 px-3 py-2 border-2 border-slate-200 bg-slate-800 overflow-hidden shadow-md text-white rounded cursor-grab active:cursor-grabbing" onPointerDown={onPointerDown} role="dialog">
         {isMuted ? <VolumeOffIcon className="w-4" /> : <Volume2Icon className="w-4" />}
 
-        <button type="button" className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={toggleMute} aria-label="재생여부">
+        <button type="button" className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={toggleMute} aria-label="재생여부" role="button">
           <span className="sr-only">{isMuted ? "Unmute" : "Mute"}</span>
         </button>
 
-        <button type="button" className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={togglePlay} disabled={!hasValid} aria-label="재생/정지">
+        <button type="button" className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={togglePlay} disabled={!hasValid} aria-label="재생/정지" role="button">
           {isPlaying ? <SquareIcon className="w-4" /> : <PlayIcon className="w-4" />}
         </button>
 
-        <button type="button" className={cn("cursor-pointer", !hasValid && "opacity-50 cursor-not-allowed")} onPointerDown={(e) => e.stopPropagation()} onClick={pickNextRandom} disabled={!hasValid} aria-label="다음곡으로 변경">
+        <button type="button" className={cn("cursor-pointer", !hasValid && "opacity-50 cursor-not-allowed")} onPointerDown={(e) => e.stopPropagation()} onClick={pickNextRandom} disabled={!hasValid} aria-label="다음곡으로 변경" role="button">
           <SkipForwardIcon className="w-4" />
         </button>
 
-        <button type="button" className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={() => setViewPlayer((v) => !v)} aria-label="동영상 보기">
+        <button type="button" className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={() => setViewPlayer((v) => !v)} aria-label="동영상 보기" role="button">
           {viewPlayer ? <PanelBottomOpen className="w-4" /> : <PanelTopOpen className="w-4" />}
         </button>
 
@@ -282,7 +282,7 @@ const Player = ({ onBgImageChange }: PlayerProps) => {
       </div>
 
       {/* YouTube always mounted */}
-      <div className="videoPlayer" style={playerContainerStyle}>
+      <div className="videoPlayer" style={playerContainerStyle} role="application">
         <YouTube opts={opts} videoId={initialVideoId} onReady={onReady} onStateChange={onPlayerState} />
       </div>
     </div>
