@@ -262,26 +262,23 @@ const Player = ({ onBgImageChange }: PlayerProps) => {
       <div className="flex items-center gap-2 px-3 py-2 border-2 border-slate-200 bg-slate-800 overflow-hidden shadow-md text-white rounded cursor-grab active:cursor-grabbing" onPointerDown={onPointerDown}>
         {isMuted ? <VolumeOffIcon className="w-4" /> : <Volume2Icon className="w-4" />}
 
-        <button type="button" className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={toggleMute}>
+        <button type="button" className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={toggleMute} aria-label="재생여부">
           <span className="sr-only">{isMuted ? "Unmute" : "Mute"}</span>
         </button>
 
-        <button type="button" className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={togglePlay} disabled={!hasValid}>
+        <button type="button" className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={togglePlay} disabled={!hasValid} aria-label="재생/정지">
           {isPlaying ? <SquareIcon className="w-4" /> : <PlayIcon className="w-4" />}
         </button>
 
-        <button type="button" className={cn("cursor-pointer", !hasValid && "opacity-50 cursor-not-allowed")} onPointerDown={(e) => e.stopPropagation()} onClick={pickNextRandom} disabled={!hasValid}>
+        <button type="button" className={cn("cursor-pointer", !hasValid && "opacity-50 cursor-not-allowed")} onPointerDown={(e) => e.stopPropagation()} onClick={pickNextRandom} disabled={!hasValid} aria-label="다음곡으로 변경">
           <SkipForwardIcon className="w-4" />
         </button>
 
-        <button type="button" className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={() => setViewPlayer((v) => !v)}>
+        <button type="button" className="cursor-pointer" onPointerDown={(e) => e.stopPropagation()} onClick={() => setViewPlayer((v) => !v)} aria-label="동영상 보기">
           {viewPlayer ? <PanelBottomOpen className="w-4" /> : <PanelTopOpen className="w-4" />}
         </button>
 
-        <MarqueeTitle
-          className={cn("ml-2 text-xs opacity-90 line-clamp-1", viewPlayer ? "max-w-[500px]" : "w-[240px]")}
-          text={hasValid ? displayTitle : lang === "ja" ? "再生可能な曲がありません（videoIdなし）" : lang === "en" ? "No playable tracks (missing videoId)" : "재생 가능한 곡이 없습니다 (videoId 누락)"}
-        />
+        <MarqueeTitle className={cn("ml-2 text-xs opacity-90 line-clamp-1", viewPlayer ? "max-w-[500px]" : "w-[240px]")} text={hasValid ? displayTitle : lang === "ja" ? "再生可能な曲がありません（videoIdなし）" : lang === "en" ? "No playable tracks (missing videoId)" : "재생 가능한 곡이 없습니다 (videoId 누락)"} />
       </div>
 
       {/* YouTube always mounted */}
