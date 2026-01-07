@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import Script from "next/script";
 import ClientShell from "@/layout/ClientShell";
 
 export const metadata: Metadata = {
@@ -29,14 +30,26 @@ export const metadata: Metadata = {
     description: "처음부터 다시 시작하다.",
     images: ["/preview.png"],
   },
+  alternates: {
+    canonical: "https://2er0.io/s3",
+  },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
   viewport: { width: "device-width", initialScale: 1 },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "2er0",
+    url: "https://2er0.io/s3",
+    email: "hello@2er0.io",
+    sameAs: ["https://github.com/z3ro2201", "https://instagram.com/doit.2er0"],
+  };
   return (
     <html lang="ko">
       <body>
+        <Script id="jsonld-person" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <ClientShell>{children}</ClientShell>
       </body>
     </html>
