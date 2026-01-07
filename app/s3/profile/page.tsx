@@ -25,17 +25,21 @@ const Season3Profile = async () => {
         </div>
         <div className="s3-row">
           <h3>{profile.gameNameTitle}</h3>
-          <span>{profile.gameName}</span>
+          <span className="underline">
+            <Link href="https://lostark.game.onstove.com/Profile/Character/자유를찾아서외쳐라" target="_blank">
+              {profile.gameName}
+            </Link>
+          </span>
         </div>
         <div className="s3-row">
           <h3>{profile.emailTitle}</h3>
-          <span>
+          <span className="underline">
             <Link href="mailto:hello@2er0.io">hello@2er0.io</Link>
           </span>
         </div>
         <div className="s3-row">
           <h3>{profile.githubTitle}</h3>
-          <span>
+          <span className="underline">
             <Link href="//github.com/z3ro2201">z3ro2201</Link>
           </span>
         </div>

@@ -31,7 +31,11 @@ export default function Home() {
             </div>
             <div className="sm:w-full lg:w-3/6">
               <h2 className="font-bold">Game nickname</h2>
-              <p>자유를향한외침</p>
+              <p>
+                <Link href="https://lostark.game.onstove.com/Profile/Character/자유를향한외침" target="_blank">
+                  자유를향한외침
+                </Link>
+              </p>
             </div>
           </div>
           <div className="lg:flex mb-4 flex-auto lg:flex-row lg:justify-between">
