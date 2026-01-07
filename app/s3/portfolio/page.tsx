@@ -68,11 +68,11 @@ const PortfolioPage = () => {
           <GalleryInfo title="RPBX (Asterisk, 인터넷전화 연동)" date="2025-01-20" />
         </GalleryContainer>
 
-        <GalleryContainer>
+        <GalleryContainer link="//omni.2er0.io/mgnt/main" target="_blank" title="옴니 컨트롤러 (에어컨)">
           <GalleryPicture>
             <Image src={"/portfolio/omniController.png"} width={295} height={195} alt="옴니컨트롤러" />
           </GalleryPicture>
-          <GalleryInfo title="옴니 컨트롤러 (회사용)" date="2025-12-30" />
+          <GalleryInfo title="옴니 컨트롤러 (node.js, 로그인 필요)" date="2025-12-30" />
         </GalleryContainer>
       </div>
     </div>
