@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  passwordHash String?  // null이면 password 로그인 비활성
+  name      String?
+  createdAt DateTime @default(now())
+
+  // ✅ OTP (Google Authenticator)
+  totpEnabled        Boolean  @default(false)
+  totpSecretEnc      String?  // base32 secret "암호화해서" 저장 권장
+  totpConfirmedAt    DateTime?
+
+  // ✅ Passkeys (WebAuthn)
+  passkeys           PasskeyCredential[]
+
+  posts     Post[]
+}
+
+model PasskeyCredential {
+  id            Int      @id @default(autoincrement())
+
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // WebAuthn 필수 저장값들
+  credentialId  Bytes    @unique   // credentialID (binary)
+  publicKey     Bytes              // credentialPublicKey (binary)
+  counter       Int      @default(0)
+
+  // UX용 메타(선택)
+  name          String?            // "MacBook TouchID" 같은 라벨
+  transports    String?            // JSON string 등으로 저장 가능
+  createdAt     DateTime @default(now())
+  lastUsedAt    DateTime?
+
+  @@index([userId])
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  slug  String @unique
+  name  String
+
+  posts Post[]
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  slug String @unique
+  name String
+
+  posts Post[]
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id])
+
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  tags      Tag[]     // implicit M:N
+}

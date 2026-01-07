@@ -49,6 +49,9 @@ export default function Season3LayoutClient({ children, social }: { children: Re
         <Link href="/s3/profile" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.simpleProfile}>
           {social.simpleProfile}
         </Link>
+        <Link href="/blog" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.blog}>
+          {social.blog}
+        </Link>
         <Link href="//github.com/z3ro2201" target="_blank" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.github}>
           {social.github}
         </Link>

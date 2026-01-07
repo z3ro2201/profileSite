@@ -1,0 +1,71 @@
+import { ReactNode } from "react";
+import { cookies } from "next/headers";
+
+import { verifyAuthToken, getAuthCookieName } from "@/lib/auth/jwt";
+
+import Link from "next/link";
+
+import { LogInIcon } from "lucide-react";
+import { NextRequest, NextResponse } from "next/server";
+
+const BlogLayout = async ({ children }: { children: ReactNode }) => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(getAuthCookieName())?.value;
+
+  let isLoggedIn = false;
+  let user: { id: string; email?: string; name?: string | null } | null = null;
+
+  if (token) {
+    try {
+      const payload = await verifyAuthToken(token);
+      isLoggedIn = true;
+      user = {
+        id: payload.sub as string,
+        email: payload.email as string,
+        name: payload.name as string | null,
+      };
+    } catch (error) {
+      // 토큰 만료/위조 -> 로그인 아님
+    }
+  }
+
+  const handleSubmitLogout = async () => {
+    if (!isLoggedIn) return alert("로그인 상태가 아닙니다.");
+    try {
+      const res = await fetch("/api/auth/logout", { method: "POST" });
+      const json = await res.json();
+      if (!res.ok) {
+        return alert("로그아웃 실패");
+      }
+
+      alert("로그아웃 되었습니다.");
+      location.reload();
+    } catch (error) {}
+  };
+
+  return (
+    <>
+      <div className="absolute top-0 left-0 w-full min-h-[32px] p-2 flex justify-between uppercase items-center z-99">
+        <Link href="/">
+          <h1 className="text-2xl font-bold underline">2er0.io</h1>
+        </Link>
+        {isLoggedIn ? (
+          <div className="flex gap-2 items-center">
+            <span>안녕하세요, {user?.name ?? user?.email}</span>
+            <Link href="/admin/logout" className="py-2 px-4 flex items-center gap-2 rounded-full bg-black text-white cursor-pointer text-sm">
+              로그아웃
+            </Link>
+          </div>
+        ) : (
+          <Link href="/admin/login" className="py-2 px-4 flex items-center gap-2 rounded-full bg-black text-white cursor-pointer text-sm">
+            <LogInIcon size={14} />
+            관리자 로그인
+          </Link>
+        )}
+      </div>
+      {children}
+    </>
+  );
+};
+
+export default BlogLayout;
