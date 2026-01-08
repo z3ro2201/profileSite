@@ -32,7 +32,7 @@ export default function ClientShell({ children }: { children: React.ReactNode })
   return (
     <>
       {children}
-      <Player onBgImageChange={setBgImage} />
+      {/* <Player onBgImageChange={setBgImage} /> */}
     </>
   );
 }

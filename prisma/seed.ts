@@ -15,23 +15,23 @@ async function main() {
   const passwordHash = adminPassword ? await bcrypt.hash(adminPassword, 12) : undefined;
 
   /**
-   * 1. 관리자 유저
+   * 1) 관리자 유저
    */
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
     update: {
       name: adminName,
-      ...(passwordHash ? { passwordHash } : {}), // ✅ 있을 때만 업데이트
+      ...(passwordHash ? { passwordHash } : {}),
     },
     create: {
       email: adminEmail,
       name: adminName,
-      ...(passwordHash ? { passwordHash } : {}), // ✅ 있을 때만 생성
+      ...(passwordHash ? { passwordHash } : {}),
     },
   });
 
   /**
-   * 2. 카테고리
+   * 2) 카테고리
    */
   const categories = [
     { slug: "frontend", name: "Frontend" },
@@ -46,7 +46,7 @@ async function main() {
   });
 
   /**
-   * 3. 태그
+   * 3) 태그
    */
   const tags = [
     { slug: "nextjs", name: "Next.js" },
@@ -63,21 +63,32 @@ async function main() {
   });
 
   /**
-   * 4. 샘플 게시글
+   * 4) 샘플 게시글
    */
   const backendCategory = await prisma.category.findUnique({
     where: { slug: "backend" },
   });
   if (!backendCategory) throw new Error("backend category not found");
 
+  // ✅ 스키마가 contentMd + state(+publishedAt) 라는 가정
   await prisma.post.upsert({
     where: { id: 1 },
-    update: {},
+    update: {
+      // 원하면 seed 재실행 시 내용도 갱신되게 여기 채우면 됨
+      // title: "...",
+      // contentMd: "...",
+    },
     create: {
       title: "Prisma + MariaDB 초기 세팅",
-      content: "Prisma와 MariaDB를 이용한 초기 세팅 기록입니다.",
+      contentMd: ["# Prisma + MariaDB 초기 세팅", "", "- Prisma 스키마 작성", "- migrate / seed", "- MariaDB 연결 확인", "", "샘플 글입니다."].join("\n"),
+      contentHtml: null, // 선택: 서버에서 렌더 캐시를 만들 거면 나중에 채워도 됨
+
+      state: "PUBLISHED",
+      publishedAt: new Date(),
+
       authorId: admin.id,
-      categoryId: backendCategory.id,
+      categoryId: backendCategory.id, // categoryId를 optional로 바꿨다면 없어도 됨
+
       tags: {
         connect: [{ slug: "prisma" }, { slug: "mariadb" }],
       },

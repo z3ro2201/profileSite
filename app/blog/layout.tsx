@@ -55,13 +55,16 @@ const BlogLayout = async ({ children }: { children: ReactNode }) => {
               <Link href="/blog/prologue">프롤로그</Link>
             </li>
             <li>
-              <Link href="/blog/blog">블로그</Link>
+              <Link href="/blog/posts">블로그</Link>
             </li>
           </ul>
         </div>
         {isLoggedIn ? (
           <div className="flex gap-2 items-center">
             <span>안녕하세요, {user?.name ?? user?.email}</span>
+            <Link href="/admin/mgmt/posts" className="py-2 px-4 flex items-center gap-2 rounded-full bg-black text-white cursor-pointer text-sm">
+              포스트 관리
+            </Link>
             <Link href="/admin/logout" className="py-2 px-4 flex items-center gap-2 rounded-full bg-black text-white cursor-pointer text-sm">
               로그아웃
             </Link>
