@@ -15,13 +15,21 @@ export default function LoginClient() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  async function onSubmit(e: React.FormEvent) {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      const res = await fetch("/api/auth/login/password", { method: "POST", body: JSON.stringify({ email, password }) });
+      const json = await res.json();
 
-    // TODO: 로그인 API 호출 (너 프로젝트 로직에 맞게 교체)
-    // 성공하면:
-    router.replace(nextUrl);
-  }
+      if (!res.ok) {
+        return alert(json?.error ?? "로그인 실패");
+      }
+
+      router.replace(nextUrl);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
