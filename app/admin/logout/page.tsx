@@ -6,7 +6,7 @@ export default function AdminLogout() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch("/api/auth/logout", { method: "POST" }).finally(() => {
+    fetch("/api/admin/auth/logout", { method: "POST" }).finally(() => {
       router.replace("/admin/login");
     });
   }, [router]);

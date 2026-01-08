@@ -18,7 +18,7 @@ export default function LoginClient() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch("/api/auth/login/password", { method: "POST", body: JSON.stringify({ email, password }) });
+      const res = await fetch("/api/admin/auth/login/password", { method: "POST", body: JSON.stringify({ email, password }) });
       const json = await res.json();
 
       if (!res.ok) {
@@ -34,14 +34,14 @@ export default function LoginClient() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <form onSubmit={onSubmit} className="w-full max-w-sm space-y-3">
-        <h1 className="text-xl font-semibold">Admin Login</h1>
+        <h1 className="text-xl font-semibold">블로그 관리자 로그인</h1>
 
         <input className="w-full border rounded px-3 py-2" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" />
 
         <input className="w-full border rounded px-3 py-2" placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
 
         <button className="w-full border rounded px-3 py-2" type="submit">
-          Sign in
+          로그인
         </button>
       </form>
     </div>

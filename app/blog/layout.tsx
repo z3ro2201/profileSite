@@ -32,7 +32,7 @@ const BlogLayout = async ({ children }: { children: ReactNode }) => {
   const handleSubmitLogout = async () => {
     if (!isLoggedIn) return alert("로그인 상태가 아닙니다.");
     try {
-      const res = await fetch("/api/auth/logout", { method: "POST" });
+      const res = await fetch("/api/admin/auth/logout", { method: "POST" });
       const json = await res.json();
       if (!res.ok) {
         return alert("로그아웃 실패");
