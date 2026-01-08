@@ -6,7 +6,6 @@ import { verifyAuthToken, getAuthCookieName } from "@/lib/auth/jwt";
 import Link from "next/link";
 
 import { LogInIcon } from "lucide-react";
-import { NextRequest, NextResponse } from "next/server";
 
 const BlogLayout = async ({ children }: { children: ReactNode }) => {
   const cookieStore = await cookies();
@@ -29,19 +28,6 @@ const BlogLayout = async ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const handleSubmitLogout = async () => {
-    if (!isLoggedIn) return alert("로그인 상태가 아닙니다.");
-    try {
-      const res = await fetch("/api/admin/auth/logout", { method: "POST" });
-      const json = await res.json();
-      if (!res.ok) {
-        return alert("로그아웃 실패");
-      }
-
-      alert("로그아웃 되었습니다.");
-    } catch (error) {}
-  };
-
   return (
     <div className="w-screen h-screen bg-white">
       <header className="absolute top-0 left-0 w-full max-h-[52px] p-2 flex justify-between uppercase items-center z-99 bg-[rgba(255,255,255,.8)] border-b-1 border-gray-200">
@@ -62,7 +48,7 @@ const BlogLayout = async ({ children }: { children: ReactNode }) => {
         {isLoggedIn ? (
           <div className="flex gap-2 items-center">
             <span>안녕하세요, {user?.name ?? user?.email}</span>
-            <Link href="/admin/mgmt/posts" className="py-2 px-4 flex items-center gap-2 rounded-full bg-black text-white cursor-pointer text-sm">
+            <Link href="/admin/mgmt/posts/list" className="py-2 px-4 flex items-center gap-2 rounded-full bg-black text-white cursor-pointer text-sm">
               포스트 관리
             </Link>
             <Link href="/admin/logout" className="py-2 px-4 flex items-center gap-2 rounded-full bg-black text-white cursor-pointer text-sm">
