@@ -13,7 +13,7 @@ type Social = {
   simpleProfile: string;
   blog: string;
   github: string;
-  instagram: string;
+  rss: string;
   player: string;
   oldsite: string;
   portfolio: string;
@@ -55,8 +55,8 @@ export default function Season3LayoutClient({ children, social }: { children: Re
         <Link href="//github.com/z3ro2201" target="_blank" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.github}>
           {social.github}
         </Link>
-        <Link href="//instagram.com/doit.2er0" target="_blank" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.instagram}>
-          {social.instagram}
+        <Link href="/rss.xml" target="_blank" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.rss}>
+          {social.rss}
         </Link>
         <Link href="/s3/portfolio" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.portfolio}>
           {social.portfolio}

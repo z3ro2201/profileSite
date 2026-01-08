@@ -1,8 +1,8 @@
 import Image from "next/image";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGithub, faInstagram } from "@fortawesome/free-brands-svg-icons";
-import { faQuestion, faEnvelope, faReply, faBlog } from "@fortawesome/free-solid-svg-icons";
+import { faGithub } from "@fortawesome/free-brands-svg-icons";
+import { faQuestion, faEnvelope, faReply, faBlog, faRss } from "@fortawesome/free-solid-svg-icons";
 import { GalleryVerticalEndIcon } from "lucide-react";
 
 import { DEFAULT_LOCALE } from "@/lib/i18n/i18n";
@@ -31,10 +31,10 @@ const Season3Main = async () => {
         </li>
 
         <li>
-          <Link href="https://instagram.com/doit.2er0" target="_blank" title={social.instagram}>
-            <FontAwesomeIcon icon={faInstagram} />
+          <Link href="/rss.xml" target="_blank" title={social.rss}>
+            <FontAwesomeIcon icon={faRss} />
           </Link>
-          <span className="textSubtitles">{social.instagram}</span>
+          <span className="textSubtitles">{social.rss}</span>
         </li>
 
         <li>
