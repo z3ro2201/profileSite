@@ -39,16 +39,26 @@ const BlogLayout = async ({ children }: { children: ReactNode }) => {
       }
 
       alert("로그아웃 되었습니다.");
-      location.reload();
     } catch (error) {}
   };
 
   return (
-    <>
-      <div className="absolute top-0 left-0 w-full min-h-[32px] p-2 flex justify-between uppercase items-center z-99">
-        <Link href="/">
-          <h1 className="text-2xl font-bold underline">2er0.io</h1>
-        </Link>
+    <div className="w-screen h-screen bg-white">
+      <header className="absolute top-0 left-0 w-full max-h-[52px] p-2 flex justify-between uppercase items-center z-99 bg-[rgba(255,255,255,.8)] border-b-1 border-gray-200">
+        <div className="flex items-center">
+          <Link href="/">
+            <h1 className="text-2xl font-bold underline">2er0.io</h1>
+          </Link>
+
+          <ul className="ml-4 flex gap-2">
+            <li>
+              <Link href="/blog/prologue">프롤로그</Link>
+            </li>
+            <li>
+              <Link href="/blog/blog">블로그</Link>
+            </li>
+          </ul>
+        </div>
         {isLoggedIn ? (
           <div className="flex gap-2 items-center">
             <span>안녕하세요, {user?.name ?? user?.email}</span>
@@ -62,9 +72,9 @@ const BlogLayout = async ({ children }: { children: ReactNode }) => {
             관리자 로그인
           </Link>
         )}
-      </div>
-      {children}
-    </>
+      </header>
+      <main className="pt-[52px] w-full h-full overflow-auto">{children}</main>
+    </div>
   );
 };
 
