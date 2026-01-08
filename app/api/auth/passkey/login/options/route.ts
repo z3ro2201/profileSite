@@ -1,60 +1,70 @@
 import { NextResponse } from "next/server";
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
+import { isoBase64URL } from "@simplewebauthn/server/helpers";
 import { prisma } from "@/lib/prisma";
-import { toBase64Url } from "@/lib/base64url";
 
-/**
- * DB에서 가져온 credentialId를
- * WebAuthn이 요구하는 Uint8Array로 정규화
- */
-function asUint8Array(v: string | Uint8Array | Buffer): Uint8Array {
-  // Buffer, Uint8Array는 그대로 사용 가능
-  if (typeof v !== "string") {
-    return v;
+type CredId = string | Uint8Array | Buffer;
+
+type AuthenticatorTransportFuture = "usb" | "nfc" | "ble" | "internal" | "hybrid" | "smart-card";
+
+function isAuthenticatorTransportFuture(v: unknown): v is AuthenticatorTransportFuture {
+  return v === "usb" || v === "nfc" || v === "ble" || v === "internal" || v === "hybrid" || v === "smart-card";
+}
+
+// ✅ DB 실체에 맞춤: transports = string | null
+type PasskeyRow = {
+  credentialId: CredId;
+  transports: string | null;
+};
+
+function toBase64UrlString(v: CredId): string {
+  if (typeof v === "string") return v; // 이미 base64url로 저장했다고 가정
+  return isoBase64URL.fromBuffer(Buffer.from(v));
+}
+
+function parseTransports(v: string | null): AuthenticatorTransportFuture[] | undefined {
+  if (!v) return undefined;
+
+  const s = v.trim();
+
+  // JSON 문자열: '["usb","nfc"]'
+  if (s.startsWith("[")) {
+    try {
+      const arr: unknown = JSON.parse(s);
+      if (Array.isArray(arr)) {
+        return arr.filter(isAuthenticatorTransportFuture);
+      }
+    } catch {
+      return undefined;
+    }
   }
 
-  /**
-   * 문자열로 저장된 경우 (base64url 기준)
-   * - WebAuthn credentialId는 보통 base64url
-   */
-  const base64 = v.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((v.length + 3) % 4);
-
-  return Buffer.from(base64, "base64");
+  // CSV 문자열: "usb,nfc,ble"
+  return s
+    .split(",")
+    .map((t) => t.trim())
+    .filter(isAuthenticatorTransportFuture);
 }
 
 export async function POST(req: Request) {
-  try {
-    const { userId } = await req.json();
+  const { userId } = await req.json();
+  if (!userId) return NextResponse.json({ error: "userId is required" }, { status: 400 });
 
-    if (!userId) {
-      return NextResponse.json({ error: "userId is required" }, { status: 400 });
-    }
+  const rpID = process.env.WEBAUTHN_RP_ID ?? "localhost";
 
-    const rpID = process.env.WEBAUTHN_RP_ID ?? "localhost";
+  const creds: PasskeyRow[] = await prisma.passkeyCredential.findMany({
+    where: { userId },
+    select: { credentialId: true, transports: true },
+  });
 
-    /**
-     * Passkey(credential) 조회
-     * credentialId 타입:
-     *   Buffer | Uint8Array | string (환경/이전 데이터에 따라)
-     */
-    const creds = await prisma.passkeyCredential.findMany({
-      where: { userId },
-      select: {
-        credentialId: true,
-      },
-    });
+  const options = await generateAuthenticationOptions({
+    rpID,
+    allowCredentials: creds.map((c) => ({
+      id: toBase64UrlString(c.credentialId),
+      transports: parseTransports(c.transports), // ✅ any 없음
+    })),
+    userVerification: "preferred",
+  });
 
-    const options = await generateAuthenticationOptions({
-      rpID,
-      allowCredentials: creds.map((c) => ({
-        id: toBase64Url(asUint8Array(c.credentialId)),
-      })),
-      userVerification: "preferred",
-    });
-
-    return NextResponse.json(options);
-  } catch (err) {
-    console.error("[PASSKEY_LOGIN_OPTIONS_ERROR]", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  }
+  return NextResponse.json(options);
 }
