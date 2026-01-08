@@ -34,7 +34,11 @@ export const metadata: Metadata = {
     canonical: "https://2er0.io/s3",
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
-  viewport: { width: "device-width", initialScale: 1 },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
