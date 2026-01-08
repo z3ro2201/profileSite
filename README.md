@@ -147,6 +147,7 @@ yarn install
 ```bash
 npx prisma migrate dev
 npx prisma db seed
+npx prisma generate
 ```
 
 ### 3) 개발 서버 실행
