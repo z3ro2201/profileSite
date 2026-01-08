@@ -156,6 +156,10 @@ npx prisma generate
 yarn dev
 ```
 
+## Middleware -> proxy 자동변환 추가
+
+npx @next/codemod@latest middleware-to-proxy .
+
 ---
 
 ## 🔐 인증 플로우 요약
