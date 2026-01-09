@@ -48,6 +48,26 @@ model Tag {
   posts Post[] @relation("PostToTag")
 }
 
+model File {
+  id           String   @id @default(cuid())
+  storage      String   // "s3" | "r2" | "local"
+  bucket       String?
+  objectKey    String   // 스토리지 경로/키
+  originalName String?
+  mimeType     String?
+  sizeBytes    BigInt?
+  checksumSha256 String? // 중복/무결성 체크용(선택)
+
+  width        Int?     // 이미지면
+  height       Int?
+  durationSec  Int?     // 영상/오디오면
+
+  createdAt    DateTime @default(now())
+  deletedAt    DateTime?
+
+  postLinks    PostFile[]
+}
+
 model Post {
   id          Int       @id @default(autoincrement())
   title       String
@@ -62,11 +82,32 @@ model Post {
   author      User      @relation(fields: [authorId], references: [id])
   category    Category? @relation(fields: [categoryId], references: [id])
   tags        Tag[]     @relation("PostToTag")
+  lat         Float?
+  lng         Float?
+  files       PostFile[]
 
   @@index([state, createdAt])
   @@index([authorId, createdAt])
   @@index([categoryId])
+  @@index([lat, lng])
+  @@index([files])
 }
+
+model PostFile {
+  postId   Int
+  fileId   String
+
+  role     String? // "cover" | "inline" | "gallery" | "attachment"
+  sort     Int     @default(0)
+  alt      String?
+
+  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  file     File   @relation(fields: [fileId], references: [id], onDelete: Restrict)
+
+  @@id([postId, fileId])
+  @@index([fileId])
+}
+
 
 enum PostState {
   DRAFT

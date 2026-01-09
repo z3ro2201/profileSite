@@ -66,9 +66,29 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
   return (
     <form onSubmit={onSubmit}>
       <h1 className="text-[1.5rem] font-bold">글 {PostType === "new" ? "작성" : "수정"}</h1>
-      <input type="text" className="block my-2 p-2 w-full border border-gray-800/20 rounded-lg" value={title} onChange={(event) => setTitle(event.target.value)} />
+      <div className="w-full flex gap-2 flex-col lg:flex-row">
+        <div className="w-full lg:w-[20%]">
+          <select name="" id="" className="block my-2 p-2 w-full border border-gray-800/20 rounded-lg"></select>
+        </div>
+        <input type="text" className="block my-2 p-2 w-full border border-gray-800/20 rounded-lg" value={title} onChange={(event) => setTitle(event.target.value)} />
+      </div>
       <Editor ref={editorRef} initialValue={PostContent ?? ""} previewStyle="vertical" height="600px" initialEditType="markdown" useCommandShortcut={true} />
+      <div className="flex flex-col">
+        <p>파일</p>
+        <ul className="my-1 p-1 w-full h-[100px] border-1 border-gray-800/20 rounded-lg"></ul>
+      </div>
       <input type="text" className="block my-2 p-2 w-full border border-gray-800/20 rounded-lg" value={tagText} onChange={(event) => setTagText(event.target.value)} placeholder="태그 ,로 구분" />
+      <div className="flex flex-col">
+        <p>위치</p>
+        <div className="flex justify-between gap-2">
+          <div className="w-full">
+            <input type="text" id="" className="block my-2 p-2 w-full border border-gray-800/20 rounded-lg" placeholder="위도(lat)" />
+          </div>
+          <div className="w-full">
+            <input type="text" id="" className="block my-2 p-2 w-full border border-gray-800/20 rounded-lg" placeholder="경도(lng)" />
+          </div>
+        </div>
+      </div>
       <div className="flex justify-between items-center">
         <div>
           <input type="radio" id="radioPostStateDraft" name="postState" value="DRAFT" onChange={(e) => setPostState("DRAFT")} checked={postState === "DRAFT"} />

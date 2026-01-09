@@ -46,9 +46,14 @@ const BlogPostViewPage = async (props: Props) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[260px_1fr]">
+      <div className="relative p-4 lg:px-8 lg:py-4 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_260px]">
+        {/* 본문 */}
+        <article className="prose max-w-none">
+          <div dangerouslySetInnerHTML={{ __html: finalHtml }} />
+        </article>
+
         {/* TOC */}
-        <aside className="lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:overflow-auto">
+        <aside className="fixed lg:sticky lg:top-6 lg:overflow-auto">
           <div className="rounded-xl border border-black/10 bg-white p-5">
             <div className="text-xl font-extrabold">Contents</div>
 
@@ -65,11 +70,6 @@ const BlogPostViewPage = async (props: Props) => {
             </nav>
           </div>
         </aside>
-
-        {/* 본문 */}
-        <article className="prose max-w-none">
-          <div dangerouslySetInnerHTML={{ __html: finalHtml }} />
-        </article>
       </div>
     </>
   );
