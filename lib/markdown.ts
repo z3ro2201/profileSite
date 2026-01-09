@@ -4,14 +4,13 @@ import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 
-// 필요하면 허용 태그/속성 확장 가능
 const schema = {
   ...defaultSchema,
   attributes: {
-    ...defaultSchema.attributes,
-    // 예: code block에 class 허용(하이라이트용)
-    code: [...(defaultSchema.attributes?.code ?? []), ["className"]],
-    span: [...(defaultSchema.attributes?.span ?? []), ["className"]],
+    ...(defaultSchema.attributes ?? {}),
+    code: [...(((defaultSchema.attributes as any)?.code as any[]) ?? []), "className"],
+    span: [...(((defaultSchema.attributes as any)?.span as any[]) ?? []), "className"],
+    pre: [...(((defaultSchema.attributes as any)?.pre as any[]) ?? []), "className"],
   },
 };
 
@@ -19,7 +18,7 @@ export async function markdownToHtml(md: string) {
   const file = await remark()
     .use(remarkGfm)
     .use(remarkRehype)
-    .use(rehypeSanitize, schema)
+    .use(rehypeSanitize, schema as any)
     .use(rehypeStringify)
     .process(md ?? "");
 
