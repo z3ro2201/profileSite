@@ -1,6 +1,6 @@
 import { apiFetch } from "@/lib/apiFetch";
 import type { PublicPostDetailResponse } from "@/types/Posts";
-import { markdownToHtml } from "@/lib/markdown";
+import { markdownToHtmlWithToc } from "@/lib/markdown";
 
 type Props = {
   params: Promise<{ id?: string | string[] }>;
@@ -23,7 +23,8 @@ const BlogPostViewPage = async (props: Props) => {
     cache: "no-store",
   });
 
-  const html = await markdownToHtml(post.contentMd);
+  const { html, toc } = await markdownToHtmlWithToc(post.contentMd);
+  const finalHtml = post.contentHtml ?? html;
 
   return (
     <>
@@ -44,10 +45,32 @@ const BlogPostViewPage = async (props: Props) => {
           </div>
         </div>
       </div>
-      {/* 본문은 markdown 렌더러 붙이기 전이라면 일단 이렇게 */}
-      <article className="p-6 prose max-w-none">
-        <div dangerouslySetInnerHTML={{ __html: html }} />
-      </article>
+
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[260px_1fr]">
+        {/* TOC */}
+        <aside className="lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:overflow-auto">
+          <div className="rounded-xl border border-black/10 bg-white p-5">
+            <div className="text-xl font-extrabold">Contents</div>
+
+            <nav className="mt-4 space-y-2 text-[15px] leading-6">
+              {toc.length === 0 ? (
+                <div className="text-black/50">No headings</div>
+              ) : (
+                toc.map((item) => (
+                  <a key={item.id} href={`#${item.id}`} className={["block text-black/70 hover:text-black", item.level === 2 ? "pl-0" : item.level === 3 ? "pl-4" : "pl-8"].join(" ")}>
+                    {item.text}
+                  </a>
+                ))
+              )}
+            </nav>
+          </div>
+        </aside>
+
+        {/* 본문 */}
+        <article className="prose max-w-none">
+          <div dangerouslySetInnerHTML={{ __html: finalHtml }} />
+        </article>
+      </div>
     </>
   );
 };
