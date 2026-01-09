@@ -1,5 +1,6 @@
 import { apiFetch } from "@/lib/apiFetch";
 import type { PublicPostDetailResponse } from "@/types/Posts";
+import { markdownToHtml } from "@/lib/markdown";
 
 type Props = {
   params: Promise<{ id?: string | string[] }>;
@@ -22,6 +23,8 @@ const BlogPostViewPage = async (props: Props) => {
     cache: "no-store",
   });
 
+  const html = await markdownToHtml(post.contentMd);
+
   return (
     <>
       <div className="pl-6 pr-4 pt-4 pb-6 w-full h-[calc(100%/2)] flex flex-col justify-end bg-[rgba(0,0,0,.5)] text-white">
@@ -41,9 +44,10 @@ const BlogPostViewPage = async (props: Props) => {
           </div>
         </div>
       </div>
-
       {/* 본문은 markdown 렌더러 붙이기 전이라면 일단 이렇게 */}
-      <div className="p-6 whitespace-pre-wrap">{post.contentMd}</div>
+      <article className="p-6 prose max-w-none">
+        <div dangerouslySetInnerHTML={{ __html: html }} />
+      </article>
     </>
   );
 };
