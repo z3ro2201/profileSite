@@ -6,14 +6,17 @@ const ADMIN_PUBLIC_PATHS = ["/admin/login", "/admin/logout"];
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-pathname", pathname);
+
   // ✅ /admin 이외는 통과
-  if (!pathname.startsWith("/admin")) {
-    return NextResponse.next();
+  if (!pathname.startsWith("/admin") && !pathname.startsWith("/api/admin")) {
+    return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
   // ✅ 관리자 공개 경로는 통과 (login, logout)
   if (ADMIN_PUBLIC_PATHS.includes(pathname)) {
-    return NextResponse.next();
+    return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
   const token = req.cookies.get(getAuthCookieName())?.value;
@@ -26,7 +29,7 @@ export async function middleware(req: NextRequest) {
 
   try {
     await verifyAuthToken(token);
-    return NextResponse.next();
+    return NextResponse.next({ request: { headers: requestHeaders } });
   } catch {
     const url = req.nextUrl.clone();
     url.pathname = "/admin/login";
@@ -37,6 +40,6 @@ export async function middleware(req: NextRequest) {
 
 // ✅ api 제외 (중요)
 export const config = {
-  // matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  // matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)"],
 };

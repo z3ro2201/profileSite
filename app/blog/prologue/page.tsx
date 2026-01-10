@@ -9,23 +9,23 @@ const PrologPage = async () => {
   const [{ posts }, { tags }] = await Promise.all([apiFetch<PublicPostListResponse>("/blog/posts/list?take=5", { next: { revalidate: 60 } }), apiFetch<RecentTagsResponse>("/blog/tags/recent?take=10", { next: { revalidate: 60 } })]);
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-5 py-10">
+    <div className="mx-auto w-full px-5 py-10">
       <header className="mb-8">
         <h1 className="text-3xl font-bold">프롤로그</h1>
         <p className="mt-3 text-sm opacity-80">개발/기록/메모를 쌓는 공간. 짧아도 일단 남긴다.</p>
 
         <div className="mt-5 flex gap-2">
-          <Link href="/blog/posts" className="rounded-lg border border-black/15 px-3 py-2 text-sm hover:bg-black/5">
+          <Link href="/blog/posts" className="px-3 py-2 rounded-lg bg-white border border-black/15 text-sm hover:bg-black/5">
             전체 글
           </Link>
           {tags.map((t) => (
-            <Link key={t.slug} href={`/blog/posts?tag=${t.slug}`} className="rounded-lg border border-black/15 px-3 py-2 text-sm hover:bg-black/5" title={`사용 ${t.usedCount}회`}>
+            <Link key={t.slug} href={`/blog/posts?tag=${t.slug}`} className="px-3 py-2 rounded-lg bg-white border border-black/15 text-sm hover:bg-black/5" title={`사용 ${t.usedCount}회`}>
               #{t.slug}
             </Link>
           ))}
         </div>
       </header>
-      <section>
+      <section className="p-4 min-h-[calc(100%-2rem)] bg-white rounded-lg">
         <div className="mb-3 flex items-end justify-between">
           <h2 className="text-xl font-semibold">최신 글</h2>
           <Link href="/blog/posts" className="text-sm underline opacity-70 hover:opacity-100">
