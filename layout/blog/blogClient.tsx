@@ -20,14 +20,16 @@ const BlogSideMenu = ({ categories }: { categories: Categories[] }) => {
 
   return (
     <aside className={cn("my-3 ms-4 w-[250px] h-[calc(100%-2rem)] rounded-xl bg-white z-100 shadow-lg", useMenu ? "fixed" : "hidden")}>
-      <Link href="/blog" className="p-6 flex h-[70px] items-center text-xl font-bold">
+      <Link href={pathname.startsWith("/blog/prologue") ? "/blog/prologue" : "/blog/posts"} className="p-6 flex h-[70px] items-center text-xl font-bold">
         2ER0
       </Link>
       <hr className="my-2 h-px border-0 bg-gradient-to-r from-transparent via-black/40 to-transparent" />
       <ul>
         {categorys.map((item, key) => (
           <li key={key}>
-            <Link href={`/blog/posts?category=${item.name}`}>{item.name}</Link>
+            <Link href={`/blog/posts?category=${item.name}`} className="px-6 py-2 block">
+              {item.name}
+            </Link>
           </li>
         ))}
       </ul>

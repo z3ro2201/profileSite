@@ -45,7 +45,7 @@ const Season3Main = async () => {
         </li>
 
         <li>
-          <Link href="/blog" title={social.blog}>
+          <Link href="/blog/prologue" title={social.blog}>
             <FontAwesomeIcon icon={faBlog} />
           </Link>
           <span className="textSubtitles">{social.blog}</span>

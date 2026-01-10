@@ -43,6 +43,7 @@ export type PublicPostListItem = {
   author: {
     name: string | null;
   };
+  contentHtml?: string | null;
 };
 
 export type PublicPostListResponse = {

@@ -1,4 +1,3 @@
-// app/api/blog/posts/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
@@ -26,16 +25,26 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
 
     const q = (url.searchParams.get("q") ?? "").trim();
-    const scope = parseScope(url.searchParams.get("scope")); // ✅ all|post|tag|category
+    const scope = parseScope(url.searchParams.get("scope"));
 
-    // ✅ optional filters (slug)
     const category = (url.searchParams.get("category") ?? "").trim();
     const tag = (url.searchParams.get("tag") ?? "").trim();
 
-    const take = clampInt(url.searchParams.get("take"), 10, 1, 50);
+    // ✅ "필터 없음" 판정 (q/scope/category/tag/cursor/take 모두 없을 때)
+    const hasQuery = !!q;
+    const hasCategory = !!category;
+    const hasTag = !!tag;
+    const hasScope = (url.searchParams.get("scope") ?? "").trim().length > 0; // 명시된 경우만 true
+
     const cursorRaw = url.searchParams.get("cursor");
     const cursor = cursorRaw ? Number(cursorRaw) : null;
     if (cursorRaw && !Number.isFinite(cursor!)) return jsonBad("Invalid cursor");
+
+    const takeRaw = url.searchParams.get("take");
+    const isFeed = !hasQuery && !hasCategory && !hasTag && !hasScope && !cursorRaw && !takeRaw;
+
+    // ✅ take: 기본 10이지만, feed(필터 없음)면 4로
+    const take = clampInt(takeRaw, isFeed ? 4 : 10, 1, 50);
 
     // ---------------------------
     // where
@@ -49,24 +58,16 @@ export async function GET(req: Request) {
       if (scope === "post") {
         where.title = { contains: q };
       } else if (scope === "tag") {
-        // tag "slug"로 검색 (원하면 name 검색도 OR로 추가 가능)
         where.tags = { some: { slug: q } };
       } else if (scope === "category") {
         where.category = { slug: q };
       } else {
-        // scope === "all": OR 검색
-        // - 제목 contains q
-        // - 카테고리 slug가 q
-        // - 태그 slug가 q
         where.OR = [{ title: { contains: q } }, { category: { slug: q } }, { tags: { some: { slug: q } } }];
       }
     }
 
     // ✅ additional filters (AND)
-    // category/tag 파라미터가 들어오면 위 검색 조건과 함께 AND로 묶임
     if (category) {
-      // where.category가 이미 있더라도 AND로 강제할 거면 아래 방식이 안전
-      // (scope=category + category=... 같이 썼을 때도 일관됨)
       where.AND = [...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []), { category: { slug: category } }];
     }
 
@@ -85,6 +86,10 @@ export async function GET(req: Request) {
         publishedAt: true,
         createdAt: true,
         updatedAt: true,
+
+        // ✅ feed 모드에서만 단건처럼 렌더할 본문을 내려줌
+        contentHtml: isFeed,
+
         category: { select: { slug: true, name: true } },
         tags: { select: { slug: true, name: true } },
         author: { select: { name: true } },
@@ -104,10 +109,10 @@ export async function GET(req: Request) {
         tag,
         take,
         cursor,
+        mode: isFeed ? "feed" : "list",
       },
     });
-  } catch (e) {
-    // 내부 에러는 메시지 노출 최소화
+  } catch {
     return jsonBad("Server error", 500);
   }
 }
