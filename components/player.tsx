@@ -62,7 +62,7 @@ const Player = ({ onBgImageChange }: PlayerProps) => {
   // --- player state ---
   const [viewPlayer, setViewPlayer] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
   // ✅ i18n display
   const [lang, setLang] = useState<Lang>("ko");
@@ -153,7 +153,7 @@ const Player = ({ onBgImageChange }: PlayerProps) => {
       width: 640,
       height: 390,
       playerVars: {
-        autoplay: 1,
+        autoplay: 0,
         rel: 0,
         modestbranding: 1,
       },
@@ -278,7 +278,10 @@ const Player = ({ onBgImageChange }: PlayerProps) => {
           {viewPlayer ? <PanelBottomOpen className="w-4" /> : <PanelTopOpen className="w-4" />}
         </button>
 
-        <MarqueeTitle className={cn("ml-2 text-xs opacity-90 line-clamp-1", viewPlayer ? "max-w-[500px]" : "w-[240px]")} text={hasValid ? displayTitle : lang === "ja" ? "再生可能な曲がありません（videoIdなし）" : lang === "en" ? "No playable tracks (missing videoId)" : "재생 가능한 곡이 없습니다 (videoId 누락)"} />
+        <MarqueeTitle
+          className={cn("ml-2 text-xs opacity-90 line-clamp-1", viewPlayer ? "max-w-[500px]" : "w-[240px]")}
+          text={hasValid ? displayTitle : lang === "ja" ? "再生可能な曲がありません（videoIdなし）" : lang === "en" ? "No playable tracks (missing videoId)" : "재생 가능한 곡이 없습니다 (videoId 누락)"}
+        />
       </div>
 
       {/* YouTube always mounted */}

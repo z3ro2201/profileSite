@@ -6,6 +6,8 @@ import { cookies, headers } from "next/headers";
 import { verifyAuthToken, getAuthCookieName } from "@/lib/auth/jwt";
 
 import { BlogSideMenu, ContentLayout } from "@/layout/blog/blogClient";
+import { apiFetch } from "@/lib/apiFetch";
+import type { CategoryListResponse, Categories } from "@/types/Category";
 
 const BlogLayout = async ({ children }: { children: ReactNode }) => {
   const h = await headers();
@@ -31,11 +33,13 @@ const BlogLayout = async ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const category = await apiFetch<CategoryListResponse>(`/blog/category/list`, { cache: "force-cache" });
+
   return (
     <div className="min-h-screen w-screen overflow-auto">
       <div className="absolute w-full min-h-[300px] bg-lime-400/20"></div>
 
-      <BlogSideMenu />
+      <BlogSideMenu categories={category?.categories ?? []} />
       <ContentLayout isLoggedIn={isLoggedIn} user={user}>
         <section className="w-full h-[calc(100%-60px-1rem)]">{children}</section>
       </ContentLayout>

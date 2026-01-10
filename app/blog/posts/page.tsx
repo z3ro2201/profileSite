@@ -1,24 +1,25 @@
 import { apiFetch } from "@/lib/apiFetch";
 import type { PublicPostListResponse } from "@/types/Posts";
-
 import Link from "next/link";
 
+type SearchParams = {
+  category?: string | string[];
+  tag?: string | string[];
+  q?: string;
+};
+
 type Props = {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams?: Promise<SearchParams>;
 };
 
 const BlogListPage = async ({ searchParams }: Props) => {
+  const sp = (await searchParams) ?? {}; // ✅ Promise unwrap
+
   const qs = new URLSearchParams();
 
-  if (typeof searchParams?.category === "string") {
-    qs.set("category", searchParams.category);
-  }
-  if (typeof searchParams?.tag === "string") {
-    qs.set("tag", searchParams.tag);
-  }
-  if (typeof searchParams?.q === "string") {
-    qs.set("q", searchParams.q);
-  }
+  if (typeof sp.category === "string") qs.set("category", sp.category);
+  if (typeof sp.tag === "string") qs.set("tag", sp.tag);
+  if (typeof sp.q === "string") qs.set("q", sp.q);
 
   const query = qs.toString();
 

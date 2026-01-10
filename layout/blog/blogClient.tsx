@@ -1,5 +1,6 @@
 "use client";
 import type { SessionUserProp } from "@/types/Users";
+import type { Categories } from "@/types/Category";
 
 import { cn } from "@/lib/cn";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
@@ -9,9 +10,10 @@ import { LogInIcon } from "lucide-react";
 
 import Link from "next/link";
 
-const BlogSideMenu = () => {
+const BlogSideMenu = ({ categories }: { categories: Categories[] }) => {
   const pathname = usePathname();
 
+  const categorys = categories.sort();
   const [mounted, setMounted] = useState(false);
   const useMenu = mounted ? !pathname.startsWith("/blog/prologue") : true;
   useEffect(() => setMounted(true), []);
@@ -22,6 +24,13 @@ const BlogSideMenu = () => {
         2ER0
       </Link>
       <hr className="my-2 h-px border-0 bg-gradient-to-r from-transparent via-black/40 to-transparent" />
+      <ul>
+        {categorys.map((item, key) => (
+          <li key={key}>
+            <Link href={`/blog/posts?category=${item.name}`}>{item.name}</Link>
+          </li>
+        ))}
+      </ul>
     </aside>
   );
 };

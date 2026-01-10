@@ -21,21 +21,18 @@ const BlogPostViewPage = async (props: Props) => {
   }
 
   // ✅ 단건 API 호출 (apiFetch는 내부적으로 /api 붙임)
-  const { post } = await apiFetch<PublicPostDetailResponse>(`/blog/posts/${postId}`, {
-    cache: "no-store",
-  });
+  const { post } = await apiFetch<PublicPostDetailResponse>(`/blog/posts/${postId}`, { cache: "force-cache" });
 
   const { html, toc } = await markdownToHtmlWithToc(post.contentMd);
   const finalHtml = post.contentHtml ?? html;
 
   return (
     <div className="mx-auto w-full px-5 py-10">
-      <div className="p-2 mb-2 w-full h-[146px] flex flex-col justify-end dark:text-white">
+      <div className="p-2 mb-2 w-full h-[146px] flex flex-col justify-end">
         <div className="mb-2">
           <div className="w-full">
             <span className="py-1 px-3 min-w-[50px] inline-block bg-black text-white rounded-full text-[.8rem]">{post.category?.name ?? "Uncategorized"}</span>
           </div>
-
           <h1 className="pb-1 inline-block border-b border-white text-[2.24rem] font-bold">{post.title}</h1>
         </div>
 
@@ -50,7 +47,7 @@ const BlogPostViewPage = async (props: Props) => {
 
       <div className={cn("relative py-2 pr-4 lg:pt-6 lg:pr-6", toc.length > 0 ? "grid grid-cols-1 gap-10 lg:grid-cols-[1fr_260px]" : "")}>
         {/* 본문 */}
-        <article className="px-4 py-6 prose max-w-none bg-white border border-black/10 rounded-lg">
+        <article className="px-3 py-2 prose max-w-none bg-white border border-black/10 rounded-lg">
           <div dangerouslySetInnerHTML={{ __html: finalHtml }} />
         </article>
 

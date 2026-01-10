@@ -7,8 +7,6 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://2er0.io"),
   title: "2ER0 - 처음부터 다시 시작하다.",
   description: "처음부터 다시 시작하다.",
-  colorScheme: "light",
-  themeColor: "#ffffff",
   authors: [{ name: "2ER0" }],
   icons: {
     icon: [{ url: "/favicon.ico" }, { url: "/favicon.png", type: "image/png", sizes: "250x250" }],
@@ -39,6 +37,8 @@ export const metadata: Metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#ffffff",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
