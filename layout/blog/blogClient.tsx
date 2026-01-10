@@ -85,16 +85,20 @@ const ContentLayout = ({ children, isLoggedIn, user }: { children: ReactNode; is
         <nav className="flex items-center">
           <ol className="flex flex-wrap">
             {menuList.map((item, key) => {
-              const isRoot = item.menuLink === "/";
               const isActive = (() => {
                 if (item.menuLink === "/") {
                   return pathname === "/";
                 }
 
-                const escaped = item.menuLink.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-                const regex = new RegExp(`^${escaped}($|/|\\?)`);
+                const base = item.menuLink;
 
-                return regex.test(pathname + window.location.search);
+                // 정확히 일치
+                if (pathname === base) return true;
+
+                // 하위 경로 (/blog/posts/123)
+                if (pathname.startsWith(base + "/")) return true;
+
+                return false;
               })();
 
               return (

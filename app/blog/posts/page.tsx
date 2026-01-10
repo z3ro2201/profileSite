@@ -3,6 +3,7 @@ import type { PublicPostListResponse } from "@/types/Posts";
 import Link from "next/link";
 
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 type SearchParams = {
   category?: string | string[];
@@ -14,9 +15,17 @@ type Props = {
   searchParams?: Promise<SearchParams>;
 };
 
+// 잘못된 페이지 접근
+const validateSearchParams = (sp: SearchParams) => {
+  const invalid = (sp.category !== undefined && typeof sp.category !== "string") || (sp.tag !== undefined && typeof sp.tag !== "string") || (sp.q !== undefined && typeof sp.q !== "string");
+
+  if (invalid) notFound();
+};
+
+// 메타데이터
 export const generateMetadata = async ({ searchParams }: Props): Promise<Metadata> => {
   const sp = (await searchParams) ?? {};
-
+  validateSearchParams(sp);
   const category = typeof sp.category === "string" ? decodeURIComponent(sp.category) : "";
   const tag = typeof sp.tag === "string" ? decodeURIComponent(sp.tag) : "";
   const q = typeof sp.q === "string" ? sp.q.trim() : "";
@@ -35,9 +44,10 @@ export const generateMetadata = async ({ searchParams }: Props): Promise<Metadat
 
   return { title, description };
 };
-
+// 본문
 const BlogListPage = async ({ searchParams }: Props) => {
   const sp = (await searchParams) ?? {};
+  validateSearchParams(sp);
 
   const qs = new URLSearchParams();
 
@@ -61,19 +71,33 @@ const BlogListPage = async ({ searchParams }: Props) => {
   // ✅ feed 모드: 필터 없을 때
   const isFeed = !hasFilter;
 
+  // ✅ 등록된 글이 없는경우
+  const isEmpty = posts.length === 0;
+
   return (
-    <div className="mx-auto w-full max-w-3xl px-5 py-10">
+    <div className="mx-auto w-full px-5 py-10">
       {hasFilter && (
         <header className="mb-8">
           <h1 className="text-3xl font-bold">{pageTitle}</h1>
         </header>
       )}
 
-      <section>
-        {isFeed ? (
+      <section className="w-full">
+        {isEmpty ? (
+          <div className="py-20 text-center text-black/60 bg-white border border-black/10 rounded-2xl">
+            <p className="text-lg font-semibold">등록된 글이 없습니다</p>
+            <p className="mt-2 text-sm">조건을 변경하거나 전체 글을 확인해보세요.</p>
+
+            <div className="mt-6">
+              <Link href="/blog/posts" className="inline-flex rounded-xl border border-black/10 px-4 py-2 text-sm hover:bg-black/5">
+                전체 글 보기
+              </Link>
+            </div>
+          </div>
+        ) : isFeed ? (
           <div className="space-y-10">
             {posts.map((p) => (
-              <article key={p.id} className="rounded-2xl border border-black/10 bg-white p-6">
+              <article key={p.id} className="p-6 rounded-2xl border border-black/10 bg-white">
                 <header className="mb-4">
                   <Link href={`/blog/posts/view/${p.id}`} className="hover:underline">
                     <h2 className="text-2xl font-bold">{p.title}</h2>
@@ -95,7 +119,7 @@ const BlogListPage = async ({ searchParams }: Props) => {
         ) : (
           <div className="space-y-3">
             {posts.map((p) => (
-              <Link href={`/blog/posts/view/${p.id}`} className="block rounded-xl border border-black/10 p-4 hover:bg-black/5" key={p.id}>
+              <Link href={`/blog/posts/view/${p.id}`} className="p-4 block bg-white rounded-xl border border-gray-800/10 hover:border-gray-800/50 hover:bg-white/80" key={p.id}>
                 <h2>{p.title}</h2>
                 <small>{p.publishedAt ? new Date(p.publishedAt).toLocaleDateString("ko-KR") : ""}</small>
               </Link>
