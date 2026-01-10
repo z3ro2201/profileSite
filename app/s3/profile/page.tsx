@@ -14,8 +14,8 @@ const Season3Profile = async () => {
       <div className="p-4 m-2 w-full md:w-[24rem] bg-[var(--secondary-color)] border-1 border-[var(--navTabLink)] rounded-sm">
         <div className="pb-2 mb-2 flex justify-between items-center border-b-2 border-[var(--primary-text)]">
           <div className="flex flex-col gap-1">
-            <h3 className="text-[26px] font-bold">{profile.siteTitle}</h3>
-            <span className="block text-[15px]">{profile.siteDescription}</span>
+            <h1 className="text-[26px] font-bold">{profile.siteTitle}</h1>
+            <h4 className="block text-[15px]">{profile.siteDescription}</h4>
           </div>
           <Image src="/s3/profile-bg.webp" width={75} height={75} alt="쓰다듬어줘!!" />
         </div>
@@ -27,7 +27,7 @@ const Season3Profile = async () => {
         <div className="s3-row">
           <h3>{profile.gameNameTitle}</h3>
           <span className="underline">
-            <Link href="https://lostark.game.onstove.com/Profile/Character/자유를찾아서외쳐라" target="_blank">
+            <Link href="https://lostark.game.onstove.com/Profile/Character/자유를찾아서외쳐라" target="_blank" title={`${profile.gameNameTitle} ${profile.gameName}`}>
               {profile.gameName}
             </Link>
           </span>
@@ -35,13 +35,17 @@ const Season3Profile = async () => {
         <div className="s3-row">
           <h3>{profile.emailTitle}</h3>
           <span className="underline">
-            <Link href="mailto:hello@2er0.io">hello@2er0.io</Link>
+            <Link href="mailto:hello@2er0.io" title={profile.emailTitle}>
+              hello@2er0.io
+            </Link>
           </span>
         </div>
         <div className="s3-row">
           <h3>{profile.githubTitle}</h3>
           <span className="underline">
-            <Link href="//github.com/z3ro2201">z3ro2201</Link>
+            <Link href="//github.com/z3ro2201" target="_blank" title={profile.githubTitle}>
+              z3ro2201
+            </Link>
           </span>
         </div>
         <div className="s3-row">

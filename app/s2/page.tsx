@@ -1,12 +1,17 @@
-"use client";
-import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faInfo, faRss } from "@fortawesome/free-solid-svg-icons";
+import { faInfo } from "@fortawesome/free-solid-svg-icons";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 
 import { faReply } from "@fortawesome/free-solid-svg-icons";
 
 import Link from "next/link";
+
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "2ERO.io - 환영메시지에요.",
+  description: "환영메시지에요. 홈페이지에 오신것을 환영해요. 브금이 흘러나오니 소리를 켜주세요.",
+};
 
 export default function Home() {
   return (

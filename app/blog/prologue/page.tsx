@@ -1,10 +1,18 @@
-import { Undo } from "lucide-react";
+import type { Metadata } from "next";
 
 import { apiFetch } from "@/lib/apiFetch";
 import type { PublicPostListResponse } from "@/types/Posts";
 import type { RecentTagsResponse } from "@/types/Tags";
 
 import Link from "next/link";
+
+export const generateMetadata = async (): Promise<Metadata> => {
+  return {
+    title: "프롤로그",
+    description: "개발/기록/메모를 쌓는 공간. 짧아도 일단 남긴다.",
+  };
+};
+
 const PrologPage = async () => {
   const [{ posts }, { tags }] = await Promise.all([apiFetch<PublicPostListResponse>("/blog/posts/list?take=5", { next: { revalidate: 60 } }), apiFetch<RecentTagsResponse>("/blog/tags/recent?take=10", { next: { revalidate: 60 } })]);
 

@@ -10,6 +10,25 @@ import { getDict } from "@/lib/i18n/dict";
 
 import Link from "next/link";
 
+import type { Metadata } from "next";
+
+export const generateMetadata = async (): Promise<Metadata> => {
+  return {
+    title: "2ER0",
+    description: "개발과 기록을 쌓아가는 공간. 블로그, 프로젝트, 그리고 개인적인 메모를 정리합니다.",
+    openGraph: {
+      title: "2ER0",
+      description: "개발과 기록을 쌓아가는 공간. 블로그와 프로젝트를 한 곳에.",
+      url: "https://2er0.io/s3",
+      type: "website",
+    },
+    twitter: {
+      title: "2ER0",
+      description: "개발과 기록을 쌓아가는 공간. 블로그와 프로젝트를 한 곳에.",
+    },
+  };
+};
+
 export const dynamic = "force-static";
 
 const Season3Main = async () => {

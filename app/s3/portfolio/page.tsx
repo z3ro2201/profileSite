@@ -1,6 +1,42 @@
 import NoImage from "@/components/noimage";
 import Image from "next/image";
 import { GalleryContainer, GalleryPicture, GalleryInfo } from "@/components/gallery";
+
+import type { Metadata } from "next";
+
+export const generateMetadata = async (): Promise<Metadata> => {
+  const title = "포트폴리오";
+  const description = "웹 개발자 2ER0의 포트폴리오입니다. 과거 수상이력과, 취미로 만든 PHP·Next.js·Node.js·Asterisk 기반 사이드 프로젝트를 정리했습니다.";
+
+  return {
+    title,
+    description,
+
+    openGraph: {
+      title: `2ER0 ${title}`,
+      description,
+      url: "https://2er0.io/s3/profile", // 실제 경로로 맞춰줘
+      siteName: "2er0.io",
+      type: "website",
+      images: [
+        {
+          url: "/preview.png", // 전역 OG 이미지 재사용 or 포트폴리오 전용 이미지
+          width: 1200,
+          height: 630,
+          alt: "2ER0 Portfolio OpenGraph Image",
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title: `2ER0 ${title}`,
+      description,
+      images: ["/preview.png"],
+    },
+  };
+};
+
 const PortfolioPage = () => {
   return (
     <div className="pt-[calc(64px+1rem)] px-2 flex w-full justify-center">

@@ -2,6 +2,8 @@ import { apiFetch } from "@/lib/apiFetch";
 import type { PublicPostListResponse } from "@/types/Posts";
 import Link from "next/link";
 
+import type { Metadata } from "next";
+
 type SearchParams = {
   category?: string | string[];
   tag?: string | string[];
@@ -10,6 +12,28 @@ type SearchParams = {
 
 type Props = {
   searchParams?: Promise<SearchParams>;
+};
+
+export const generateMetadata = async ({ searchParams }: Props): Promise<Metadata> => {
+  const sp = (await searchParams) ?? {};
+
+  const category = typeof sp.category === "string" ? decodeURIComponent(sp.category) : "";
+  const tag = typeof sp.tag === "string" ? decodeURIComponent(sp.tag) : "";
+  const q = typeof sp.q === "string" ? sp.q.trim() : "";
+
+  // title
+  let title = "전체목록";
+  if (category) title = `${category}의 글 목록`;
+  else if (tag) title = `#${tag} 글 목록`;
+  else if (q) title = `"${q}" 검색 결과`;
+
+  // description
+  let description = "블로그 전체 글 목록";
+  if (category) description = `${category} 카테고리 글 모음`;
+  else if (tag) description = `${tag} 태그가 포함된 글 모음`;
+  else if (q) description = `"${q}"에 대한 검색 결과`;
+
+  return { title, description };
 };
 
 const BlogListPage = async ({ searchParams }: Props) => {

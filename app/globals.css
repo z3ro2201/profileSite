@@ -117,11 +117,7 @@ body {
 }
 
 .s3-main .textSubtitles {
-  @apply hidden mt-1 h-[25px] text-[13px] font-bold;
-}
-
-.s3-main li a:hover + .textSubtitles {
-  @apply block;
+  @apply block mt-1 h-[25px] text-[13px] font-bold;
 }
 
 .s3-row {

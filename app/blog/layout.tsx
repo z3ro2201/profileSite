@@ -9,6 +9,13 @@ import { BlogSideMenu, ContentLayout } from "@/layout/blog/blogClient";
 import { apiFetch } from "@/lib/apiFetch";
 import type { CategoryListResponse, Categories } from "@/types/Category";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "2ERO - Blog",
+  description: "2ER0 블로그",
+};
+
 const BlogLayout = async ({ children }: { children: ReactNode }) => {
   const h = await headers();
   const pathname = h.get("x-pathname");

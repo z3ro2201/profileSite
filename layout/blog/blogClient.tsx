@@ -86,9 +86,16 @@ const ContentLayout = ({ children, isLoggedIn, user }: { children: ReactNode; is
           <ol className="flex flex-wrap">
             {menuList.map((item, key) => {
               const isRoot = item.menuLink === "/";
-              const isActive = isRoot
-                ? pathname === "/" // ✅ 루트는 정확히 일치할 때만
-                : pathname.startsWith(item.menuLink); // ✅ 나머지는 prefix 매칭
+              const isActive = (() => {
+                if (item.menuLink === "/") {
+                  return pathname === "/";
+                }
+
+                const escaped = item.menuLink.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                const regex = new RegExp(`^${escaped}($|/|\\?)`);
+
+                return regex.test(pathname + window.location.search);
+              })();
 
               return (
                 <li className="not-last:mr-1" key={key}>
