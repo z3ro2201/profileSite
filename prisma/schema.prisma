@@ -49,39 +49,39 @@ model Tag {
 }
 
 model File {
-  id           String   @id @default(cuid())
-  storage      String   // "s3" | "r2" | "local"
-  bucket       String?
-  objectKey    String   // 스토리지 경로/키
-  originalName String?
-  mimeType     String?
-  sizeBytes    BigInt?
+  id             String  @id @default(cuid())
+  storage        String // "s3" | "r2" | "local"
+  bucket         String?
+  objectKey      String // 스토리지 경로/키
+  originalName   String?
+  mimeType       String?
+  sizeBytes      BigInt?
   checksumSha256 String? // 중복/무결성 체크용(선택)
 
-  width        Int?     // 이미지면
-  height       Int?
-  durationSec  Int?     // 영상/오디오면
+  width       Int? // 이미지면
+  height      Int?
+  durationSec Int? // 영상/오디오면
 
-  createdAt    DateTime @default(now())
-  deletedAt    DateTime?
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
 
-  postLinks    PostFile[]
+  postLinks PostFile[]
 }
 
 model Post {
-  id          Int       @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   title       String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   authorId    Int
   categoryId  Int?
-  contentHtml String?   @db.LongText
-  contentMd   String    @db.LongText
+  contentHtml String?    @db.LongText
+  contentMd   String     @db.LongText
   publishedAt DateTime?
-  state       PostState @default(DRAFT)
-  author      User      @relation(fields: [authorId], references: [id])
-  category    Category? @relation(fields: [categoryId], references: [id])
-  tags        Tag[]     @relation("PostToTag")
+  state       PostState  @default(DRAFT)
+  author      User       @relation(fields: [authorId], references: [id])
+  category    Category?  @relation(fields: [categoryId], references: [id])
+  tags        Tag[]      @relation("PostToTag")
   lat         Float?
   lng         Float?
   files       PostFile[]
@@ -90,24 +90,22 @@ model Post {
   @@index([authorId, createdAt])
   @@index([categoryId])
   @@index([lat, lng])
-  @@index([files])
 }
 
 model PostFile {
-  postId   Int
-  fileId   String
+  postId Int
+  fileId String
+  role   String?
+  sort   Int     @default(0)
+  alt    String?
 
-  role     String? // "cover" | "inline" | "gallery" | "attachment"
-  sort     Int     @default(0)
-  alt      String?
-
-  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  file     File   @relation(fields: [fileId], references: [id], onDelete: Restrict)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  file File @relation(fields: [fileId], references: [id], onDelete: Restrict)
 
   @@id([postId, fileId])
   @@index([fileId])
+  @@index([postId, role, sort])
 }
-
 
 enum PostState {
   DRAFT
