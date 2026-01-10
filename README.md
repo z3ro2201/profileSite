@@ -145,6 +145,7 @@ yarn install
 ### 2) DB 마이그레이션 & 시드
 
 ```bash
+npx prisma generate --schema prisma/schema.loa.prisma
 npx prisma migrate dev
 npx prisma db seed
 npx prisma generate

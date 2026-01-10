@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/loa-client"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model LoaAuctionGemsPrice {
+  id                  Int       @id @default(autoincrement())
+  itemTier            Int?      @map("item_tier")
+  itemName            String?   @map("item_name") @db.VarChar(255)
+  itemAmount          Decimal?  @map("item_amount") @db.Decimal(10, 2)
+  itemRegistDate      DateTime? @map("item_registDate") @db.Date
+  itemRegistDateTime  DateTime? @map("item_registDateTime") @db.DateTime(0)
+
+  @@map("LOA_AUCTION_GEMS_PRICE")
+
+  @@index([itemTier])
+  @@index([itemName])
+  @@index([itemRegistDate])
+  @@index([itemRegistDateTime])
+}
