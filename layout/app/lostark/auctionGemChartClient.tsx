@@ -33,7 +33,7 @@ const clampLevel = (v?: string) => {
   return String(Math.min(10, Math.max(1, Math.trunc(n))));
 };
 
-const buildApiPath = (gemStone: string, level: string) => `/app/game/onstove/lostark/auction-chart/gemStone/${encodeURIComponent(`${clampLevel(level)}레벨 ${gemStone}의 보석`)}`;
+const buildApiPath = (gemStone: string, level: string) => `/api/app/game/onstove/lostark/auction-chart/gemStone/${encodeURIComponent(`${clampLevel(level)}레벨 ${gemStone}의 보석`)}`;
 
 const num = (v: any) => {
   const n = Number(v);
