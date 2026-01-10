@@ -3,7 +3,7 @@ import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faQuestion, faEnvelope, faReply, faBlog, faRss } from "@fortawesome/free-solid-svg-icons";
-import { GalleryVerticalEndIcon } from "lucide-react";
+import { GalleryVerticalEndIcon, AppWindowIcon } from "lucide-react";
 
 import { DEFAULT_LOCALE } from "@/lib/i18n/i18n";
 import { getDict } from "@/lib/i18n/dict";
@@ -50,13 +50,6 @@ const Season3Main = async () => {
         </li>
 
         <li>
-          <Link href="/rss.xml" target="_blank" title={social.rss}>
-            <FontAwesomeIcon icon={faRss} />
-          </Link>
-          <span className="textSubtitles">{social.rss}</span>
-        </li>
-
-        <li>
           <Link href="https://github.com/z3ro2201" target="_blank" title={social.github}>
             <FontAwesomeIcon icon={faGithub} />
           </Link>
@@ -75,6 +68,20 @@ const Season3Main = async () => {
             <GalleryVerticalEndIcon />
           </Link>
           <span className="textSubtitles">{social.portfolio}</span>
+        </li>
+
+        <li>
+          <Link href="/tools" title={social.app}>
+            <AppWindowIcon />
+          </Link>
+          <span className="textSubtitles">{social.app}</span>
+        </li>
+
+        <li>
+          <Link href="/rss.xml" target="_blank" title={social.rss}>
+            <FontAwesomeIcon icon={faRss} />
+          </Link>
+          <span className="textSubtitles">{social.rss}</span>
         </li>
       </ul>
 

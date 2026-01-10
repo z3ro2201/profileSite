@@ -17,6 +17,7 @@ type Social = {
   player: string;
   oldsite: string;
   portfolio: string;
+  app: string;
 };
 
 export default function Season3LayoutClient({ children, social }: { children: ReactNode; social: Social }) {
@@ -55,11 +56,14 @@ export default function Season3LayoutClient({ children, social }: { children: Re
         <Link href="//github.com/z3ro2201" target="_blank" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.github}>
           {social.github}
         </Link>
-        <Link href="/rss.xml" target="_blank" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.rss}>
-          {social.rss}
-        </Link>
         <Link href="/s3/portfolio" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.portfolio}>
           {social.portfolio}
+        </Link>
+        <Link href="/tools" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.app}>
+          {social.app}
+        </Link>
+        <Link href="/rss.xml" target="_blank" onClick={() => setMobileMenuActive((prev) => !prev)} title={social.rss}>
+          {social.rss}
         </Link>
       </nav>
 

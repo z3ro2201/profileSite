@@ -8,6 +8,7 @@ const socialLinks = {
     player: "브금이 흘러나오니 소리를 켜주세요.\n나오지 않는 경우 플레이어의 재생 버튼을 눌러주세요.",
     oldsite: "리뉴얼전 페이지로 돌아가기",
     portfolio: "포트폴리오",
+    app: "앱",
   },
   en: {
     home: "Home",
@@ -18,6 +19,7 @@ const socialLinks = {
     player: "Background music is playing — turn on the sound.\nIf there’s no sound, tap the play button.",
     oldsite: "Return to the Previous Page",
     portfolio: "Portfolio",
+    app: "Tools",
   },
   ja: {
     home: "ホーム",
@@ -28,6 +30,7 @@ const socialLinks = {
     player: "BGMを再生しています。音量をオンにしてください。\n聞こえない場合は、再生ボタンをタップしてください。",
     oldsite: "リニューアル前のページに戻る",
     portfolio: "ポートフォリオ",
+    app: "アプリ",
   },
 };
 

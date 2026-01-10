@@ -48,6 +48,8 @@ const ContentLayout = ({ children, isLoggedIn, user }: { children: ReactNode; is
     { menuLink: "/s3/profile", menuName: "프로필" },
     { menuLink: "/blog/prologue", menuName: "프롤로그" },
     { menuLink: "/blog/posts", menuName: "블로그" },
+    { menuLink: "/tools", menuName: "앱" },
+    { menuLink: "/rss.xml", menuName: "RSS" },
   ];
 
   const [scope, setScope] = useState("all");
