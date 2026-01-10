@@ -42,7 +42,7 @@ const num = (v: any) => {
 
 const pad2 = (n: number) => String(Math.max(0, Math.floor(n))).padStart(2, "0");
 
-export default function AuctionChartClient({ GEMSTONE_LIST, initialGemStone, initialLevel }: Prop) {
+export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, initialLevel }: Prop) {
   const router = useRouter();
   const sp = useSearchParams();
 
@@ -210,7 +210,8 @@ export default function AuctionChartClient({ GEMSTONE_LIST, initialGemStone, ini
   }, [remainSec]);
 
   return (
-    <div className="pt-[calc(64px+1rem)] px-2 flex w-full h-[calc(100%-1rem)] justify-center text-[0.9rem]">
+    <div className="pt-[calc(64px+2rem)] px-2 flex flex-col w-full h-[calc(100%-1rem)] items-center justify-center text-[0.9rem]">
+      <h1 className="p-4 mt-10 mb-4 w-full max-w-3xl bg-white/20 text-xl font-bold text-left underline rounded-lg">로스트아크 보석 시세 차트</h1>
       <div className="w-full max-w-3xl">
         <div className="mb-2 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">

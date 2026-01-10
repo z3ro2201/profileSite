@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import AuctionChartClient from "@/layout/app/lostark/auctionChartClient";
+import AuctionGemChartClient from "@/layout/app/lostark/auctionGemChartClient";
 
 type SearchParams = {
   gemStone?: string;
@@ -91,5 +91,5 @@ export default async function AuctionChartPage({ searchParams }: Props) {
 
   const GEMSTONE_LIST = ["멸화", "작열", "홍염", "청명"];
 
-  return <AuctionChartClient GEMSTONE_LIST={GEMSTONE_LIST} initialGemStone={initialGemStone} initialLevel={initialLevel} />;
+  return <AuctionGemChartClient GEMSTONE_LIST={GEMSTONE_LIST} initialGemStone={initialGemStone} initialLevel={initialLevel} />;
 }
