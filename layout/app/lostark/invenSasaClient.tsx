@@ -40,6 +40,7 @@ export default function InvenSasaClient({ category, characterName }: { category?
   const [results, setResults] = useState<ResultItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [resultMsg, setResultMsg] = useState("");
+  const [apiPath, setApiPath] = useState<string>("");
 
   const categoryId = useId();
   const inputId = useId();
@@ -69,6 +70,7 @@ export default function InvenSasaClient({ category, characterName }: { category?
     try {
       const qs = new URLSearchParams({ category: cat }).toString();
       const data = await apiFetch<ApiRes>(`/app/game/onstove/lostark/sasaFind/${encodeURIComponent(name)}?${qs}`, { cache: "no-store" });
+      setApiPath(`https://2er0.io/api/app/game/onstove/lostark/sasaFind/${encodeURIComponent(name)}?${qs}`);
 
       if (myId !== requestIdRef.current) return;
 
@@ -90,6 +92,21 @@ export default function InvenSasaClient({ category, characterName }: { category?
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await runSearch(qCategory, qCharacterName, true);
+  };
+
+  const handleCopy = async () => {
+    if (!apiPath) return;
+    if (!navigator?.clipboard?.writeText) {
+      alert("이 브라우저에서는 클립보드 복사를 지원하지 않습니다.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(apiPath);
+      alert("복사되었습니다.");
+    } catch {
+      alert("복사 실패");
+    }
   };
 
   return (
@@ -176,8 +193,9 @@ export default function InvenSasaClient({ category, characterName }: { category?
         {loading && <div className="text-sm text-black/70">검색중…</div>}
 
         {!!resultMsg && !loading && (
-          <div
-            className="
+          <>
+            <div
+              className="
               rounded-xl
               border border-black/30
               bg-white/95 backdrop-blur
@@ -185,11 +203,28 @@ export default function InvenSasaClient({ category, characterName }: { category?
               text-sm text-black
               shadow-[0_4px_14px_rgba(0,0,0,0.15)]
             "
-            role="status"
-            aria-live="polite"
-          >
-            {resultMsg}
-          </div>
+              role="status"
+              aria-live="polite"
+            >
+              <span className="block underline cursor-pointer" onClick={handleCopy}>
+                OpenApi: {apiPath}
+              </span>
+            </div>
+            <div
+              className="
+              rounded-xl
+              border border-black/30
+              bg-white/95 backdrop-blur
+              px-4 py-3
+              text-sm text-black
+              shadow-[0_4px_14px_rgba(0,0,0,0.15)]
+            "
+              role="status"
+              aria-live="polite"
+            >
+              {resultMsg}
+            </div>
+          </>
         )}
 
         {results.map((item) => (
