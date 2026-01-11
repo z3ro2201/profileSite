@@ -139,8 +139,28 @@ ADMIN_PASSWORD="change-me"
 
 ### 1) 의존성 설치
 ```bash
+sudo dnf -y install epel-release
+sudo dnf -y install tesseract
+sudo dnf -y install tesseract-langpack-eng tesseract-langpack-kor tesseract-langpack-jpn
+sudo dnf -y install ImageMagick
 yarn install
 ````
+
+```windows
+choco install tesseract
+tesseract --version
+tesseract --list-langs
+choco install imagemagick
+yarn install
+```
+
+```macOS
+brew install tesseract
+brew install tesseract-lang
+tesseract --list-langs
+brew install imagemagick
+yarn install
+```
 
 ### 2) DB 마이그레이션 & 시드
 
