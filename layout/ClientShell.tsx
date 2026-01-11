@@ -14,10 +14,13 @@ export default function ClientShell({ children }: { children: React.ReactNode })
       <>
         <div
           style={{
+            position: "fixed",
+            width: "100vw",
+            height: "100vh",
+            overflow: "auto",
             backgroundImage: bgImage ? `url(${bgImage})` : undefined,
             backgroundSize: "cover",
             backgroundPosition: "center",
-            height: "100vh",
           }}
         >
           {children}

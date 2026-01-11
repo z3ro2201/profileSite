@@ -41,10 +41,7 @@ const clampLevel = (v?: string) => {
 };
 
 // ✅ 정책에 맞게 허용값 재정의
-// - 하루 미만(=24h range): 1h/30m/15m/10m
-// - 7일 이하: 7d
-// - 초과: 15d/30d
-const ALLOWED_UPDATETIME = new Set(["1h", "30m", "15m", "10m", "7d", "15d", "30d", "1d"]);
+const ALLOWED_UPDATETIME = new Set(["1h", "30m", "15m", "10m", "5m", "7d", "15d", "30d", "1d"]);
 
 const clampUpdatetime = (v?: string) => {
   const s = (v ?? "").trim();
@@ -82,13 +79,16 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
   const levelParam = sp.get("level") ?? undefined;
   const updatetimeParam = sp.get("updatetime") ?? undefined;
 
-  const fallbackGem = (initialGemStone ?? GEMSTONE_LIST?.[0] ?? "").trim();
-  const fallbackLevel = clampLevel(initialLevel ?? DEFAULT_LEVEL);
-  const fallbackUp = clampUpdatetime(initialUpdatetime ?? UPDATETIME_LIST?.[0] ?? DEFAULT_UPDATETIME);
+  // ✅ 여기서 "처음엔 빈 배열이었다가 나중에 채워지는" 상황을 고려해야 함
+  const firstGemFromList = (GEMSTONE_LIST?.[0] ?? "").trim();
 
-  const [gemStone, setGemStone] = useState<string>(gemStoneParam ?? fallbackGem);
-  const [level, setLevel] = useState<string>(clampLevel(levelParam ?? fallbackLevel));
-  const [updatetime, setUpdatetime] = useState<string>(clampUpdatetime(updatetimeParam ?? fallbackUp));
+  const fallbackGem = (gemStoneParam ?? initialGemStone ?? firstGemFromList ?? "").trim();
+  const fallbackLevel = clampLevel(levelParam ?? initialLevel ?? DEFAULT_LEVEL);
+  const fallbackUp = clampUpdatetime(updatetimeParam ?? initialUpdatetime ?? UPDATETIME_LIST?.[0] ?? DEFAULT_UPDATETIME);
+
+  const [gemStone, setGemStone] = useState<string>(fallbackGem);
+  const [level, setLevel] = useState<string>(fallbackLevel);
+  const [updatetime, setUpdatetime] = useState<string>(fallbackUp);
 
   const [activeTab, setActiveTab] = useState<Tab>("CHANGE");
 
@@ -103,7 +103,6 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
   const [remainSec, setRemainSec] = useState<number>(Math.floor(REFRESH_MS / 1000));
   const nextRefreshAtRef = useRef<number>(Date.now() + REFRESH_MS);
 
-  // ✅ 차트 컴포넌트 props 확장 (bucketSeconds/rangeSeconds/updatetimeLabel 전달)
   const [ChartComp, setChartComp] = useState<null | React.ComponentType<{ rows: GemChartRow[]; bucketSeconds?: number; rangeSeconds?: number; updatetimeLabel?: string }>>(null);
 
   useEffect(() => {
@@ -141,9 +140,9 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
     const seen = new Set<string>();
 
     for (const raw of src) {
-      const v = clampUpdatetime((raw ?? "").trim()); // ✅ 여기서 1d로 치환될 수 있음
+      const v = clampUpdatetime((raw ?? "").trim());
       if (!v) continue;
-      if (seen.has(v)) continue; // ✅ 최종값 기준 dedupe
+      if (seen.has(v)) continue;
       seen.add(v);
       uniqByClamped.push(v);
     }
@@ -159,12 +158,31 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
+  // ✅ URL(searchParams)이 있으면 그게 최우선
   const effectiveGemStone = (gemStoneParam ?? gemStone ?? "").trim();
   const effectiveLevel = clampLevel(levelParam ?? level ?? DEFAULT_LEVEL);
   const effectiveUp = clampUpdatetime(updatetimeParam ?? updatetime ?? DEFAULT_UPDATETIME);
 
+  // ✅ 핵심 보강:
+  // GEMSTONE_LIST가 "나중에 들어오는" 케이스에서
+  // gemStone이 비어있다면 첫 값으로 채우고 URL도 같이 패치
   useEffect(() => {
-    const g = effectiveGemStone || fallbackGem;
+    if (gemStoneParam) return; // URL에 있으면 건드리지 않음
+    if (effectiveGemStone) return; // 이미 값 있으면 건드리지 않음
+    if (!firstGemFromList) return; // 리스트가 아직 비어있음
+
+    const g = firstGemFromList;
+    setGemStone(g);
+
+    const l = effectiveLevel || fallbackLevel;
+    const u = effectiveUp || fallbackUp;
+    updateQuery(g, l, u);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [firstGemFromList]);
+
+  // ✅ 최초 진입 시 URL 보정(없으면 채워 넣기)
+  useEffect(() => {
+    const g = effectiveGemStone || fallbackGem || firstGemFromList;
     const l = effectiveLevel || fallbackLevel;
     const u = effectiveUp || fallbackUp;
 
@@ -175,6 +193,7 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ✅ URL이 바뀌면 state도 동기화
   useEffect(() => {
     if (gemStoneParam != null) setGemStone(gemStoneParam);
     if (levelParam != null) setLevel(clampLevel(levelParam));
@@ -187,7 +206,7 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
     return buildApiPath(effectiveGemStone, effectiveLevel, effectiveUp);
   }, [effectiveGemStone, effectiveLevel, effectiveUp]);
 
-  const ready = !!gemStoneParam && !!levelParam && !!updatetimeParam;
+  const ready = !!(effectiveGemStone && effectiveLevel && effectiveUp);
 
   const resetCountdown = () => {
     nextRefreshAtRef.current = Date.now() + REFRESH_MS;
@@ -210,7 +229,6 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
         setLoading(true);
         setError(null);
         const res = await apiFetch<GemChartResponse>(apiPath, { cache: "no-store" });
-
         if (cancelled) return;
 
         setData(res?.data ?? []);
@@ -286,7 +304,7 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
         const diff = curAmt != null && prevAmt != null ? curAmt - prevAmt : null;
         return { time: cur.halfhour_registDateTime, price: curAmt, diff };
       })
-      .filter((r) => r.diff != null && r.diff !== 0) // ✅ 0 변동 제거
+      .filter((r) => r.diff != null && r.diff !== 0)
       .reverse();
   }, [data]);
 
@@ -318,7 +336,7 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
               }}
               className="p-2 bg-white/80 border border-black/20 rounded-lg text-[.8rem]"
             >
-              {GEMSTONE_LIST.map((stone) => (
+              {(GEMSTONE_LIST ?? []).map((stone) => (
                 <option value={stone} key={stone}>
                   {stone}
                 </option>
