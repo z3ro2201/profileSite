@@ -9,7 +9,9 @@ const SASA_SEARCH_CATEGORY = [
   { category: "내용", value: "content" },
   { category: "제목+내용", value: "subjcont" },
   { category: "닉네임", value: "nickname" },
-];
+] as const;
+
+type CategoryValue = (typeof SASA_SEARCH_CATEGORY)[number]["value"];
 
 type ResultItem = {
   title: string;
@@ -23,10 +25,17 @@ type ApiRes = {
   list: ResultItem[];
 };
 
+const DEFAULT_CATEGORY: CategoryValue = "subjcont";
+
+const normalizeCategory = (v?: string): CategoryValue => {
+  const ok = SASA_SEARCH_CATEGORY.some((x) => x.value === v);
+  return ok ? (v as CategoryValue) : DEFAULT_CATEGORY;
+};
+
 export default function InvenSasaClient({ category, characterName }: { category?: string; characterName?: string }) {
   const router = useRouter();
 
-  const [qCategory, setQCategory] = useState(category ?? "content");
+  const [qCategory, setQCategory] = useState<CategoryValue>(() => normalizeCategory(category));
   const [qCharacterName, setQCharacterName] = useState(characterName ?? "");
   const [results, setResults] = useState<ResultItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -38,11 +47,11 @@ export default function InvenSasaClient({ category, characterName }: { category?
   const didAutoRunRef = useRef(false);
   const requestIdRef = useRef(0);
 
-  const runSearch = async (cat: string, rawName: string, syncUrl = true) => {
+  const runSearch = async (catRaw: string, rawName: string, syncUrl = true) => {
+    const cat = normalizeCategory(catRaw);
     const name = rawName.trim();
-    if (!cat || !name) return;
+    if (!name) return;
 
-    // ✅ 새 검색 시작: 이전 결과 초기화
     setResults([]);
     setResultMsg("");
 
@@ -70,13 +79,12 @@ export default function InvenSasaClient({ category, characterName }: { category?
     }
   };
 
-  // ✅ 최초 진입 시 URL qs 기준 자동 검색
   useEffect(() => {
     if (didAutoRunRef.current) return;
-    if (!category || !characterName?.trim()) return;
+    if (!characterName?.trim()) return;
 
     didAutoRunRef.current = true;
-    void runSearch(category, characterName, false);
+    void runSearch(category ?? DEFAULT_CATEGORY, characterName, false);
   }, [category, characterName]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -95,16 +103,16 @@ export default function InvenSasaClient({ category, characterName }: { category?
         p-4
       "
     >
-      {/* 검색 폼 */}
       <form role="search" onSubmit={handleSubmit}>
         <div className="flex gap-2">
           <label htmlFor={categoryId} className="sr-only">
             검색 범주
           </label>
+
           <select
             id={categoryId}
             value={qCategory}
-            onChange={(e) => setQCategory(e.target.value)}
+            onChange={(e) => setQCategory(normalizeCategory(e.target.value))}
             className="
               h-10 min-w-[120px]
               rounded-lg
@@ -126,6 +134,7 @@ export default function InvenSasaClient({ category, characterName }: { category?
           <label htmlFor={inputId} className="sr-only">
             캐릭터명
           </label>
+
           <input
             id={inputId}
             type="search"
@@ -163,7 +172,6 @@ export default function InvenSasaClient({ category, characterName }: { category?
         </div>
       </form>
 
-      {/* 상태 메시지 */}
       <div className="mt-4 max-h-[400px] space-y-3 overflow-auto">
         {loading && <div className="text-sm text-black/70">검색중…</div>}
 
@@ -184,7 +192,6 @@ export default function InvenSasaClient({ category, characterName }: { category?
           </div>
         )}
 
-        {/* 결과 리스트 */}
         {results.map((item) => (
           <div
             key={`${item.link ?? item.title}`}
