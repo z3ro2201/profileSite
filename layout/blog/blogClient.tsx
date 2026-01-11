@@ -82,7 +82,7 @@ const ContentLayout = ({ children, isLoggedIn, user }: { children: ReactNode; is
   };
 
   return (
-    <main className={cn("absolute py-2 h-[calc(100%-1.25rem)]", useMenu ? "ml-[calc(250px+2rem)] w-[calc(100%-250px-3rem)]" : "w-full", "z-50")}>
+    <main className={cn("absolute py-2 min-h-dvh  h-[calc(100%-1.25rem)]", useMenu ? "ml-[calc(250px+2rem)] w-[calc(100%-250px-3rem)]" : "w-full", "z-50")}>
       <div className="w-full py-1 px-3 flex justify-between">
         <nav className="flex items-center">
           <ol className="flex flex-wrap">

@@ -43,7 +43,7 @@ const BlogLayout = async ({ children }: { children: ReactNode }) => {
   const category = await apiFetch<CategoryListResponse>(`/blog/category/list`, { cache: "force-cache" });
 
   return (
-    <div className="relative min-h-screen w-screen overflow-auto">
+    <div className="relative min-h-screen w-screen  min-h-dvh overflow-auto">
       <div className="absolute w-full min-h-[300px] bg-lime-400/20"></div>
 
       <BlogSideMenu categories={category?.categories ?? []} />
