@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { apiFetch } from "@/lib/apiFetch";
 
 type Prop = {
@@ -44,6 +44,7 @@ const pad2 = (n: number) => String(Math.max(0, Math.floor(n))).padStart(2, "0");
 
 export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, initialLevel }: Prop) {
   const router = useRouter();
+  const pathname = usePathname();
   const sp = useSearchParams();
 
   const gemStoneParam = sp.get("gemStone");
@@ -92,6 +93,8 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
   };
 
   const updateQuery = (g: string, l: string) => {
+    if (!pathname.startsWith("/tools/game/onstove/lostark/auction-chart")) return;
+
     const params = new URLSearchParams(sp.toString());
     params.set("gemStone", g);
     params.set("level", l);

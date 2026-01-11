@@ -52,9 +52,17 @@ const APPS: AppItem[] = [
   {
     key: "lostark-gem-chart",
     title: "로스트아크 보석 시세 차트",
-    desc: "보석 시세를 차트로 보고, 변동 목록과 OpenAPI도 제공합니다. (모코코봇에 제공된 기능입니다.)",
+    desc: "로스트아크 보석 시세를 차트로 확인하고, 변동 내역과 OpenAPI를 제공합니다. (모코코봇에 제공된 기능입니다.)",
     href: "/tools/game/onstove/lostark/auction-chart/gemstone",
     image: "/app/LostArkGemChart.webp",
+    badge: "GAME",
+  },
+  {
+    key: "lostark-sasa-finder",
+    title: "로스트아크 사사게 검색기",
+    desc: "로스트아크 인벤 사사게 게시판을 캐릭터명 기준으로 검색합니다. 제목·내용·닉네임 조건별 조회와 결과 링크를 제공합니다.",
+    href: "/tools/game/onstove/lostark/sasaFind",
+    image: "/app/LostArkSasaFind.webp",
     badge: "GAME",
   },
 ];

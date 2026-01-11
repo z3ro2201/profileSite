@@ -6,6 +6,11 @@ const ADMIN_PUBLIC_PATHS = ["/admin/login", "/admin/logout"];
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // ✅ Next 내부 데이터 요청은 그냥 패스
+  if (pathname.startsWith("/_next/data")) {
+    return NextResponse.next();
+  }
+
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("x-pathname", pathname);
 
@@ -41,5 +46,5 @@ export async function middleware(req: NextRequest) {
 // ✅ api 제외 (중요)
 export const config = {
   // matcher: ["/admin/:path*", "/api/admin/:path*"],
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|_next/data|favicon.ico|robots.txt|sitemap.xml).*)"],
 };

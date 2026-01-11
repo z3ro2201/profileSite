@@ -62,6 +62,7 @@ const ContentLayout = ({ children, isLoggedIn, user }: { children: ReactNode; is
 
   const submitSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!pathname.startsWith("/tools/game/onstove/lostark/auction-chart")) return;
 
     const next = new URLSearchParams(searchParams.toString());
 
