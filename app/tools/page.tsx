@@ -46,6 +46,7 @@ type AppItem = {
   href: string;
   image: string;
   badge: string;
+  openApi?: boolean;
 };
 
 const APPS: AppItem[] = [
@@ -56,6 +57,7 @@ const APPS: AppItem[] = [
     href: "/tools/game/onstove/lostark/auction-chart/gemstone",
     image: "/app/LostArkGemChart.webp",
     badge: "GAME",
+    openApi: true,
   },
   {
     key: "lostark-sasa-finder",
@@ -64,6 +66,16 @@ const APPS: AppItem[] = [
     href: "/tools/game/onstove/lostark/sasaFind",
     image: "/app/LostArkSasaFind.webp",
     badge: "GAME",
+    openApi: true,
+  },
+  {
+    key: "ocr-vibe-coding",
+    title: "이미지 OCR (Vibe Coding)",
+    desc: "필요해서 바이브 코딩으로 만든 개인용 OCR 도구입니다. 업로드된 이미지는 서버에 저장되지 않으며 즉시 삭제됩니다.",
+    href: "/tools/ocr",
+    image: "/app/ocr.webp",
+    badge: "UTILITY",
+    openApi: false,
   },
 ];
 
@@ -86,7 +98,8 @@ const ToolsPage = () => {
               <div className="p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-[11px] px-2 py-1 rounded-full border border-black/10 bg-white/70 text-gray-700">{app.badge}</span>
-                  <span className="text-[11px] px-2 py-1 rounded-full border border-black/10 bg-white/70 text-gray-700">OpenAPI</span>
+
+                  {app.openApi && <span className="text-[11px] px-2 py-1 rounded-full border border-black/10 bg-white/70 text-gray-700">OpenAPI</span>}
                 </div>
 
                 <div className="text-base font-semibold text-gray-900 group-hover:underline">{app.title}</div>

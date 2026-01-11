@@ -46,6 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   add("/tools", { priority: 1 });
   add("/tools/game/onstove/lostark/auction-chart/gemstone", { priority: 1 });
   add("/tools/game/onstove/lostark/sasaFind", { priority: 1 });
+  add("/tools/ocr", { priority: 1 });
 
   // 공개된 블로그 글
   const posts = await prisma.post.findMany({

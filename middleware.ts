@@ -3,6 +3,16 @@ import { getAuthCookieName, verifyAuthToken } from "@/lib/auth/jwt";
 
 const ADMIN_PUBLIC_PATHS = ["/admin/login", "/admin/logout"];
 
+const ALLOW_HOST_RE = /^([a-z0-9-]+\.)*2er0\.io$/i;
+const isAllowedHost = (host: string) => {
+  const h = (host || "").toLowerCase().split(",")[0].trim();
+  if (h === "localhost" || h.startsWith("localhost:")) return false;
+  if (h === "127.0.0.1" || h.startsWith("127.0.0.1:")) return false;
+  if (h === "0.0.0.0" || h.startsWith("0.0.0.0:")) return false;
+  if (/^\d{1,3}(\.\d{1,3}){3}(:\d+)?$/.test(h)) return false; // server ip 포함
+  return ALLOW_HOST_RE.test(h);
+};
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -13,6 +23,13 @@ export async function middleware(req: NextRequest) {
 
   const requestHeaders = new Headers(req.headers);
   requestHeaders.set("x-pathname", pathname);
+
+  if (pathname === "/ocr") {
+    const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "";
+    if (!isAllowedHost(host)) {
+      return new NextResponse("Forbidden", { status: 403 });
+    }
+  }
 
   // ✅ /admin 이외는 통과
   if (!pathname.startsWith("/admin") && !pathname.startsWith("/api/admin")) {
