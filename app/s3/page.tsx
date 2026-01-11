@@ -35,7 +35,7 @@ const Season3Main = async () => {
   const { social } = getDict(DEFAULT_LOCALE);
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+    <div className="w-full h-screen flex flex-col items-center justify-center gap-2">
       <Image src="/s3/profile.webp" width={250} height={250} alt="메인페이지 프로필 사진, 뭐해야 해요 모코콩?" className="mb-4" />
       <h1 className="font-bold text-lg" role="banner">
         2ERO HOME SEASON 3

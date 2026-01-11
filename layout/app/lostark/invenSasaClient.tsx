@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiFetch";
 
@@ -31,6 +31,32 @@ const normalizeCategory = (v?: string): CategoryValue => {
   const ok = SASA_SEARCH_CATEGORY.some((x) => x.value === v);
   return ok ? (v as CategoryValue) : DEFAULT_CATEGORY;
 };
+
+const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+function HighlightText({ text, query }: { text: string; query: string }) {
+  const q = query.trim();
+  if (!q) return <>{text}</>;
+
+  const parts = useMemo(() => {
+    const re = new RegExp(`(${escapeRegExp(q)})`, "gi");
+    return text.split(re);
+  }, [text, q]);
+
+  return (
+    <>
+      {parts.map((p, i) => {
+        const isHit = p.toLowerCase() === q.toLowerCase();
+        if (!isHit) return <span key={i}>{p}</span>;
+        return (
+          <mark key={i} className="bg-yellow-200 text-red-600 font-extrabold px-1 rounded">
+            {p}
+          </mark>
+        );
+      })}
+    </>
+  );
+}
 
 export default function InvenSasaClient({ category, characterName }: { category?: string; characterName?: string }) {
   const router = useRouter();
@@ -109,19 +135,24 @@ export default function InvenSasaClient({ category, characterName }: { category?
     }
   };
 
+  const highlightQuery = qCharacterName.trim();
+  const showScrollHint = !loading && results.length > 5;
+
   return (
     <div
       className="
-        mx-auto max-w-3xl
+        mx-auto w-full max-w-3xl min-w-0
+        mb-14
         rounded-2xl
         bg-white/90 backdrop-blur
         border border-black/30
         shadow-[0_12px_32px_rgba(0,0,0,0.2)]
         p-4
+        overflow-x-hidden
       "
     >
       <form role="search" onSubmit={handleSubmit}>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full min-w-0">
           <label htmlFor={categoryId} className="sr-only">
             검색 범주
           </label>
@@ -131,7 +162,7 @@ export default function InvenSasaClient({ category, characterName }: { category?
             value={qCategory}
             onChange={(e) => setQCategory(normalizeCategory(e.target.value))}
             className="
-              h-10 min-w-[120px]
+              h-10 w-full sm:w-auto sm:min-w-[120px] min-w-0
               rounded-lg
               border border-black/40
               bg-white
@@ -159,11 +190,11 @@ export default function InvenSasaClient({ category, characterName }: { category?
             onChange={(e) => setQCharacterName(e.target.value)}
             placeholder="캐릭터명을 입력하세요"
             className="
-              h-10 flex-1
+              h-10 w-full flex-1 min-w-0
               rounded-lg
               border border-black/40
               bg-white
-              px-3 text-sm
+              p-3 text-sm
               outline-none
               focus-visible:outline focus-visible:outline-2
               focus-visible:outline-black focus-visible:outline-offset-2
@@ -173,7 +204,7 @@ export default function InvenSasaClient({ category, characterName }: { category?
           <button
             type="submit"
             className="
-              h-10
+              h-10 w-full sm:w-auto
               rounded-lg
               border border-black/40
               bg-white
@@ -189,36 +220,47 @@ export default function InvenSasaClient({ category, characterName }: { category?
         </div>
       </form>
 
-      <div className="mt-4 max-h-[400px] space-y-3 overflow-auto">
+      <div className="mt-4 max-h-[400px] space-y-3 overflow-auto overflow-x-hidden w-full min-w-0">
+        {showScrollHint && (
+          <div className="relative mb-1 text-center text-[0.75rem] text-black/50 select-none">
+            아래로 스크롤하면 더 많은 결과를 볼 수 있습니다 ↓
+            <div className="pointer-events-none absolute left-0 right-0 bottom-[-8px] h-4 bg-gradient-to-b from-white/0 to-white/80" />
+          </div>
+        )}
+
         {loading && <div className="text-sm text-black/70">검색중…</div>}
 
         {!!resultMsg && !loading && (
           <>
             <div
               className="
-              rounded-xl
-              border border-black/30
-              bg-white/95 backdrop-blur
-              px-4 py-3
-              text-sm text-black
-              shadow-[0_4px_14px_rgba(0,0,0,0.15)]
-            "
+                rounded-xl
+                border border-black/30
+                bg-white/95 backdrop-blur
+                px-4 py-3
+                text-sm text-black
+                shadow-[0_4px_14px_rgba(0,0,0,0.15)]
+                w-full min-w-0 overflow-hidden
+              "
               role="status"
               aria-live="polite"
             >
-              <span className="block underline cursor-pointer" onClick={handleCopy}>
+              <span className="block underline cursor-pointer break-all" onClick={handleCopy}>
                 OpenApi: {apiPath}
               </span>
             </div>
+
             <div
               className="
-              rounded-xl
-              border border-black/30
-              bg-white/95 backdrop-blur
-              px-4 py-3
-              text-sm text-black
-              shadow-[0_4px_14px_rgba(0,0,0,0.15)]
-            "
+                rounded-xl
+                border border-black/30
+                bg-white/95 backdrop-blur
+                px-4 py-3
+                text-sm text-black
+                shadow-[0_4px_14px_rgba(0,0,0,0.15)]
+                w-full min-w-0
+                break-words whitespace-normal
+              "
               role="status"
               aria-live="polite"
             >
@@ -236,14 +278,17 @@ export default function InvenSasaClient({ category, characterName }: { category?
               bg-white/95 backdrop-blur
               p-3
               shadow-[0_3px_10px_rgba(0,0,0,0.12)]
+              w-full min-w-0 max-w-full overflow-hidden
             "
           >
             {item.link ? (
-              <a href={item.link} target="_blank" rel="noreferrer" className="underline text-black">
-                {item.title}
+              <a href={item.link} target="_blank" rel="noreferrer" className="block w-full min-w-0 text-black break-words whitespace-normal">
+                <HighlightText text={item.title} query={highlightQuery} />
               </a>
             ) : (
-              item.title
+              <div className="w-full min-w-0 break-words whitespace-normal">
+                <HighlightText text={item.title} query={highlightQuery} />
+              </div>
             )}
           </div>
         ))}

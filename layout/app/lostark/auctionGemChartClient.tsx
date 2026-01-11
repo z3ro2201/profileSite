@@ -8,6 +8,9 @@ type Prop = {
   GEMSTONE_LIST: string[];
   initialGemStone?: string;
   initialLevel?: string;
+
+  UPDATETIME_LIST?: string[];
+  initialUpdatetime?: string;
 };
 
 type GemChartRow = {
@@ -19,12 +22,16 @@ type GemChartRow = {
 type GemChartResponse = {
   code: number;
   message: string;
+  updatetime?: string;
+  rangeSeconds?: number;
+  bucketSeconds?: number;
   data: GemChartRow[];
 };
 
 type Tab = "CHANGE" | "OPEN_API";
 
 const DEFAULT_LEVEL = "10";
+const DEFAULT_UPDATETIME = "1d";
 const REFRESH_MS = 5 * 60 * 1000;
 
 const clampLevel = (v?: string) => {
@@ -33,7 +40,23 @@ const clampLevel = (v?: string) => {
   return String(Math.min(10, Math.max(1, Math.trunc(n))));
 };
 
-const buildApiPath = (gemStone: string, level: string) => `/app/game/onstove/lostark/auction-chart/gemStone/${encodeURIComponent(`${clampLevel(level)}레벨 ${gemStone}의 보석`)}`;
+// ✅ 정책에 맞게 허용값 재정의
+// - 하루 미만(=24h range): 1h/30m/15m/10m
+// - 7일 이하: 7d
+// - 초과: 15d/30d
+const ALLOWED_UPDATETIME = new Set(["1h", "30m", "15m", "10m", "7d", "15d", "30d", "1d"]);
+
+const clampUpdatetime = (v?: string) => {
+  const s = (v ?? "").trim();
+  return ALLOWED_UPDATETIME.has(s) ? s : DEFAULT_UPDATETIME;
+};
+
+const buildApiPath = (gemStone: string, level: string, updatetime: string) => {
+  const itemName = `${clampLevel(level)}레벨 ${gemStone}의 보석`;
+  const base = `/api/app/game/onstove/lostark/auction-chart/gemStone/${encodeURIComponent(itemName)}`;
+  const u = clampUpdatetime(updatetime);
+  return `${base}?updatetime=${encodeURIComponent(u)}`;
+};
 
 const num = (v: any) => {
   const n = Number(v);
@@ -42,27 +65,46 @@ const num = (v: any) => {
 
 const pad2 = (n: number) => String(Math.max(0, Math.floor(n))).padStart(2, "0");
 
-export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, initialLevel }: Prop) {
+const fmtUpLabel = (u: string) => {
+  const v = clampUpdatetime(u);
+  if (v.endsWith("d")) return `${v.slice(0, -1)}일`;
+  if (v.endsWith("h")) return `${v.slice(0, -1)}시간`;
+  if (v.endsWith("m")) return `${v.slice(0, -1)}분`;
+  return v;
+};
+
+export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, initialLevel, UPDATETIME_LIST, initialUpdatetime }: Prop) {
   const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
 
-  const gemStoneParam = sp.get("gemStone");
-  const levelParam = sp.get("level");
+  const gemStoneParam = sp.get("gemStone") ?? undefined;
+  const levelParam = sp.get("level") ?? undefined;
+  const updatetimeParam = sp.get("updatetime") ?? undefined;
 
-  const [gemStone, setGemStone] = useState<string>(gemStoneParam ?? initialGemStone ?? GEMSTONE_LIST?.[0] ?? "");
-  const [level, setLevel] = useState<string>(clampLevel(levelParam ?? initialLevel ?? DEFAULT_LEVEL));
+  const fallbackGem = (initialGemStone ?? GEMSTONE_LIST?.[0] ?? "").trim();
+  const fallbackLevel = clampLevel(initialLevel ?? DEFAULT_LEVEL);
+  const fallbackUp = clampUpdatetime(initialUpdatetime ?? UPDATETIME_LIST?.[0] ?? DEFAULT_UPDATETIME);
+
+  const [gemStone, setGemStone] = useState<string>(gemStoneParam ?? fallbackGem);
+  const [level, setLevel] = useState<string>(clampLevel(levelParam ?? fallbackLevel));
+  const [updatetime, setUpdatetime] = useState<string>(clampUpdatetime(updatetimeParam ?? fallbackUp));
+
   const [activeTab, setActiveTab] = useState<Tab>("CHANGE");
 
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<GemChartRow[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const [bucketSeconds, setBucketSeconds] = useState<number>(300);
+  const [rangeSeconds, setRangeSeconds] = useState<number>(24 * 60 * 60);
+
   const [refreshKey, setRefreshKey] = useState(0);
   const [remainSec, setRemainSec] = useState<number>(Math.floor(REFRESH_MS / 1000));
   const nextRefreshAtRef = useRef<number>(Date.now() + REFRESH_MS);
 
-  const [ChartComp, setChartComp] = useState<null | React.ComponentType<{ rows: GemChartRow[] }>>(null);
+  // ✅ 차트 컴포넌트 props 확장 (bucketSeconds/rangeSeconds/updatetimeLabel 전달)
+  const [ChartComp, setChartComp] = useState<null | React.ComponentType<{ rows: GemChartRow[]; bucketSeconds?: number; rangeSeconds?: number; updatetimeLabel?: string }>>(null);
 
   useEffect(() => {
     let alive = true;
@@ -88,52 +130,64 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
     try {
       return decodeURI(s);
     } catch {
-      return s; // 실패하면 그냥 원본
+      return s;
     }
   };
 
-  const updateQuery = (g: string, l: string) => {
-    if (!pathname.startsWith("/tools/game/onstove/lostark/auction-chart")) return;
+  const upList = useMemo(() => {
+    const src = (UPDATETIME_LIST?.length ? UPDATETIME_LIST : Array.from(ALLOWED_UPDATETIME)) as string[];
 
+    const uniqByClamped: string[] = [];
+    const seen = new Set<string>();
+
+    for (const raw of src) {
+      const v = clampUpdatetime((raw ?? "").trim()); // ✅ 여기서 1d로 치환될 수 있음
+      if (!v) continue;
+      if (seen.has(v)) continue; // ✅ 최종값 기준 dedupe
+      seen.add(v);
+      uniqByClamped.push(v);
+    }
+
+    return uniqByClamped.length ? uniqByClamped : [DEFAULT_UPDATETIME];
+  }, [UPDATETIME_LIST]);
+
+  const updateQuery = (g: string, l: string, u: string) => {
     const params = new URLSearchParams(sp.toString());
     params.set("gemStone", g);
     params.set("level", l);
-    router.replace(`?${params.toString()}`, { scroll: false });
+    params.set("updatetime", clampUpdatetime(u));
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  useEffect(() => {
-    const fallbackGem = GEMSTONE_LIST?.[0] ?? "";
-
-    if (gemStoneParam) {
-      setGemStone(gemStoneParam);
-    } else {
-      setGemStone((prev) => prev || fallbackGem);
-    }
-
-    if (levelParam) {
-      setLevel(clampLevel(levelParam));
-    } else {
-      setLevel(DEFAULT_LEVEL);
-    }
-  }, [gemStoneParam, levelParam, GEMSTONE_LIST]);
+  const effectiveGemStone = (gemStoneParam ?? gemStone ?? "").trim();
+  const effectiveLevel = clampLevel(levelParam ?? level ?? DEFAULT_LEVEL);
+  const effectiveUp = clampUpdatetime(updatetimeParam ?? updatetime ?? DEFAULT_UPDATETIME);
 
   useEffect(() => {
-    const fallbackGem = GEMSTONE_LIST?.[0] ?? "";
-    const g = (gemStoneParam ?? initialGemStone ?? fallbackGem ?? "").trim();
-    const l = clampLevel(levelParam ?? initialLevel ?? DEFAULT_LEVEL);
+    const g = effectiveGemStone || fallbackGem;
+    const l = effectiveLevel || fallbackLevel;
+    const u = effectiveUp || fallbackUp;
 
     if (!g) return;
 
-    if (!gemStoneParam || !levelParam) {
-      updateQuery(g, l);
-    }
+    const needPatch = !gemStoneParam || !levelParam || !updatetimeParam;
+    if (needPatch) updateQuery(g, l, u);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (gemStoneParam != null) setGemStone(gemStoneParam);
+    if (levelParam != null) setLevel(clampLevel(levelParam));
+    if (updatetimeParam != null) setUpdatetime(clampUpdatetime(updatetimeParam));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gemStoneParam, levelParam, updatetimeParam]);
+
   const apiPath = useMemo(() => {
-    if (!gemStone) return null;
-    return buildApiPath(gemStone, level);
-  }, [gemStone, level]);
+    if (!effectiveGemStone) return null;
+    return buildApiPath(effectiveGemStone, effectiveLevel, effectiveUp);
+  }, [effectiveGemStone, effectiveLevel, effectiveUp]);
+
+  const ready = !!gemStoneParam && !!levelParam && !!updatetimeParam;
 
   const resetCountdown = () => {
     nextRefreshAtRef.current = Date.now() + REFRESH_MS;
@@ -141,14 +195,14 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
   };
 
   useEffect(() => {
-    if (!apiPath) return;
+    if (!apiPath || !ready) return;
     resetCountdown();
     setRefreshKey((v) => v + 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiPath]);
+  }, [apiPath, ready]);
 
   useEffect(() => {
-    if (!apiPath) return;
+    if (!apiPath || !ready) return;
     let cancelled = false;
 
     (async () => {
@@ -156,7 +210,12 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
         setLoading(true);
         setError(null);
         const res = await apiFetch<GemChartResponse>(apiPath, { cache: "no-store" });
-        if (!cancelled) setData(res?.data ?? []);
+
+        if (cancelled) return;
+
+        setData(res?.data ?? []);
+        setBucketSeconds(res?.bucketSeconds ?? 300);
+        setRangeSeconds(res?.rangeSeconds ?? 24 * 60 * 60);
       } catch (e: any) {
         if (!cancelled) {
           setError(e?.message ?? "오류");
@@ -170,10 +229,10 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
     return () => {
       cancelled = true;
     };
-  }, [apiPath, refreshKey]);
+  }, [apiPath, refreshKey, ready]);
 
   useEffect(() => {
-    if (!apiPath) return;
+    if (!apiPath || !ready) return;
 
     const tickId = window.setInterval(() => {
       const ms = nextRefreshAtRef.current - Date.now();
@@ -190,7 +249,7 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
     }, 1000);
 
     return () => window.clearInterval(tickId);
-  }, [apiPath]);
+  }, [apiPath, ready]);
 
   const handleManualRefresh = () => {
     if (loading) return;
@@ -200,7 +259,6 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
 
   const handleCopy = async () => {
     if (!apiPath) return;
-
     const text = `https://2er0.io${safeDecode(apiPath)}`;
 
     if (!navigator?.clipboard?.writeText) {
@@ -219,6 +277,7 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
   const changeRows = useMemo(() => {
     if (!data.length) return [];
     const sorted = [...data].sort((a, b) => (a.halfhour_registDateTime > b.halfhour_registDateTime ? 1 : -1));
+
     return sorted
       .map((cur, i) => {
         const prev = sorted[i - 1];
@@ -227,6 +286,7 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
         const diff = curAmt != null && prevAmt != null ? curAmt - prevAmt : null;
         return { time: cur.halfhour_registDateTime, price: curAmt, diff };
       })
+      .filter((r) => r.diff != null && r.diff !== 0) // ✅ 0 변동 제거
       .reverse();
   }, [data]);
 
@@ -236,18 +296,25 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
     return `${pad2(m)}분 ${pad2(s)}초`;
   }, [remainSec]);
 
+  const refreshInfoText = useMemo(() => {
+    const sec = Math.floor(REFRESH_MS / 1000);
+    if (sec % 60 === 0) return `${sec / 60}분 단위로 자동 새로고침`;
+    return `${sec}초 단위로 자동 새로고침`;
+  }, []);
+
   return (
-    <div className="pt-[calc(64px+2rem)] px-2 flex flex-col w-full items-center justify-center text-[0.9rem]">
+    <div className="pt-[calc(64px+2rem)] px-2 flex flex-col w-full max-h-full items-center justify-center text-[0.9rem] overflow-auto">
       <h1 className="p-4 mt-10 mb-4 w-full max-w-3xl bg-white/20 text-xl font-bold text-left underline rounded-lg">로스트아크 보석 시세 차트</h1>
+
       <div className="w-full max-w-3xl">
         <div className="mb-2 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <select
               value={gemStone}
               onChange={(e) => {
                 const next = e.target.value;
                 setGemStone(next);
-                updateQuery(next, level);
+                updateQuery(next, level, updatetime);
               }}
               className="p-2 bg-white/80 border border-black/20 rounded-lg text-[.8rem]"
             >
@@ -263,13 +330,29 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
               onChange={(e) => {
                 const next = clampLevel(e.target.value);
                 setLevel(next);
-                updateQuery(gemStone, next);
+                updateQuery(gemStone, next, updatetime);
               }}
               className="p-2 bg-white/80 border border-black/20 rounded-lg text-[.8rem]"
             >
               {Array.from({ length: 10 }, (_, i) => String(10 - i)).map((lv) => (
                 <option value={lv} key={lv}>
                   {lv}레벨
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={updatetime}
+              onChange={(e) => {
+                const next = clampUpdatetime(e.target.value);
+                setUpdatetime(next);
+                updateQuery(gemStone, level, next);
+              }}
+              className="p-2 bg-white/80 border border-black/20 rounded-lg text-[.8rem]"
+            >
+              {upList.map((u) => (
+                <option value={u} key={u}>
+                  {fmtUpLabel(u)}
                 </option>
               ))}
             </select>
@@ -281,7 +364,9 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
         </div>
 
         <div className="mb-3 flex items-center justify-between gap-2 text-[.75rem] text-gray-700">
-          <div className="px-2 py-1 rounded-md bg-white/70 border border-black/10">5분 단위로 자동 새로고침</div>
+          <div className="px-2 py-1 rounded-md bg-white/70 border border-black/10">
+            {refreshInfoText} / 조회범위: {fmtUpLabel(effectiveUp)}
+          </div>
           <div className="px-2 py-1 rounded-md bg-white/70 border border-black/10 font-mono">다음 갱신까지 {remainText}</div>
         </div>
 
@@ -290,7 +375,11 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
 
         {!error && (
           <>
-            {ChartComp ? <ChartComp rows={data} /> : <div className="h-[320px] rounded-xl border border-white/20 bg-white/80 backdrop-blur-md shadow-sm flex items-center justify-center text-sm text-gray-600">차트 로딩중</div>}
+            {ChartComp ? (
+              <ChartComp rows={data} bucketSeconds={bucketSeconds} rangeSeconds={rangeSeconds} updatetimeLabel={fmtUpLabel(effectiveUp)} />
+            ) : (
+              <div className="h-[320px] rounded-xl border border-white/20 bg-white/80 backdrop-blur-md shadow-sm flex items-center justify-center text-sm text-gray-600">차트 로딩중</div>
+            )}
 
             <div className="w-full mt-4 rounded-xl border border-white/20 bg-white/80 backdrop-blur-md shadow-sm">
               <ol className="flex gap-2 border-b border-black/10 px-2 pt-2 mb-3">

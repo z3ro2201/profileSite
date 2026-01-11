@@ -29,6 +29,11 @@
   font-style: normal;
 }
 
+html,
+body {
+  overflow-x: hidden;
+}
+
 body {
   width: 100vw;
   height: 100vh;
@@ -42,7 +47,7 @@ body {
 }
 
 .s3-menu {
-  @apply fixed hidden top-0 left-0 w-full z-99;
+  @apply fixed hidden top-0 left-0 w-full z-99 bg-white/80;
 }
 
 .s3-menu.active {
