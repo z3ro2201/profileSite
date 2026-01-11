@@ -54,8 +54,8 @@ const toVideoId = (input: string) => {
 
 const Player = ({ onBgImageChange }: PlayerProps) => {
   // --- draggable ---
-  const [x, setX] = useState<number>(10);
-  const [y, setY] = useState<number>(10);
+  const [x, setX] = useState<number>(0);
+  const [y, setY] = useState<number>(0);
   const draggingRef = useRef(false);
   const offsetRef = useRef({ dx: 0, dy: 0 });
 
@@ -257,7 +257,7 @@ const Player = ({ onBgImageChange }: PlayerProps) => {
   }, [hasValid, valid.validIndexes, valid.idByIndex]);
 
   return (
-    <div className="z-[1000] fixed select-none touch-none" style={{ right: x, bottom: y }} onPointerMove={onPointerMove} onPointerUp={onPointerUp}>
+    <div className="z-[1000] fixed select-none touch-none" style={{ right: -x, bottom: -y }} onPointerMove={onPointerMove} onPointerUp={onPointerUp}>
       {/* drag header */}
       <div className="flex items-center gap-2 px-3 py-2 border-2 border-slate-200 bg-slate-800 overflow-hidden shadow-md text-white rounded cursor-grab active:cursor-grabbing" onPointerDown={onPointerDown} role="dialog">
         {isMuted ? <VolumeOffIcon className="w-4" /> : <Volume2Icon className="w-4" />}
