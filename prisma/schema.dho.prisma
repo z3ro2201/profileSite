@@ -1,0 +1,498 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/dho-client"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model AllData {
+  id         Int     @id @db.Int
+  name       String? @db.VarChar(255)
+  category   String? @db.VarChar(255)
+  isComplete Int?    @default(0) @map("isComplete") @db.Int
+
+  @@map("allData")
+}
+
+model City {
+  id                 Int     @id @db.Int
+  name               String? @db.Text
+  region             String? @db.Text
+  seaArea            String? @map("sea_area") @db.Text
+  culture            String? @db.Text
+  language           String? @map("언어") @db.Text
+  description        String? @map("설명") @db.Text
+  mapPointX          String? @map("지도 이미지 포인트(x)") @db.Text
+  mapPointY          String? @map("지도 이미지 포인트(y)") @db.Text
+  cityCoordX         String? @map("도시좌표(x)") @db.Text
+  cityCoordY         String? @map("도시좌표(y)") @db.Text
+  classification     String? @map("분류") @db.Text
+  portPermission     String? @map("입항허가") @db.Text
+  entrance           String? @map("입구") @db.Text
+  facility           String? @map("시설") @db.Text
+  flagQuestUniqueNo  String? @map("플래그 퀘스트 고유번호") @db.Text
+  investAmount       String? @map("투자 금액") @db.Text
+  investReward       String? @map("투자 보상") @db.Text
+  tradeAmount        String? @map("거래 금액") @db.Text
+  tradeReward        String? @map("거래 보상") @db.Text
+  fishing            String? @map("낚시") @db.Text
+
+  @@map("city")
+}
+
+model Comments {
+  category    String? @db.Text
+  refId       Int?    @map("id") @db.Int
+  commentHtml String? @map("comment_html") @db.LongText
+
+  @@map("comments")
+  @@ignore
+}
+
+model Consumable {
+  id             Int     @id @db.Int
+  type           String? @db.Text
+  name           String? @db.Text
+  additionalName String? @map("additional_Name") @db.Text
+  description    String? @db.Text
+  category       String? @db.Text
+  usageEffect    String? @map("usage_Effect") @db.Text
+  features       String? @db.Text
+  item           String? @map("Item") @db.Text
+  duplicate      String? @map("Duplicate") @db.Text
+
+  @@map("consumable")
+}
+
+model D0 {
+  id          Int?    @db.Int
+  itemName    String? @map("item_name") @db.Text
+  itemId      Int?    @map("item_id") @db.Int
+  explanation String? @db.Text
+
+  @@map("d0")
+  @@ignore
+}
+
+model DhoSQL {
+  info String? @db.LongText
+
+  @@map("dhoSQL")
+  @@ignore
+}
+
+model Discovery {
+  id                        Int     @id @default(autoincrement()) @db.Int
+  type                      String? @db.VarChar(255)
+  name                      String? @db.VarChar(255)
+  additionalName            String? @map("additional_name") @db.VarChar(255)
+  nameKey                   String? @map("name_key") @db.VarChar(255)
+  description               String? @db.Text
+  category                  String? @db.VarChar(255)
+  difficulty                Int?    @db.Int
+  cardPoints                Int?    @map("card_points") @db.Int
+  discoveryExperience       Int?    @map("discovery_experience") @db.Int
+  cardAcquisitionExperience Int?    @map("card_acquisition_experience") @db.Int
+  reportReputation          Int?    @map("report_reputation") @db.Int
+  discoveryMethod           String? @map("discovery_method") @db.VarChar(255)
+  discoveryLocation         String? @map("discovery_location") @db.VarChar(255)
+  discoveryRank             String? @map("discovery_rank") @db.Text
+  additionalDescription     String? @map("additional_description") @db.Text
+  era                       String? @db.VarChar(255)
+  timePeriod                String? @map("time_period") @db.VarChar(255)
+  weather                   String? @db.VarChar(255)
+  coordinates               String? @db.VarChar(255)
+
+  @@map("discovery")
+}
+
+model Dungeon {
+  id                     Int     @id @db.Int
+  name                   String? @db.Text
+  additionalName         String? @map("additional_name") @db.Text
+  explanation            String? @db.Text
+  floor                  String? @db.Text
+  rank                   Int?    @db.Int
+  exploration            Int?    @db.Int
+  boardingPass           Int?    @map("boarding_pass") @db.Int
+  entrance               String? @db.Text
+  preceding              String? @db.Text
+  equipment              String? @db.Text
+  etc                    String? @db.Text
+  discoveryBossCompleted String? @map("discovery_boss_completed") @db.Text
+  discoveryHiddenRoomBox String? @map("discovery_hidden_room_box") @db.Text
+  regularFloorBox        String? @map("regular_floor_box") @db.Text
+  hiddenRoomBox          String? @map("hidden_room_box") @db.Text
+  bossBox                String? @map("boss_box") @db.Text
+  bossCompleted          String? @map("boss_completed") @db.Text
+
+  @@map("dungeon")
+}
+
+model Equipment {
+  id               Int     @id @db.Int
+  name             String? @db.Text
+  additionalName   String? @map("additional_name") @db.Text
+  description      String? @db.Text
+  exact            String? @map("EXACT") @db.Text
+  category         String? @db.Text
+  attackPower      Int?    @map("공격력") @db.Int
+  defensePower     Int?    @map("방어력") @db.Int
+  etiquette        Int?    @map("복장예절") @db.Int
+  disguise         Int?    @map("변장도") @db.Int
+  durability       Int?    @map("내구도") @db.Int
+  skill            String? @db.Text
+  usageEffect      String? @map("usage_Effect") @db.Text
+  equipmentEffect  String? @map("equipment_Effect") @db.Text
+  features         String? @db.Text
+  acquireMethod    String? @map("획득 방법") @db.Text
+  requiredJobLine  String? @map("필요 직업 계열") @db.Text
+  requiredFame     String? @map("필요 명성") @db.Text
+  requiredInfamy   String? @map("필요 악명") @db.Text
+  requiredGender   String? @map("필요 성별") @db.Text
+  requiredTitle    String? @map("필요 작위") @db.Text
+  requiredNickname String? @map("필요 호칭") @db.Text
+
+  @@map("equipment")
+}
+
+model Field {
+  id                      Int     @id @db.Int
+  name                    String? @db.Text
+  additionalName          String? @map("additional_name") @db.Text
+  region                  String? @db.Text
+  fieldType               String? @map("field_type") @db.Text
+  entrance                String? @db.Text
+  entranceId              String? @map("entrance_id") @db.Text
+  flagQuest               String? @map("flag_quest") @db.Text
+  flagQuestId             String? @map("flag_quest_id") @db.Text
+  explanation             String? @db.Text
+  mapx                    String? @db.Text
+  mapy                    String? @db.Text
+  coordinatesX            String? @map("coordinates_x") @db.Text
+  coordinatesY            String? @map("coordinates_y") @db.Text
+  classification          String? @db.Text
+  permissionEnterPort     String? @map("permission_enter port") @db.Text
+  fieldResurveyComp       String? @map("field_resurvey_compensation") @db.Text
+  field18                 String? @db.Text
+  field19                 String? @db.Text
+  field20                 String? @db.Text
+  field21                 String? @db.Text
+  field22                 String? @db.Text
+
+  @@map("field")
+}
+
+model Job {
+  id             Int     @id @db.Int
+  name           String? @db.Text
+  description    String? @db.Text
+  category       String? @db.Text
+  recommendation String? @db.Text
+  cost           String? @db.Text
+  lv             String? @db.Text
+  skill          String? @db.Text
+  skillstr       String? @db.Text
+
+  @@map("job")
+}
+
+model LandNpc {
+  id           Int     @id @db.Int
+  name         String? @db.Text
+  lv           String? @db.Text
+  feature      String? @db.Text
+  additional   String? @map("additionalname") @db.Text
+  description  String? @db.Text
+  fieldName    String? @map("fieldname") @db.Text
+  technique    String? @db.Text
+  itemId       String? @map("item_id") @db.Text
+  fieldId      String? @map("field_id") @db.Text
+  technicId    String? @map("technic_id") @db.Text
+  note         String? @map("비고") @db.Text
+
+  @@map("landnpc")
+}
+
+model NpcSale {
+  id           BigInt  @id @default(autoincrement()) @db.BigInt
+  npc          String? @db.Text
+  city         String? @db.Text
+  cityId       Int?    @map("city_id") @db.Int
+  cultural     String? @db.Text
+  group        String? @db.Text
+  itemId       Int?    @map("item_id") @db.Int
+  itemCategory String? @map("item_category") @db.Text
+  item         String? @db.Text
+  price        String? @db.Text
+  salesprice   String? @db.Text
+  hi           String? @db.Text
+  count        String? @db.Text
+  progress     String? @db.Text
+  invest       String? @db.Text
+  contribution String? @db.Text
+  centralcity  String? @db.Text
+  era          String? @db.Text
+
+  @@map("npcsale")
+}
+
+model Quest {
+  id                     Int      @id @default(autoincrement()) @db.Int
+  type                   String?  @db.VarChar(255)
+  name                   String?  @db.VarChar(255)
+  additionalName         String?  @map("additional_name") @db.VarChar(255)
+  description            String?  @db.Text
+  series                 String?  @db.VarChar(255)
+  difficulty             Int?     @db.Int
+  era                    String?  @db.VarChar(255)
+  category               String?  @db.VarChar(255)
+  location               String?  @db.VarChar(255)
+  destination            String?  @db.VarChar(255)
+  destinationCoordinates String?  @map("destination_coordinates") @db.VarChar(255)
+  discovery              String?  @db.VarChar(255)
+  precedingDiscoveryQuest String? @map("preceding_discovery_quest") @db.VarChar(255)
+  deadline               String?  @db.Text
+  requiredItems          String?  @map("required_items") @db.VarChar(255)
+  guide                  String?  @db.Text
+  progress               String?  @db.Text
+  previousContinuousQuestId String? @map("previous_continuous_quest_id") @db.Text
+  episode                Int?     @db.Int
+  oneTimeOnly            Int?     @map("one_time_only") @db.Int
+  rare                   Int?     @db.Int
+  associationRequired    Int?     @map("association_required") @db.Int
+  skills                 String?  @db.VarChar(255)
+  additionalSkills       String?  @map("additional_skills") @db.VarChar(255)
+  associationSkills      String?  @map("association_skills") @db.VarChar(255)
+  sophiaRank             Int?     @map("sophia_rank") @db.Int
+  sophiaPoints           Int?     @map("sophia_points") @db.Int
+  nationality            String?  @db.VarChar(255)
+  occupation             String?  @db.VarChar(255)
+  portPermission         String?  @map("port_permission") @db.VarChar(255)
+  reputation             String?  @db.VarChar(255)
+  other                  String?  @db.Text
+  rewardMoney            Int?     @map("reward_money") @db.Int
+  advancePayment         Int?     @map("advance_payment") @db.Int
+  reportExperience       String?  @map("report_experience") @db.VarChar(255)
+  reportReputation       String?  @map("report_reputation") @db.VarChar(255)
+  rewardItems            String?  @map("reward_items") @db.VarChar(255)
+  rewardImmigrants       String?  @map("reward_immigrants") @db.VarChar(255)
+  rewardTechniques       String?  @map("reward_techniques") @db.VarChar(255)
+  rewardTitle            String?  @map("reward_title") @db.VarChar(255)
+
+  @@map("quest")
+}
+
+model Recipe {
+  id                    Int     @id @db.Int
+  name                  String? @db.Text
+  description           String? @db.Text
+  recipeBookId          Int?    @map("recipe_book_id") @db.Int
+  requiredSkill         String? @map("required_Skill") @db.Text
+  ingredients           String? @db.Text
+  sophia                Int?    @db.Int
+  era                   String? @db.Text
+  homeProduction        String? @map("home_production") @db.Text
+  development           String? @db.Text
+  investmentCost        Int?    @map("Investment_cost") @db.Int
+  centralCity           String? @map("central_city") @db.Text
+  industrialRevolution  String? @map("Industrial_revolution") @db.Text
+  ownIndustrialCity     String? @map("own_Industrial_city") @db.Text
+  title                 String? @db.Text
+  consumptionContribution Int?  @map("consumption_contribution") @db.Int
+  other                 String? @db.Text
+  success               String? @db.Text
+  greatsuccess          String? @db.Text
+  failure               String? @db.Text
+
+  @@map("recipe")
+}
+
+model RecipeBook {
+  id            Int     @id @db.Int
+  series        String? @map("sveries") @db.Text
+  name          String? @db.Text
+  additionalName String? @map("additionalname") @db.Text
+  description   String? @db.Text
+  productionNpc String? @map("productionNPC") @db.Text
+  era           String? @db.Text
+
+  @@map("recipebook")
+}
+
+model Ship {
+  id              Int     @id @db.Int
+  name            String? @db.Text
+  additionalName  String? @map("additional_name") @db.Text
+  description     String? @db.Text
+  type            String? @db.Text
+  size            String? @db.Text
+  category        String? @db.Text
+  lvAdventure     Int?    @map("lv_adventure") @db.Int
+  lvTrade         Int?    @map("lv_trade") @db.Int
+  lvBattle        Int?    @map("lv_battle") @db.Int
+  defaultMaterial String? @map("default_material") @db.Text
+
+  baseEnhance     Int?    @map("기본 강화") @db.Int
+  reEnhance       Int?    @map("재강화") @db.Int
+  shipbuilding    Int?    @db.Int
+  dryDays         Int?    @map("dry_days") @db.Int
+
+  cityProgress    String? @map("city_progress") @db.Text
+  cityInvest      String? @map("city_invest") @db.Text
+  field18         String? @db.Text
+
+  durability      Int?    @map("내구도") @db.Int
+  verticalSail    Int?    @map("세로돛") @db.Int
+  horizontalSail  Int?    @map("가로돛") @db.Int
+  maneuverability Int?    @map("조력") @db.Int
+  turning         Int?    @map("선회") @db.Int
+  waveResistance  Int?    @map("내파") @db.Int
+  armor           Int?    @map("장갑") @db.Int
+  cabin           Int?    @map("선실") @db.Int
+  requiredCrew    Int?    @map("필요 선원") @db.Int
+  gunroom         Int?    @map("포실") @db.Int
+  storage         Int?    @map("창고") @db.Int
+
+  field30         String? @db.Text
+
+  durabilityPlus      Int? @map("내구도+") @db.Int
+  verticalSailPlus    Int? @map("세로돛+") @db.Int
+  horizontalSailPlus  Int? @map("가로돛+") @db.Int
+  maneuverabilityPlus Int? @map("조력+") @db.Int
+  turningPlus         Int? @map("선회+") @db.Int
+  waveResistancePlus  Int? @map("내파+") @db.Int
+  armorPlus           Int? @map("장갑+") @db.Int
+  cabinPlus           Int? @map("선실+") @db.Int
+  gunroomPlus         Int? @map("포실+") @db.Int
+  storagePlus         Int? @map("창고+") @db.Int
+
+  field41         String? @db.Text
+
+  auxiliarySail   Int?    @map("보조돛") @db.Int
+  figurehead      Int?    @map("선수상") @db.Int
+  emblem          Int?    @map("문장") @db.Int
+  specialEquip    Int?    @map("특수장비") @db.Int
+  extraArmor      Int?    @map("추가장갑") @db.Int
+  sideGun         Int?    @map("선측포") @db.Int
+  bowGun          Int?    @map("선수포") @db.Int
+  sternGun        Int?    @map("선미포") @db.Int
+
+  field50         String? @db.Text
+  field51         String? @db.Text
+
+  @@map("ship")
+}
+
+model ShipSkill {
+  shipId            Int?    @map("ship_id") @db.Int
+  unknownUniqueNo   String? @map("미확인 고유번호") @db.Text
+  shipName          String? @map("ship_name") @db.Text
+  skillId           Int?    @map("skill_id") @db.Int
+  name              String? @db.Text
+  sail              String? @map("돛") @db.Text
+  gunport           String? @map("포문") @db.Text
+  shipMaterial1     String? @map("선박_재료_1") @db.Text
+  shipMaterial2     String? @map("선박_재료_2") @db.Text
+  shipMaterialNo    String? @map("선박_재료_고유번호") @db.Text
+
+  @@map("shipSkill")
+  @@ignore
+}
+
+model Shipwreck {
+  id                   Int     @id @db.Int
+  type                 String? @db.Text
+  name                 String? @db.Text
+  explanation          String? @db.Text
+  difficulty           Int?    @db.Int
+  seaArea              String? @map("sea_area") @db.Text
+  destination          String? @db.Text
+  discoveryCoordinates String? @map("discovery_coordinates") @db.Text
+  skill                String? @db.Text
+  characteristics      String? @db.Text
+  discovery            String? @db.Text
+  consumables          String? @db.Text
+  tradeGoods           String? @map("trade_goods") @db.Text
+  equipment            String? @db.Text
+  recipebook           String? @db.Text
+
+  얻은보조돛          String? @map("획득 보조돛") @db.Text
+  얻은선박재료        String? @map("획득 선박 재료") @db.Text
+  얻은대포            String? @map("획득 대포") @db.Text
+  얻은특수장비        String? @map("획득 특수장비") @db.Text
+  얻은추가장갑        String? @map("획득 추가장갑") @db.Text
+  얻은선수상          String? @map("획득 선수상") @db.Text
+  얻은문장            String? @map("획득 문장") @db.Text
+  얻은선박데코        String? @map("획득 선박데코") @db.Text
+
+  consumableCode       String? @map("소비품 코드") @db.Text
+  tradeGoodsCode       String? @map("교역품 코드") @db.Text
+  equipmentCode        String? @map("장비품 코드") @db.Text
+  recipeBookCode       String? @map("레시피 책 코드") @db.Text
+  subSailCode          String? @map("보조돚 코드") @db.Text
+  shipMaterialCode     String? @map("선박 재료 코드") @db.Text
+  cannonCode           String? @map("대포 코드") @db.Text
+  specialEquipCode     String? @map("특수장비 코드") @db.Text
+  extraArmorCode       String? @map("추가장갑 코드") @db.Text
+  figureheadCode       String? @map("선수상 코드") @db.Text
+  emblemCode           String? @map("문장 코드") @db.Text
+  shipDecoCode         String? @map("선박데코 코드") @db.Text
+
+  itemId               String? @map("item_id") @db.Text
+
+  @@map("shipwreck")
+}
+
+model Technic {
+  id            Int     @id @db.Int
+  name          String? @db.Text
+  description   String? @db.Text
+  weapon        String? @db.Text
+  type          String? @db.Text
+  rank          Int?    @db.Int
+  effect        String? @db.Text
+  consumption   Int?    @db.Int
+  dictionary    Int?    @db.Int
+  range         Int?    @db.Int
+  skill         String? @db.Text
+  techniqueRank String? @map("technique_rank") @db.Text
+  preceding     String? @db.Text
+
+  @@map("technic")
+}
+
+model TradeGoods {
+  id          Int     @id @db.Int
+  name        String? @db.Text
+  description String? @db.Text
+  category    String? @db.Text
+  culture     String? @db.Text
+  jp          Int?    @db.Int
+  ko          Int?    @db.Int
+  tw          Int?    @db.Int
+  ch          Int?    @db.Int
+
+  @@map("tradegoods")
+}
+
+model TreasureMap {
+  id             Int     @id @default(autoincrement()) @db.Int
+  name           String? @db.VarChar(255)
+  description    String? @db.Text
+  requiredSkill  String? @map("required_skill") @db.VarChar(255)
+  category       String? @db.VarChar(255)
+  academicField  String? @map("academic_field") @db.VarChar(255)
+  library        String? @db.VarChar(255)
+  destination    String? @db.VarChar(255)
+  discovery      Int?    @db.Int
+  cityConditions String? @map("city_conditions") @db.Text
+  preceding      String? @db.Text
+  rewardDukat    Int?    @map("reward_dukat") @db.Int
+  rewardItem     String? @map("reward_item") @db.Text
+  strategy       String? @db.Text
+
+  @@map("treasuremap")
+}
