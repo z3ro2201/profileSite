@@ -89,7 +89,7 @@ export default async function AuctionChartPage({ searchParams }: Props) {
   const initialGemStone = toSafeGemStone(sp.gemStone);
   const initialLevel = toSafeLevel(sp.level);
 
-  const GEMSTONE_LIST = ["작열", "청명", "멸화", "홍염"];
+  const GEMSTONE_LIST = ["작열", "겁화", "멸화", "홍염"];
 
   return <AuctionGemChartClient GEMSTONE_LIST={GEMSTONE_LIST} initialGemStone={initialGemStone} initialLevel={initialLevel} />;
 }
