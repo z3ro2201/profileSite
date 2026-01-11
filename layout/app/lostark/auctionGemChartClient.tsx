@@ -33,7 +33,7 @@ const clampLevel = (v?: string) => {
   return String(Math.min(10, Math.max(1, Math.trunc(n))));
 };
 
-const buildApiPath = (gemStone: string, level: string) => `/api/app/game/onstove/lostark/auction-chart/gemStone/${encodeURIComponent(`${clampLevel(level)}레벨 ${gemStone}의 보석`)}`;
+const buildApiPath = (gemStone: string, level: string) => `/app/game/onstove/lostark/auction-chart/gemStone/${encodeURIComponent(`${clampLevel(level)}레벨 ${gemStone}의 보석`)}`;
 
 const num = (v: any) => {
   const n = Number(v);
@@ -65,14 +65,31 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
 
   useEffect(() => {
     let alive = true;
-    import("@/components/GemStockChart").then((m) => {
-      if (!alive) return;
-      setChartComp(() => m.default);
-    });
+
+    import("@/components/GemStockChart")
+      .then((m) => {
+        if (!alive) return;
+        setChartComp(() => m.default);
+      })
+      .catch((e) => {
+        console.error("GemStockChart chunk load failed:", e);
+        if (!alive) return;
+        setError("차트 모듈 로딩에 실패했습니다. (브라우저 호환/캐시 문제일 수 있어요)");
+        setChartComp(null);
+      });
+
     return () => {
       alive = false;
     };
   }, []);
+
+  const safeDecode = (s: string) => {
+    try {
+      return decodeURI(s);
+    } catch {
+      return s; // 실패하면 그냥 원본
+    }
+  };
 
   const updateQuery = (g: string, l: string) => {
     const params = new URLSearchParams(sp.toString());
@@ -180,7 +197,14 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
 
   const handleCopy = async () => {
     if (!apiPath) return;
-    const text = `https://2er0.io${decodeURI(apiPath)}`;
+
+    const text = `https://2er0.io${safeDecode(apiPath)}`;
+
+    if (!navigator?.clipboard?.writeText) {
+      alert("이 브라우저에서는 클립보드 복사를 지원하지 않습니다.");
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(text);
       alert("복사되었습니다.");
@@ -316,7 +340,7 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
                     <div className="text-sm">
                       API 주소:{" "}
                       <span className="underline cursor-pointer" onClick={handleCopy}>
-                        {apiPath && `https://2er0.io${decodeURI(apiPath)}`}
+                        {apiPath && `https://2er0.io${safeDecode(apiPath)}`}
                       </span>
                     </div>
                     <div className="h-[150px] bg-black/60 overflow-auto text-white rounded-lg">
