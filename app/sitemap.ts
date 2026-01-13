@@ -45,6 +45,52 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   add("/tools", { priority: 1 });
   add("/tools/game/onstove/lostark/auction-chart/gemstone", { priority: 1 });
+
+  add("/tools/game/onstove/lostark/auction-chart/gemstone", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=1&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=2&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=3&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=4&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=5&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=6&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=7&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=8&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=9&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=10&updatetime=1d", { priority: 1 });
+
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=1&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=2&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=3&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=4&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=5&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=6&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=7&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=8&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=9&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EC%9E%91%EC%97%B4&level=10&updatetime=5m", { priority: 1 });
+
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=1&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=2&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=3&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=4&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=5&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=6&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=7&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=8&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=9&updatetime=1d", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=10&updatetime=1d", { priority: 1 });
+
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=1&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=2&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=3&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=4&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=5&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=6&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=7&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=8&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=9&updatetime=5m", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone?gemStone=%EA%B2%81%ED%99%94&level=10&updatetime=5m", { priority: 1 });
+
   add("/tools/game/onstove/lostark/sasaFind", { priority: 1 });
   add("/tools/ocr", { priority: 1 });
 
