@@ -121,3 +121,27 @@ enum PostState {
   PUBLISHED
   ARCHIVED
 }
+
+model PageVisit {
+  id                String   @id @default(cuid())
+  visitorId         String   @map("visitor_id")
+  sessionId         String   @map("session_id")
+  pagePath          String   @map("page_path") @db.VarChar(500)
+  referrer          String   @db.VarChar(500)
+  userAgent         String?  @map("user_agent") @db.Text
+  ipAddress         String?  @map("ip_address") @db.VarChar(45)
+  country           String?  @db.VarChar(100)
+  city              String?  @db.VarChar(100)
+  deviceType        String?  @map("device_type") @db.VarChar(50)
+  browser           String?  @db.VarChar(100)
+  os                String?  @db.VarChar(100)
+  screenResolution  String?  @map("screen_resolution") @db.VarChar(50)
+  language          String?  @db.VarChar(10)
+  visitedAt         DateTime @default(now()) @map("visited_at")
+
+  @@index([visitedAt])
+  @@index([pagePath])
+  @@index([visitorId])
+  @@index([sessionId])
+  @@map("page_visits")
+}

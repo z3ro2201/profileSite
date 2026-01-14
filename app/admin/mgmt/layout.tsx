@@ -70,6 +70,7 @@ const AdminPageLayout = async ({ children }: { children: ReactNode }) => {
       <div className="flex h-[calc(100%-52px)]">
         <aside className="w-[200px] h-full flex flex-col sm:border-r border-gray-200">
           <Link href="/admin/mgmt/users/me">내 정보</Link>
+          <Link href="/admin/mgmt/analytics">방문자 현황</Link>
           <Link href="/admin/mgmt/posts/write">글 작성</Link>
           <Link href="/admin/mgmt/posts/list">글 관리</Link>
           <Link href="/admin/mgmt/categories">카테고리 관리</Link>
