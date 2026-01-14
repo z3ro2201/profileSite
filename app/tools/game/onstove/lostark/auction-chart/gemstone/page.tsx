@@ -32,18 +32,16 @@ function toSafeUpdatetime(input?: string) {
 
 export const generateMetadata = async ({ searchParams }: Props): Promise<Metadata> => {
   const sp = (await searchParams) ?? {};
-  const gemStone = toSafeGemStone(sp.gemStone);
-  const level = toSafeLevel(sp.level);
+  const gemStone = toSafeGemStone(sp.gemStone ?? "작열");
+  const level = toSafeLevel(sp.level ?? "1");
   const updatetime = toSafeUpdatetime(sp.updatetime);
 
   const baseTitle = "로스트아크 보석 시세 차트";
   const title = gemStone ? `로스트아크 ${level}레벨 ${gemStone} 보석 시세 차트` : baseTitle;
 
-  const description = gemStone
-    ? `로스트아크 ${level}레벨 ${gemStone} 보석 시세를 차트로 확인하고 변동 흐름을 분석할 수 있습니다. updatetime(${updatetime}) 조회를 지원하며 OpenAPI를 제공합니다.`
-    : `로스트아크 보석 시세를 차트로 확인하고 변동 흐름을 분석할 수 있습니다. updatetime(${updatetime}) 조회를 지원하며 OpenAPI를 제공합니다.`;
+  const description = gemStone ? `로스트아크 ${level}레벨 ${gemStone} 보석 시세를 차트로 확인하고 변동 흐름을 분석할 수 있습니다. updatetime(${updatetime}) 조회를 지원하며 OpenAPI를 제공합니다.` : `로스트아크 보석 시세를 차트로 확인하고 변동 흐름을 분석할 수 있습니다. updatetime(${updatetime}) 조회를 지원하며 OpenAPI를 제공합니다.`;
 
-  const baseUrl = "https://2er0.io/tools/game/onstove/lostark/auction-chart";
+  const baseUrl = "https://2er0.io/tools/game/onstove/lostark/auction-chart/gemstone";
 
   const qs: string[] = [];
   if (gemStone) qs.push(`gemStone=${encodeURIComponent(gemStone)}`);
