@@ -49,11 +49,11 @@ const SasaFindPage = () => {
 
       <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
         {/* 헤더 공간 */}
-        <div className="pt-32 pb-12">
+        <div className="pt-4 lg:pt-32 pb-4 lg:pb-12">
           <div className="max-w-4xl mx-auto px-4">
             {/* 로고/타이틀 영역 */}
             <div className="text-center mb-12">
-              <h1 className="text-5xl font-bold text-gray-900 mb-4">
+              <h1 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-4">
                 로스트아크
                 <span className="block mt-2 text-blue-600">서버 사건/사고 검색</span>
               </h1>

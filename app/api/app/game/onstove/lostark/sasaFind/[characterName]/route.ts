@@ -92,7 +92,7 @@ export async function GET(req: Request, ctx: { params: { characterName: string }
       });
     }
 
-    // 📌 게시글 파싱 (구조 변화에 강한 방식)
+    // 📌 게시글 파싱 (공지사항 제외)
     const list: InvenSasaItem[] = [];
     const seen = new Set<string>();
 
@@ -100,6 +100,13 @@ export async function GET(req: Request, ctx: { params: { characterName: string }
 
     root.find("a[href]").each((_, el) => {
       const a = $(el);
+
+      // 공지사항 제외: class="notice all"인 tr 내부의 링크는 스킵
+      const parentTr = a.closest("tr");
+      if (parentTr.hasClass("notice") && parentTr.hasClass("all")) {
+        return;
+      }
+
       const href = a.attr("href") ?? "";
       if (!href || !isPostLink(href)) return;
 

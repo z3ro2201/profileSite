@@ -77,7 +77,7 @@ const SearchResultPage = async ({ searchParams }: PageProps) => {
   const apiPath = characterName ? `https://2er0.io/api/app/game/onstove/lostark/sasaFind/${encodeURIComponent(characterName)}?category=${category}` : "";
 
   return (
-    <div className="w-screen min-h-screen pt-[68px] bg-gray-50">
+    <div className="w-screen min-h-screen lg:pt-[68px] bg-gray-50">
       {/* 헤더 */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-6">
