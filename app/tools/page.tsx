@@ -54,7 +54,7 @@ const APPS: AppItem[] = [
     key: "lostark-gem-chart",
     title: "로스트아크 보석 시세 차트",
     desc: "로스트아크 보석 시세를 차트로 확인하고, 변동 내역과 OpenAPI를 제공합니다. (모코코봇에 제공된 기능입니다.)",
-    href: "/tools/game/onstove/lostark/auction-chart/gemstone",
+    href: "/tools/game/onstove/lostark/auction-chart/gemstone/작열/10",
     image: "/app/LostArkGemChart.webp",
     badge: "GAME",
     openApi: true,
