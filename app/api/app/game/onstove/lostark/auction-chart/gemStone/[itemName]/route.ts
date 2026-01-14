@@ -9,7 +9,7 @@ const DAY = 24 * HOUR;
 
 function clampUpdatetime(v: string | null): UpdatetimeKey {
   const s = (v ?? "").trim() as UpdatetimeKey;
-  const allowed = new Set<UpdatetimeKey>(["1h", "30m", "15m", "10m", "7d", "15d", "30d", "1d"]);
+  const allowed = new Set<UpdatetimeKey>(["1h", "30m", "15m", "10m", "5m", "1m", "7d", "15d", "30d", "1d"]);
   return allowed.has(s) ? s : "1d";
 }
 
@@ -19,6 +19,8 @@ function pickPolicy(key: UpdatetimeKey): { rangeSeconds: number; bucketSeconds: 
   if (key === "30m") return { rangeSeconds: 1 * DAY, bucketSeconds: 30 * 60 };
   if (key === "15m") return { rangeSeconds: 1 * DAY, bucketSeconds: 15 * 60 };
   if (key === "10m") return { rangeSeconds: 1 * DAY, bucketSeconds: 10 * 60 };
+  if (key === "5m") return { rangeSeconds: 1 * DAY, bucketSeconds: 5 * 60 };
+  if (key === "1m") return { rangeSeconds: 1 * DAY, bucketSeconds: 1 * 60 };
 
   // 7일 이하: 일주일 기간(=7d) + 15분 단위
   if (key === "7d") return { rangeSeconds: 7 * DAY, bucketSeconds: 15 * 60 };

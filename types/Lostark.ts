@@ -1,5 +1,5 @@
 import { GEMSTONE_LIST } from "@/lib/lostark";
-export type UpdatetimeKey = "1h" | "30m" | "15m" | "10m" | "7d" | "15d" | "30d" | "1d";
+export type UpdatetimeKey = "1h" | "30m" | "15m" | "10m" | "5m" | "1m" | "7d" | "15d" | "30d" | "1d";
 
 export type GemStone = (typeof GEMSTONE_LIST)[number];
 
