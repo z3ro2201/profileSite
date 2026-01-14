@@ -93,9 +93,25 @@ export default async function AuctionChartPage({ searchParams }: Props) {
 
   return (
     <div className="pt-[calc(64px+2rem)] px-2 flex flex-col w-full max-h-full items-center justify-center text-[0.9rem] overflow-auto">
-      <h1 className="p-4 mt-10 mb-4 w-full max-w-3xl bg-white/20 text-xl font-bold text-left underline rounded-lg">
-        로아 {gemStone}의 보석 ({level}레벨) 시세 차트
-      </h1>
+      <h2 className="mt-6 text-lg font-bold">무엇을 보여주나요?</h2>
+      <p className="leading-6">
+        로스트아크 경매장 데이터를 기반으로 <strong>{gemStone}</strong> 보석의
+        <strong> {level}레벨</strong> 시세를 기간(<strong>{initialUpdatetime}</strong>)별로 집계해 추이를 시각화합니다.
+      </p>
+
+      <h2 className="mt-4 text-lg font-bold">추천 사용법</h2>
+      <ul className="list-disc pl-5 leading-6">
+        <li>1d는 단기 급등락 체크</li>
+        <li>7d/30d는 추세 확인</li>
+        <li>10레벨은 거래량이 많아 비교에 유리</li>
+      </ul>
+
+      <h2 className="mt-4 text-lg font-bold">관련 도구</h2>
+      <p>
+        <a className="underline" href="/tools/game/onstove/lostark/sasaFind">
+          로스트아크 사사게 검색기
+        </a>
+      </p>
       <AuctionGemChartClient GEMSTONE_LIST={GEMSTONE_LIST} initialGemStone={initialGemStone} initialLevel={initialLevel} initialUpdatetime={initialUpdatetime} UPDATETIME_LIST={UPDATETIME_LIST} />
     </div>
   );
