@@ -87,7 +87,7 @@ export default async function SasaFindPage({ searchParams }: Props) {
         </ol>
         <p className="mb-4">
           관련 도구:{" "}
-          <Link href="/tools/game/onstove/lostark/auction-chart" prefetch={false} className="font-bold underline">
+          <Link href="/tools/game/onstove/lostark/auction-chart/gemstone" prefetch={false} className="font-bold underline">
             로스트아크 경매 시세 도구
           </Link>
         </p>
