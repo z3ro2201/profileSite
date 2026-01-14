@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import Link from "next/link";
 
 type TocItem = { id: string; text: string; level: number };
 
@@ -13,11 +14,18 @@ type Props = {
   finalHtml: string;
   toc: TocItem[];
   compact?: boolean; // ✅ 피드용(옵션)
+  isAdmin?: boolean;
 };
 
-const PostViewClient = ({ post, finalHtml, toc, compact }: Props) => {
+const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
   return (
     <div className={cn("mx-auto w-full px-5 py-10", compact ? "py-6" : "")}>
+      {isAdmin && (
+        <>
+          <Link href={`/admin/mgmt/posts/${post?.id}/modify`}>수정</Link>
+          <Link href={`/admin/mgmt/posts/${post?.id}/delete`}>삭제</Link>
+        </>
+      )}
       <div className={cn("p-2 mb-2 w-full flex flex-col justify-end", compact ? "h-auto" : "h-[146px]")}>
         <div className="mb-2">
           <div className="w-full">
