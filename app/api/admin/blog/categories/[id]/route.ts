@@ -11,8 +11,9 @@ type PatchBody = {
   isPublic?: boolean;
 };
 
-export async function PATCH(req: Request, ctx: { params: { id: string } }) {
-  const id = Number(ctx.params.id);
+export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }> }) {
+  const params = await ctx.params;
+  const id = Number(params.id);
   if (!Number.isFinite(id) || id <= 0) {
     return NextResponse.json({ ok: false, message: "invalid id" }, { status: 400 });
   }
@@ -61,8 +62,9 @@ export async function PATCH(req: Request, ctx: { params: { id: string } }) {
   }
 }
 
-export async function DELETE(_: Request, ctx: { params: { id: string } }) {
-  const id = Number(ctx.params.id);
+export async function DELETE(_: Request, ctx: { params: Promise<{ id: string }> }) {
+  const params = await ctx.params;
+  const id = Number(params.id);
   if (!Number.isFinite(id) || id <= 0) {
     return NextResponse.json({ ok: false, message: "invalid id" }, { status: 400 });
   }
