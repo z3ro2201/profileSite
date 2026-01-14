@@ -322,7 +322,9 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
 
   return (
     <div className="pt-[calc(64px+2rem)] px-2 flex flex-col w-full max-h-full items-center justify-center text-[0.9rem] overflow-auto">
-      <h1 className="p-4 mt-10 mb-4 w-full max-w-3xl bg-white/20 text-xl font-bold text-left underline rounded-lg">로스트아크 보석 시세 차트</h1>
+      <h1 className="p-4 mt-10 mb-4 w-full max-w-3xl bg-white/20 text-xl font-bold text-left underline rounded-lg">
+        로아 {gemStone}의 보석 ({level}레벨) 시세 차트
+      </h1>
 
       <div className="w-full max-w-3xl">
         <div className="mb-2 flex items-center justify-between gap-2">
@@ -393,11 +395,7 @@ export default function AuctionGemChartClient({ GEMSTONE_LIST, initialGemStone, 
 
         {!error && (
           <>
-            {ChartComp ? (
-              <ChartComp rows={data} bucketSeconds={bucketSeconds} rangeSeconds={rangeSeconds} updatetimeLabel={fmtUpLabel(effectiveUp)} />
-            ) : (
-              <div className="h-[320px] rounded-xl border border-white/20 bg-white/80 backdrop-blur-md shadow-sm flex items-center justify-center text-sm text-gray-600">차트 로딩중</div>
-            )}
+            {ChartComp ? <ChartComp rows={data} bucketSeconds={bucketSeconds} rangeSeconds={rangeSeconds} updatetimeLabel={fmtUpLabel(effectiveUp)} /> : <div className="h-[320px] rounded-xl border border-white/20 bg-white/80 backdrop-blur-md shadow-sm flex items-center justify-center text-sm text-gray-600">차트 로딩중</div>}
 
             <div className="w-full mt-4 rounded-xl border border-white/20 bg-white/80 backdrop-blur-md shadow-sm">
               <ol className="flex gap-2 border-b border-black/10 px-2 pt-2 mb-3">
