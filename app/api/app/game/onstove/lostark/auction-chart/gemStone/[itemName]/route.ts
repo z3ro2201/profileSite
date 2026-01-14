@@ -2,19 +2,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prismaLoa } from "@/lib/prismaLoa";
 
-type UpdatetimeKey =
-  // 24h range (intraday buckets)
-  | "1h"
-  | "30m"
-  | "15m"
-  | "10m"
-  // <= 7d range (15m bucket)
-  | "7d"
-  // > 7d range (1h bucket)
-  | "15d"
-  | "30d"
-  // fallback
-  | "1d";
+import { UpdatetimeKey } from "@/types/Lostark";
 
 const HOUR = 60 * 60;
 const DAY = 24 * HOUR;

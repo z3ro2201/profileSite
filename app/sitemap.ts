@@ -1,15 +1,16 @@
 import { prisma } from "@/lib/prisma";
+import { GEMSTONE_LIST } from "@/lib/lostark";
 import type { MetadataRoute } from "next";
 
 type Freq = NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>;
 
-function joinUrl(base: string, path: string) {
+const joinUrl = (base: string, path: string): string => {
   const b = base.replace(/\/+$/, "");
   const p = path.startsWith("/") ? path : `/${path}`;
   return `${b}${p}`;
-}
+};
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   const baseUrl = process.env.APP_ORIGIN ?? "https://2er0.io";
   const now = new Date();
 
@@ -44,9 +45,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   add("/s2/profile", { priority: 0.7 });
 
   add("/tools", { priority: 1 });
-  add("/tools/game/onstove/lostark/auction-chart/gemstone", { priority: 1 });
-  add("/tools/game/onstove/lostark/sasaFind", { priority: 1 });
-  add("/tools/ocr", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart/gemstone", { priority: 0.9 });
+  add("/tools/game/onstove/lostark/sasaFind", { priority: 0.95 });
+  add("/tools/ocr", { priority: 0.8 });
+
+  // 로스트아크 보석 차트 동적 페이지
+  const gemstones = GEMSTONE_LIST as readonly string[];
+  const levels = ["10", "9", "8", "7", "6", "5"];
+
+  for (const itemName of gemstones) {
+    for (const level of levels) {
+      // 기본 URL만 포함 (쿼리 파라미터 URL은 제외하여 중복 콘텐츠 방지)
+      add(`/tools/game/onstove/lostark/auction-chart/gemstone/${encodeURIComponent(itemName)}/${level}`, {
+        changeFrequency: level === "10" ? "hourly" : "daily",
+        priority: level === "10" ? 0.9 : 0.75,
+      });
+    }
+  }
 
   // 공개된 블로그 글
   const posts = await prisma.post.findMany({
@@ -63,4 +78,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   return [...routes, ...postRoutes];
-}
+};
+
+export default sitemap;
