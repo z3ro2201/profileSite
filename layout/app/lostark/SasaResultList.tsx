@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import Link from "next/link";
 
 type ResultItem = {
   title: string;
@@ -99,7 +100,7 @@ const SasaResultList = ({ characterName, categoryLabel, apiPath, data }: Props) 
           {data.list.map((item, index) => (
             <div key={item.link || `${item.title}-${index}`} className="bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all">
               {item.link ? (
-                <a href={item.link} target="_blank" rel="noopener noreferrer" className="block p-4 text-gray-900 hover:text-blue-600">
+                <Link href={item.link} target="_blank" rel="noopener noreferrer" className="block p-4 text-gray-900 hover:text-blue-600">
                   <div className="flex items-start gap-3">
                     <span className="flex-shrink-0 mt-1 text-xs font-semibold text-gray-400 w-6">{index + 1}</span>
                     <div className="flex-1 min-w-0">
@@ -109,7 +110,7 @@ const SasaResultList = ({ characterName, categoryLabel, apiPath, data }: Props) 
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
                   </div>
-                </a>
+                </Link>
               ) : (
                 <div className="p-4 text-gray-900">
                   <div className="flex items-start gap-3">

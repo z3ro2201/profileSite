@@ -2,6 +2,7 @@
 
 import { useState, useId } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const SASA_SEARCH_CATEGORY = [
   { category: "제목+내용", value: "subjcont" },
@@ -95,13 +96,13 @@ const SasaSearchForm = ({ initialCategory, initialCharacterName }: Props) => {
       {/* 빠른 링크 (선택사항) */}
       <div className="mt-6 text-center text-sm text-gray-600">
         <div className="flex items-center justify-center gap-4">
-          <a href="/tools/game/onstove/lostark/auction-chart/gemstone/작열/10?updatetime=5m" className="hover:text-blue-600 hover:underline transition-colors">
+          <Link href="/tools/game/onstove/lostark/auction-chart/gemstone/작열/10?updatetime=5m" className="hover:text-blue-600 hover:underline transition-colors">
             보석 시세 차트
-          </a>
+          </Link>
           <span className="text-gray-300">|</span>
-          <a href="/tools" className="hover:text-blue-600 hover:underline transition-colors">
+          <Link href="/tools" className="hover:text-blue-600 hover:underline transition-colors">
             다른 도구
-          </a>
+          </Link>
         </div>
       </div>
     </div>

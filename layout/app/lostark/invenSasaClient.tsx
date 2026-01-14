@@ -4,6 +4,8 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiFetch";
 
+import Link from "next/link";
+
 const SASA_SEARCH_CATEGORY = [
   { category: "제목", value: "subject" },
   { category: "내용", value: "content" },
@@ -282,9 +284,9 @@ export default function InvenSasaClient({ category, characterName }: { category?
             "
           >
             {item.link ? (
-              <a href={item.link} target="_blank" rel="noreferrer" className="block w-full min-w-0 text-black break-words whitespace-normal">
+              <Link href={item.link} target="_blank" rel="noreferrer" className="block w-full min-w-0 text-black break-words whitespace-normal">
                 <HighlightText text={item.title} query={highlightQuery} />
-              </a>
+              </Link>
             ) : (
               <div className="w-full min-w-0 break-words whitespace-normal">
                 <HighlightText text={item.title} query={highlightQuery} />

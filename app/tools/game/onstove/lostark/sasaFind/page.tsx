@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import SasaSearchForm from "@/layout/app/lostark/SasaSearchForm";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "로스트아크 사사게 검색기 - 인벤 서버 사건/사고 게시판 검색",
@@ -159,12 +160,12 @@ const SasaFindPage = () => {
             <div className="mt-16 text-center">
               <h2 className="text-xl font-bold text-gray-900 mb-4">다른 로스트아크 도구</h2>
               <div className="flex justify-center gap-4 flex-wrap">
-                <a href="/tools/game/onstove/lostark/auction-chart/gemstone/작열/10?updatetime=5m" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors">
+                <Link href="/tools/game/onstove/lostark/auction-chart/gemstone/작열/10?updatetime=5m" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
                   </svg>
                   보석 시세 차트
-                </a>
+                </Link>
               </div>
             </div>
           </div>
