@@ -53,31 +53,69 @@ export const generateMetadata = async ({ params, searchParams }: PageProps): Pro
   const baseUrl = `https://2er0.io/tools/game/onstove/lostark/auction-chart/gemstone/${encodeURIComponent(gemStone)}/${encodeURIComponent(level)}`;
   const canonical = baseUrl;
 
-  const title = `로스트아크 보석 시세 차트 (경매장) - ${level}레벨 ${gemStone}`;
-  const description = `로스트아크 경매장 기준 ${level}레벨 ${gemStone} 보석 시세를 차트로 확인하세요. ` + `기간(${updatetime})별 변동 추이와 OpenAPI를 제공합니다.`;
+  // 다양한 검색 키워드 조합
+  const keywords = [
+    // 핵심 키워드
+    "보석시세",
+    "로아보석",
+    "보석차트",
+    "시세차트",
+    // 보석명 조합
+    `${gemStone}`,
+    `${gemStone}보석`,
+    `${gemStone}시세`,
+    `${gemStone}차트`,
+    `${gemStone}가격`,
+    // 로아 조합
+    "로아",
+    "로스트아크",
+    "로아시세",
+    "로아차트",
+    // 레벨 조합
+    `${gemStone}${level}`,
+    `${gemStone}${level}렙`,
+    `${gemStone}${level}레벨`,
+    `${level}렙${gemStone}`,
+    `${level}레벨${gemStone}`,
+    // 경매장
+    "경매장",
+    "경매장시세",
+    "로아경매장",
+    // 전체 조합
+    `로아${gemStone}`,
+    `로아${gemStone}시세`,
+    `로스트아크${gemStone}`,
+    `로아보석시세`,
+    `로아보석차트`,
+    `로아시세차트`,
+  ].join(", ");
+
+  const title = `로아 ${gemStone} ${level}렙 보석시세 - 실시간 차트 | 로스트아크`;
+  const description = `로아 ${gemStone} ${level}렙 보석시세 실시간 확인! ` + `1분/5분/15분/30분/1일/7일 데이터 제공. ` + `경매장 기준 ${gemStone}보석 가격 변동차트, OpenAPI 제공. ` + `작열/겁화/멸화/홍염 1~10레벨 시세비교.`;
 
   const shouldIndex = INDEX_LEVELS.has(level) && INDEX_UPDATETIMES.has(updatetime);
 
   return {
     title,
     description,
+    keywords,
     alternates: { canonical },
     robots: { index: shouldIndex, follow: true },
     openGraph: {
       type: "website",
-      title,
-      description,
+      title: `로아 ${gemStone} ${level}렙 보석시세`,
+      description: `${gemStone}보석 실시간 시세차트 - 경매장 기준`,
       url: baseUrl,
       siteName: "2ER0",
       images: [
-        { url: "/app/LostArkGemChart.webp", width: 1200, height: 630, alt: `${level}레벨 ${gemStone} 보석 시세 차트` },
-        { url: "/app/LostArkGemChart.png", width: 1200, height: 630, alt: `${level}레벨 ${gemStone} 보석 시세 차트` },
+        { url: "/app/LostArkGemChart.webp", width: 1200, height: 630, alt: `로아 ${gemStone} ${level}렙 시세` },
+        { url: "/app/LostArkGemChart.png", width: 1200, height: 630, alt: `${gemStone}보석 차트` },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title,
-      description,
+      title: `로아 ${gemStone} ${level}렙 시세`,
+      description: `${gemStone}보석 실시간 차트`,
       images: ["/app/LostArkGemChart.webp", "/app/LostArkGemChart.png"],
     },
   };
@@ -87,7 +125,7 @@ const GemStoneChartPage = async ({ params, searchParams }: PageProps) => {
   const ps = await params;
   const sp = (await searchParams) ?? {};
 
-  const rawItemName = decodeURI(ps.itemName);
+  const rawItemName = ps.itemName;
   const rawLevel = ps.level;
 
   const gemStone = toSafeGemStone(rawItemName);
@@ -106,10 +144,12 @@ const GemStoneChartPage = async ({ params, searchParams }: PageProps) => {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: `로스트아크 ${level}레벨 ${gemStone} 보석 시세`,
+    name: `로아 ${gemStone} ${level}렙 보석시세`,
+    alternateName: [`${gemStone}보석`, `${gemStone}시세`, `${gemStone}차트`, `로아${gemStone}`],
     applicationCategory: "GameApplication",
-    description: `로스트아크 경매장 ${level}레벨 ${gemStone} 보석 시세 차트`,
+    description: `로스트아크 ${gemStone}보석 ${level}레벨 실시간 시세차트`,
     operatingSystem: "Any",
+    featureList: ["실시간 시세 (1분/5분/15분/30분)", "장기 추세 (1일/7일/30일)", "변동 목록", "OpenAPI 제공"],
     offers: res?.data?.[0]?.item_amount
       ? {
           "@type": "AggregateOffer",
@@ -165,29 +205,50 @@ const GemStoneChartPage = async ({ params, searchParams }: PageProps) => {
         )}
 
         <div className="mb-2 w-full lg:max-w-3xl">
-          <h1 className="text-2xl font-extrabold text-center">로아 {apiItemName} 시세 차트</h1>
+          <h1 className="text-2xl font-extrabold text-center">
+            로아 {gemStone} {level}렙 보석시세 차트
+          </h1>
 
           <div className="mt-2 mb-2 p-4 w-full bg-white rounded-lg">
-            <h2 className="mb-2 text-lg font-bold">무엇을 보여주나요?</h2>
+            <h2 className="mb-2 text-lg font-bold">무엇을 제공하나요?</h2>
             <p className="leading-6">
-              로스트아크 경매장 데이터를 기반으로 <strong>{gemStone}</strong>의 보석 <strong>{level}레벨</strong> 시세를 기간(<strong>{initialUpdatetime}</strong>)별로 집계해 추이를 시각화합니다.
+              <strong>
+                {gemStone}보석 {level}렙
+              </strong>{" "}
+              경매장 시세를 실시간으로 확인할 수 있습니다.
             </p>
-
-            <h2 className="mt-4 text-lg font-bold">추천 사용법</h2>
-            <ul className="list-disc pl-5 leading-6">
+            <ul className="list-disc pl-5 leading-6 mt-2">
               <li>
-                <strong>1d (1일)</strong>: 단기 급등락 체크, 당일 거래 타이밍 확인
+                <strong>실시간 데이터</strong>: 1분/5분/15분/30분 단위
               </li>
               <li>
-                <strong>7d (7일)</strong>: 주간 추세 파악, 중기 투자 판단
+                <strong>장기 추세</strong>: 1일/7일/30일 단위
               </li>
               <li>
-                <strong>30d (30일)</strong>: 장기 추세 확인, 시세 평균값 파악
+                <strong>변동 목록</strong>: 가격 변화 이력
               </li>
               <li>
-                <strong>10레벨</strong>: 거래량이 가장 많아 정확한 시세 비교 가능
+                <strong>OpenAPI</strong>: 데이터 연동 가능
               </li>
             </ul>
+
+            <h2 className="mt-4 text-lg font-bold">기간별 추천</h2>
+            <ul className="list-disc pl-5 leading-6">
+              <li>
+                <strong>1분~30분</strong>: 초단기 급등락 포착, 즉시 거래 타이밍
+              </li>
+              <li>
+                <strong>1일</strong>: 당일 시세 흐름 파악, 단기 매매
+              </li>
+              <li>
+                <strong>7일~30일</strong>: 평균 시세 확인, 장기 투자 판단
+              </li>
+            </ul>
+
+            <h2 className="mt-4 text-lg font-bold">지원 보석</h2>
+            <p className="leading-6 text-gray-700">
+              <strong>작열</strong>, <strong>겁화</strong>, <strong>멸화</strong>, <strong>홍염</strong> 보석의 1~10레벨 시세를 모두 제공합니다.
+            </p>
           </div>
         </div>
 

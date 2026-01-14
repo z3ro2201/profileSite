@@ -51,14 +51,14 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
 
   // 로스트아크 보석 차트 동적 페이지
   const gemstones = GEMSTONE_LIST as readonly string[];
-  const levels = ["10", "9", "8", "7", "6", "5"];
+  const levels = ["10", "9", "8", "7", "6", "5", "4", "3", "2", "1"]; // 전체 레벨
 
   for (const itemName of gemstones) {
     for (const level of levels) {
       // 기본 URL만 포함 (쿼리 파라미터 URL은 제외하여 중복 콘텐츠 방지)
       add(`/tools/game/onstove/lostark/auction-chart/gemstone/${encodeURIComponent(itemName)}/${level}`, {
-        changeFrequency: level === "10" ? "hourly" : "daily",
-        priority: level === "10" ? 0.9 : 0.75,
+        changeFrequency: level === "10" ? "hourly" : level === "9" || level === "8" ? "daily" : "weekly",
+        priority: level === "10" ? 0.9 : level === "9" ? 0.8 : level === "8" ? 0.75 : 0.7,
       });
     }
   }
