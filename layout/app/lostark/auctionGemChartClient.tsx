@@ -41,7 +41,7 @@ const clampLevel = (v?: string) => {
 };
 
 // ✅ 정책에 맞게 허용값 재정의
-const ALLOWED_UPDATETIME = new Set(["1h", "30m", "15m", "10m", "5m", "7d", "15d", "30d", "1d"]);
+const ALLOWED_UPDATETIME = new Set(["1h", "30m", "15m", "10m", "5m", "1m", "7d", "15d", "30d", "1d"]);
 
 const clampUpdatetime = (v?: string) => {
   const s = (v ?? "").trim();
