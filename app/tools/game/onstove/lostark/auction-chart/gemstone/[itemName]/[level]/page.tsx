@@ -125,7 +125,7 @@ const GemStoneChartPage = async ({ params, searchParams }: PageProps) => {
   const ps = await params;
   const sp = (await searchParams) ?? {};
 
-  const rawItemName = ps.itemName;
+  const rawItemName = decodeURI(ps.itemName);
   const rawLevel = ps.level;
 
   const gemStone = toSafeGemStone(rawItemName);
