@@ -72,6 +72,7 @@ const AdminPageLayout = async ({ children }: { children: ReactNode }) => {
           <Link href="/admin/mgmt/users/me">내 정보</Link>
           <Link href="/admin/mgmt/posts/write">글 작성</Link>
           <Link href="/admin/mgmt/posts/list">글 관리</Link>
+          <Link href="/admin/mgmt/categories">카테고리 관리</Link>
         </aside>
         <section className="w-[calc(100%-200px)] max-h-full pl-4 pr-2 pt-4 pb-2 overflow-auto">{children}</section>
       </div>
