@@ -129,6 +129,9 @@ const ContentLayout = ({ children, isLoggedIn, user }: { children: ReactNode; is
               {isLoggedIn ? (
                 <div className="flex gap-2 items-center">
                   <span>안녕하세요, {user?.name ?? user?.email}</span>
+                  <Link href="/admin/mgmt/dashboard" className="py-2 px-4 flex items-center gap-2 rounded-full bg-black text-white cursor-pointer text-sm">
+                    관리자
+                  </Link>
                   <Link href="/admin/logout" className="py-2 px-4 flex items-center gap-2 rounded-full bg-black text-white cursor-pointer text-sm">
                     로그아웃
                   </Link>
