@@ -6,6 +6,7 @@ function bad(message: string, status = 400) {
   return NextResponse.json({ ok: false, message }, { status });
 }
 
+// 포스트 수정
 export async function PUT(
   req: NextRequest,
   ctx: { params: Promise<{ id: string }> } // ✅ Next 16이 요구하는 타입
@@ -63,10 +64,10 @@ export async function PUT(
   return NextResponse.json({ ok: true, post: updated });
 }
 
+// 포스트 보기
 type MaybePromise<T> = T | Promise<T>;
-
 export async function GET(_req: Request, ctx: { params: MaybePromise<{ id: string }> }) {
-  const { id } = await ctx.params; // ✅ 핵심: await
+  const { id } = await ctx.params;
   const postId = Number(id);
 
   if (!Number.isFinite(postId)) return bad("Invalid post id");
@@ -90,4 +91,28 @@ export async function GET(_req: Request, ctx: { params: MaybePromise<{ id: strin
   if (!post) return bad("Post not found", 404);
 
   return NextResponse.json({ ok: true, post });
+}
+
+// 포스트 삭제
+type Ctx = { params: Promise<{ id: string }> };
+export async function DELETE(_req: Request, ctx: Ctx) {
+  try {
+    const { id } = await ctx.params;
+
+    if (!id || typeof id !== "number") {
+      return NextResponse.json({ ok: false, message: "Invalid id" }, { status: 400 });
+    }
+
+    // (선택) 존재 확인: 더 친절한 404
+    const exists = await prisma.post.findUnique({ where: { id } });
+    if (!exists) {
+      return NextResponse.json({ ok: false, message: "Not found" }, { status: 404 });
+    }
+
+    await prisma.post.delete({ where: { id } });
+
+    return NextResponse.json({ ok: true, id }, { status: 200 });
+  } catch (e: any) {
+    return NextResponse.json({ ok: false, message: e?.message ?? "Internal Server Error" }, { status: 500 });
+  }
 }
