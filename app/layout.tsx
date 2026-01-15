@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import Script from "next/script";
 import ClientShell from "@/layout/ClientShell";
+import VisitorTracker from "@/components/analytics/VisitorTracker";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://2er0.io"),
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Script id="jsonld-person" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <ClientShell>{children}</ClientShell>
+        <VisitorTracker />
       </body>
     </html>
   );

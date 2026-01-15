@@ -11,6 +11,28 @@ const VisitorTracker = () => {
   useEffect(() => {
     const trackVisit = async (): Promise<void> => {
       try {
+        // ✅ 추적 제외 경로 필터링
+        const shouldSkipTracking = (path: string): boolean => {
+          // /api 경로 제외
+          if (path.startsWith("/api")) return true;
+
+          // /admin 경로 제외
+          if (path.startsWith("/admin")) return true;
+
+          // /_next (Next.js 내부 경로) 제외
+          if (path.startsWith("/_next")) return true;
+
+          return false;
+        };
+
+        // 추적 제외 대상이면 종료
+        if (shouldSkipTracking(pathname)) {
+          if (process.env.NODE_ENV === "development") {
+            console.log("⏭️ Tracking skipped:", pathname);
+          }
+          return;
+        }
+
         // 방문자 ID (localStorage - 브라우저별 고유)
         let visitorId = localStorage.getItem("visitor_id");
         if (!visitorId) {
@@ -28,12 +50,8 @@ const VisitorTracker = () => {
         // 디바이스 타입 감지
         const getDeviceType = (): string => {
           const ua = navigator.userAgent;
-          if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
-            return "Tablet";
-          }
-          if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
-            return "Mobile";
-          }
+          if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) return "Tablet";
+          if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) return "Mobile";
           return "Desktop";
         };
 
@@ -72,17 +90,20 @@ const VisitorTracker = () => {
           language: navigator.language,
         };
 
-        await fetch("/api/track", {
+        await fetch("/api/analytics/track", {
+          // integrated 버전
+          // await fetch('/api/track', {           // standalone 버전
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
-      } catch (error) {
-        // 추적 실패는 조용히 무시 (사용자 경험에 영향 없음)
+
         if (process.env.NODE_ENV === "development") {
-          console.error("Tracking error:", error);
+          console.log("✅ Tracked:", pathname);
+        }
+      } catch (error) {
+        if (process.env.NODE_ENV === "development") {
+          console.error("❌ Tracking error:", error);
         }
       }
     };
