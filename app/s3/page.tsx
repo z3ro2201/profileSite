@@ -93,6 +93,12 @@ const Season3Main = async () => {
       </div>
 
       <div className="mt-4">
+        <Link href="/privacy" className="flex items-center gap-2 underline" title={social.oldsite}>
+          개인정보처리방침
+        </Link>
+      </div>
+
+      <div className="mt-4">
         <Link href="mailto:hello@2er0.io" className="flex gap-1 items-center underline" title="전자우편으로 연락하기">
           <FontAwesomeIcon icon={faEnvelope} className="w-4 h-4" />
           hello@2er0.io
