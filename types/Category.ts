@@ -8,3 +8,8 @@ export type CategoryListResponse = {
   ok: boolean;
   categories: Categories[];
 };
+
+export type AdminCategoryListResponse = {
+  ok: boolean;
+  list: Categories[];
+};
