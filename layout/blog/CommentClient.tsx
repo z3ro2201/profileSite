@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { apiFetch } from "@/lib/apiFetch";
 
 type CommentType = {
   id: number;
@@ -36,9 +37,59 @@ const CommentSection = ({ postId, comments, canViewSecret = false }: Props) => {
   );
 };
 
+const DeletePasswordModal = ({ open, onClose, onConfirm, busy }: { open: boolean; onClose: () => void; onConfirm: (password: string) => void; busy?: boolean }) => {
+  const [password, setPassword] = useState("");
+
+  useMemo(() => {
+    if (open) setPassword("");
+    return null;
+  }, [open]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-black/40"
+        onClick={() => {
+          if (!busy) onClose();
+        }}
+      />
+
+      <div className="relative w-[92vw] max-w-md rounded-xl bg-white shadow-xl border border-gray-200 p-5">
+        <h3 className="text-lg font-semibold text-gray-900">댓글 삭제</h3>
+        <p className="text-sm text-gray-600 mt-1">작성 시 설정한 비밀번호를 입력해주세요.</p>
+
+        <div className="mt-4">
+          <input
+            type="password"
+            placeholder="비밀번호"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={!!busy}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <p className="text-xs text-gray-500 mt-2">* 비밀번호가 일치하면 댓글이 삭제됩니다.</p>
+        </div>
+
+        <div className="mt-5 flex justify-end gap-2">
+          <button type="button" onClick={onClose} disabled={!!busy} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50">
+            취소
+          </button>
+          <button type="button" onClick={() => onConfirm(password)} disabled={!!busy || password.trim().length < 1} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50">
+            {busy ? "확인 중..." : "삭제"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const CommentItem = ({ comment, postId, canViewSecret, isAdmin = false, isReply = false }: { comment: CommentType; postId: number; canViewSecret: boolean; isAdmin?: boolean; isReply?: boolean }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [pwModalOpen, setPwModalOpen] = useState(false);
+
   const date = new Date(comment.createdAt);
 
   if (comment.isSecret && !canViewSecret) {
@@ -51,17 +102,15 @@ const CommentItem = ({ comment, postId, canViewSecret, isAdmin = false, isReply 
     );
   }
 
-  const handleDelete = async () => {
-    if (!confirm("정말 이 댓글을 삭제하시겠습니까?")) return;
-
+  const doDelete = async (password?: string) => {
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/blog/comments/${comment.id}`, { method: "DELETE" });
-
-      if (!res.ok) {
-        const error = await res.json().catch(() => ({ message: "Unknown error" }));
-        throw new Error(error.message || `Failed to delete (${res.status})`);
-      }
+      // ✅ apiFetch 사용: body 넣으면 자동 JSON 처리됨
+      await apiFetch(`/blog/comments/${comment.id}`, {
+        method: "DELETE",
+        body: password ? { password } : undefined,
+        cache: "no-store",
+      });
 
       alert("댓글이 삭제되었습니다");
       window.location.reload();
@@ -72,8 +121,32 @@ const CommentItem = ({ comment, postId, canViewSecret, isAdmin = false, isReply 
     }
   };
 
+  const handleDeleteClick = async () => {
+    if (!confirm("정말 이 댓글을 삭제하시겠습니까?")) return;
+
+    if (isAdmin) {
+      // ✅ 관리자: 바로 삭제
+      await doDelete();
+      return;
+    }
+
+    // ✅ 일반: 비밀번호 모달
+    setPwModalOpen(true);
+  };
+
+  const handlePasswordConfirm = async (password: string) => {
+    if (!password.trim()) {
+      alert("비밀번호를 입력해주세요");
+      return;
+    }
+    setPwModalOpen(false);
+    await doDelete(password);
+  };
+
   return (
     <div className={`${isReply ? "ml-12" : ""}`}>
+      <DeletePasswordModal open={pwModalOpen} busy={isDeleting} onClose={() => setPwModalOpen(false)} onConfirm={handlePasswordConfirm} />
+
       <div className="border-l-4 border-blue-500 pl-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2 text-sm">
@@ -110,11 +183,9 @@ const CommentItem = ({ comment, postId, canViewSecret, isAdmin = false, isReply 
             )}
           </div>
 
-          {isAdmin && (
-            <button onClick={handleDelete} disabled={isDeleting} className="text-xs text-red-600 hover:text-red-700 hover:underline disabled:opacity-50">
-              {isDeleting ? "삭제 중..." : "삭제"}
-            </button>
-          )}
+          <button onClick={handleDeleteClick} disabled={isDeleting} className="text-xs text-red-600 hover:text-red-700 hover:underline disabled:opacity-50" title={isAdmin ? "관리자 삭제" : "비밀번호로 삭제"}>
+            {isDeleting ? "삭제 중..." : "삭제"}
+          </button>
         </div>
 
         {comment.authorHomepage && (
@@ -159,7 +230,7 @@ const CommentForm = ({ postId, parentId, onCancel, isAdmin = false }: { postId: 
     authorName: "",
     authorEmail: "",
     authorHomepage: "",
-    authorPassword: "", // ✅ 추가
+    authorPassword: "",
     content: "",
     isSecret: false,
   });
@@ -167,13 +238,12 @@ const CommentForm = ({ postId, parentId, onCancel, isAdmin = false }: { postId: 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 관리자는 자동 입력
     const submitData = isAdmin
       ? {
           ...formData,
           authorName: "관리자",
           authorEmail: "admin@example.com",
-          authorPassword: "admin-password", // 관리자는 고정 비밀번호
+          authorPassword: "admin-password",
         }
       : formData;
 
@@ -182,7 +252,6 @@ const CommentForm = ({ postId, parentId, onCancel, isAdmin = false }: { postId: 
       return;
     }
 
-    // ✅ 비밀번호 검증 (일반 사용자만)
     if (!isAdmin && !submitData.authorPassword.trim()) {
       alert("비밀번호를 입력해주세요");
       return;
@@ -199,16 +268,15 @@ const CommentForm = ({ postId, parentId, onCancel, isAdmin = false }: { postId: 
     }
 
     try {
-      const res = await fetch(`/api/blog/posts/${postId}/comments`, {
+      // ✅ 여기도 apiFetch로 바꾸고 싶으면 아래처럼
+      await apiFetch(`/blog/posts/${postId}/comments`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           ...submitData,
           parentId,
-        }),
+        },
+        cache: "no-store",
       });
-
-      if (!res.ok) throw new Error("Failed to post comment");
 
       alert("댓글이 등록되었습니다");
       setFormData({
@@ -231,10 +299,8 @@ const CommentForm = ({ postId, parentId, onCancel, isAdmin = false }: { postId: 
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-      {/* ✅ 일반 사용자만 입력 필드 표시 */}
       {!isAdmin && (
         <>
-          {/* 이름과 비밀번호 (필수) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input
               type="text"
@@ -256,7 +322,6 @@ const CommentForm = ({ postId, parentId, onCancel, isAdmin = false }: { postId: 
             />
           </div>
 
-          {/* 이메일과 홈페이지 (선택) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input
               type="email"
