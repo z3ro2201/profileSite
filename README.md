@@ -166,10 +166,15 @@ yarn install
 
 ```bash
 npx prisma migrate dev --name add_page_visits --create-only
+npx prisma migrate dev --name add-comments-trackbacks
+npx prisma migrate dev --name add-comment-password
+
 npx prisma generate --schema prisma/schema.loa.prisma
 npx prisma migrate dev
 npx prisma db seed
 npx prisma generate
+npx prisma db push --force
+
 ```
 
 ### 3) 개발 서버 실행

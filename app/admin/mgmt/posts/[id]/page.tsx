@@ -1,10 +1,11 @@
-import { apiFetch } from "@/lib/apiFetch";
-import { markdownToHtmlWithToc } from "@/lib/markdown";
-import type { PublicPostDetailResponse } from "@/types/Posts";
 import type { Metadata } from "next";
-import AdminPostView from "@/layout/admin/posts/postView";
+import { apiFetch } from "@/lib/apiFetch";
+import type { PublicPostDetailResponse } from "@/types/Posts";
+import { markdownToHtmlWithToc } from "@/lib/markdown";
 import PostViewClient from "@/layout/blog/PostViewClient";
+import CommentSection from "@/layout/blog/CommentClient";
 import { parsePostId } from "@/lib/parsePostId";
+import { isAdmin } from "@/lib/auth/server";
 
 type Props = {
   params: Promise<{ id?: string | string[] }>;
@@ -23,15 +24,39 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function PostViewPage({ params }: Props) {
+export default async function AdminPostViewPage({ params }: Props) {
   const postId = parsePostId((await params).id);
 
+  // 관리자 확인
+  const isAdminUser = await isAdmin();
+
+  // ✅ apiFetch 사용
   const { post } = await apiFetch<PublicPostDetailResponse>(`/blog/posts/${postId}`, {
     cache: "force-cache",
   });
 
+  // ✅ 댓글도 apiFetch 사용
+  const commentsData = await apiFetch<{
+    ok: boolean;
+    comments: any[];
+    canViewSecret: boolean;
+  }>(`/blog/posts/${postId}/comments`, {
+    cache: "no-store", // 댓글은 항상 최신 데이터
+  });
+
+  const comments = commentsData.comments || [];
+
+  // Markdown to HTML
   const { html, toc } = await markdownToHtmlWithToc(post.contentMd);
   const finalHtml = post.contentHtml ?? html;
 
-  return <PostViewClient post={post} finalHtml={finalHtml} toc={toc} isAdmin={true} />;
+  return (
+    <>
+      <PostViewClient post={post} finalHtml={finalHtml} toc={toc} isAdmin={isAdminUser} />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <CommentSection postId={postId} comments={comments} canViewSecret={isAdminUser} />
+      </div>
+    </>
+  );
 }

@@ -1,18 +1,35 @@
 "use client";
 
-import { PublicPostDetail } from "@/types/Posts";
+import { AdminPostDetail } from "@/types/Posts";
 import dynamic from "next/dynamic";
 
 type Props = {
   postId?: number;
-  post?: PublicPostDetail;
+  post?: AdminPostDetail; // ✅ PublicPostDetail → AdminPostDetail
 };
 
 const PostEditor = dynamic(() => import("@/components/blog/Editor/PostEditor"), {
   ssr: false,
-  loading: () => <div className="p-4">에디터 로딩중...</div>,
+  loading: () => (
+    <div className="flex items-center justify-center p-8">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+        <p className="text-sm text-gray-600">에디터 로딩중...</p>
+      </div>
+    </div>
+  ),
 });
 
 export default function PostEditorWrapper({ postId, post }: Props) {
-  return <PostEditor PostType={postId ? "update" : "new"} PostId={postId ?? null} PostTitle={post?.title} PostContent={post?.contentMd} />;
+  return (
+    <PostEditor
+      PostType={postId ? "update" : "new"}
+      PostId={postId ?? null}
+      PostTitle={post?.title}
+      PostContent={post?.contentMd}
+      PostState={post?.state} // ✅ 추가
+      PostTag={post?.tagsString} // ✅ 추가
+      PostCategoryId={post?.categoryId ?? undefined} // ✅ 추가
+    />
+  );
 }

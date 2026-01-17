@@ -1,19 +1,17 @@
-// lib/apiFetch.ts
 type ApiFetchOptions = Omit<RequestInit, "body"> & {
-  body?: unknown; // JSON | FormData | string | Blob | ArrayBuffer | ...
+  body?: unknown;
   next?: RequestInit["next"];
   cache?: RequestInit["cache"];
 };
 
 const isBodyInit = (v: any): v is BodyInit => {
-  // BodyInit: Blob | BufferSource | FormData | URLSearchParams | ReadableStream | string
   if (!v) return false;
   if (typeof v === "string") return true;
   if (v instanceof FormData) return true;
   if (v instanceof URLSearchParams) return true;
   if (v instanceof Blob) return true;
   if (v instanceof ArrayBuffer) return true;
-  if (ArrayBuffer.isView(v)) return true; // TypedArray, DataView
+  if (ArrayBuffer.isView(v)) return true;
   return false;
 };
 

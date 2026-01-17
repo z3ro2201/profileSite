@@ -96,7 +96,7 @@ export async function GET(req: Request) {
       },
     });
 
-    const nextCursor = posts.length === take ? posts[posts.length - 1]?.id ?? null : null;
+    const nextCursor = posts.length === take ? (posts[posts.length - 1]?.id ?? null) : null;
 
     return NextResponse.json({
       ok: true,
