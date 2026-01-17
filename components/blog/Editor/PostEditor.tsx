@@ -7,6 +7,7 @@ import type { PostStateProp, PostEditorProp } from "@/types/Posts";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Radio } from "@/components/ui/Radio";
+import { Button } from "@/components/ui/Button";
 
 import { AdminCategoryListResponse, Categories } from "@/types/Category";
 import { apiFetch } from "@/lib/apiFetch";
@@ -16,7 +17,9 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
 
   const [title, setTitle] = useState<string>(PostTitle ?? "");
   const [categories, setCategories] = useState<Categories[]>([]);
-  const [categoryId, setCategoryId] = useState<string>(PostCategoryId?.toString() ?? "");
+  const [categoryId, setCategoryId] = useState<string>(
+    PostCategoryId?.toString() ?? "" // ✅ number를 string으로 변환
+  );
   const [tagText, setTagText] = useState<string>(PostTag ?? "");
   const [postState, setPostState] = useState<PostStateProp>(PostState ?? "DRAFT");
 
@@ -57,7 +60,7 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
       tags,
       state: postState,
       authorId: 1, // TODO: 로그인 붙이면 서버에서 가져오게 변경
-      categoryId: categoryId ? Number(categoryId) : undefined, // undefined면 백엔드에서 null 처리
+      categoryId: categoryId ? Number(categoryId) : undefined,
       contentHtml: null,
     };
 
@@ -85,7 +88,11 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
 
       console.log("저장 성공:", data);
       alert("저장되었습니다");
-      // TODO: router.push(`/admin/blog/posts/${data.post.id}`) 등으로 이동
+
+      // 새 글 작성 후 수정 페이지로 이동
+      if (PostType === "new" && data?.post?.id) {
+        window.location.href = `/admin/blog/posts/${data.post.id}/edit`;
+      }
     } catch (err) {
       console.error(err);
       alert("네트워크 오류");
@@ -93,56 +100,56 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <h1 className="text-[1.5rem] font-bold">글 {PostType === "new" ? "작성" : "수정"}</h1>
+    <form onSubmit={onSubmit} className="max-w-5xl mx-auto space-y-6 p-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-800">글 {PostType === "new" ? "작성" : "수정"}</h1>
+        {PostType === "update" && PostId && <span className="text-sm text-gray-500">ID: {PostId}</span>}
+      </div>
 
-      <div className="w-full flex gap-2 flex-row">
+      {/* 카테고리 + 제목 */}
+      <div className="flex gap-3">
         <Select
           name="category"
-          className="w-3/12"
+          className="w-1/4"
           value={categoryId}
           onChange={(value) => setCategoryId(value)}
-          placeholder="카테고리 선택"
+          placeholder="카테고리"
           options={categories.map((cat) => ({
             value: cat.id.toString(),
             label: cat.name,
           }))}
         />
-        <div className="w-9/12">
-          <Input type="text" className="w-full" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="제목을 입력하세요" />
-        </div>
+        <Input type="text" className="flex-1" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="제목을 입력하세요" />
       </div>
 
-      <Editor ref={editorRef} initialValue={PostContent ?? ""} previewStyle="vertical" height="600px" initialEditType="markdown" useCommandShortcut={true} />
-
-      <div className="flex flex-col">
-        <p className="font-semibold mb-2">파일</p>
-        <ul className="p-4 w-full h-[100px] border border-gray-800/20 rounded-lg bg-gray-50"></ul>
+      {/* 에디터 */}
+      <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <Editor ref={editorRef} initialValue={PostContent ?? ""} previewStyle="vertical" height="600px" initialEditType="markdown" useCommandShortcut={true} />
       </div>
 
-      <Input type="text" className="w-full" value={tagText} onChange={(event) => setTagText(event.target.value)} placeholder="태그 (쉼표로 구분)" />
+      {/* 태그 */}
+      <Input type="text" className="w-full" value={tagText} onChange={(event) => setTagText(event.target.value)} placeholder="태그 (쉼표로 구분, 예: react, nextjs, typescript)" label="태그" />
 
-      <div className="flex flex-col">
-        <p className="font-semibold mb-2">위치</p>
-        <div className="flex gap-2">
-          <Input type="text" className="w-full" placeholder="위도" />
-          <Input type="text" className="w-full" placeholder="경도" />
-        </div>
-      </div>
-
-      <div className="flex justify-between items-center pt-4">
+      {/* 상태 + 저장 버튼 */}
+      <div className="flex justify-between items-center pt-4 border-t border-gray-200">
         <div className="flex gap-4">
           {[
             { label: "임시저장", value: "DRAFT" },
-            { label: "발행됨", value: "PUBLISHED" },
-            { label: "보관됨", value: "ARCHIVED" },
+            { label: "발행", value: "PUBLISHED" },
+            { label: "보관", value: "ARCHIVED" },
           ].map((item) => (
             <Radio key={item.value} name="postState" value={item.value} label={item.label} checked={postState === item.value} onChange={(e) => setPostState(e.target.value as PostStateProp)} />
           ))}
         </div>
-        <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-          저장
-        </button>
+
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" onClick={() => window.history.back()}>
+            취소
+          </Button>
+          <Button type="submit" variant="primary">
+            {PostType === "new" ? "작성" : "저장"}
+          </Button>
+        </div>
       </div>
     </form>
   );

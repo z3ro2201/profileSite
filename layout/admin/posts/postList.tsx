@@ -1,6 +1,10 @@
 "use client";
 import { apiFetch } from "@/lib/apiFetch";
 import Link from "next/link";
+import { T } from "@/components/ui/DivTable";
+import { PostStateType } from "@/lib/post";
+
+import { Button } from "@/components/ui/Button";
 
 const PostListLayout = ({ posts }: { posts: any[] }) => {
   const submitDeletePost = async (id: number) => {
@@ -13,30 +17,45 @@ const PostListLayout = ({ posts }: { posts: any[] }) => {
     }
   };
   return (
-    <>
-      {posts.map((p: any) => (
-        <div className="px-4 py-2 flex border-b border-gray-800/20 text-center items-center" key={p.id}>
-          <span className="block w-1/12">[{p.state}]</span>
-          <span className="block w-8/12">
-            <Link className="block" href={`./${p.id}`}>
-              {p.title}
-            </Link>
-          </span>
-          <span className="block w-2/12">{p.createdAt}</span>
-          <span className="block w-3/12">
-            <button type="button" className="px-2 py-1 border border-gray-800/20 rounded-full">
-              편집
-            </button>
-            <button type="button" className="px-2 py-1 border border-gray-800/20 rounded-full">
-              수정
-            </button>
-            <button type="button" className="px-2 py-1 border border-gray-800/20 rounded-full" onClick={() => submitDeletePost(p.id)}>
-              삭제
-            </button>
-          </span>
-        </div>
-      ))}
-    </>
+    <T.Table>
+      <T.Thead>
+        <T.Tr>
+          <T.Th align="center" width="10%">
+            카테고리
+          </T.Th>
+          <T.Th align="center" width="50%">
+            제목
+          </T.Th>
+          <T.Th align="center">작성일</T.Th>
+          <T.Th align="center">상태</T.Th>
+          <T.Th align="center">관리</T.Th>
+        </T.Tr>
+      </T.Thead>
+      <T.Tbody>
+        {posts.map((p: any) => (
+          <T.Tr key={p.id}>
+            <T.Td align="center" width="10%">
+              &nbsp;
+            </T.Td>
+            <T.Td align="center" width="50%">
+              <Link className="block" href={`./${p.id}`}>
+                {p.title}
+              </Link>
+            </T.Td>
+            <T.Td align="center">{new Date(p.createdAt).toISOString().split("T")[0]}</T.Td>
+            <T.Td align="center">{PostStateType.find((item) => item.code === p.state)?.name}</T.Td>
+            <T.Td align="center">
+              <Button variant="success" size="sm" href={`/admin/mgmt/posts/${p.id}/modify`} className="mr-1">
+                편집
+              </Button>
+              <Button size="sm" variant="danger" onClick={() => submitDeletePost(p.id)}>
+                삭제
+              </Button>
+            </T.Td>
+          </T.Tr>
+        ))}
+      </T.Tbody>
+    </T.Table>
   );
 };
 

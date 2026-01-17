@@ -10,55 +10,159 @@ type Props = {
     createdAt: string | Date;
     publishedAt: string | Date | null;
     category?: { name: string } | null;
+    tags?: Array<{ slug: string; name: string }>; // ✅ 추가
   };
   finalHtml: string;
   toc: TocItem[];
-  compact?: boolean; // ✅ 피드용(옵션)
+  compact?: boolean;
   isAdmin?: boolean;
 };
 
 const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
+  const publishDate = post.publishedAt ? new Date(post.publishedAt) : new Date(post.createdAt);
+
   return (
-    <div className={cn("mx-auto w-full px-5 py-10", compact ? "py-6" : "")}>
-      {isAdmin && (
-        <>
-          <Link href={`/admin/mgmt/posts/${post?.id}/modify`}>수정</Link>
-          <Link href={`/admin/mgmt/posts/${post?.id}/delete`}>삭제</Link>
-        </>
-      )}
-      <div className={cn("p-2 mb-2 w-full flex flex-col justify-end", compact ? "h-auto" : "h-[146px]")}>
-        <div className="mb-2">
-          <div className="w-full">
-            <span className="py-1 px-3 min-w-[50px] inline-block bg-black text-white rounded-full text-[.8rem]">{post.category?.name ?? "Uncategorized"}</span>
+    <div className="min-h-screen">
+      <div className={cn("mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8", compact ? "py-6" : "py-12")}>
+        {/* 관리자 액션 - 우측 상단 고정 */}
+        {isAdmin && (
+          <div className="fixed top-24 right-8 z-50 flex gap-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
+            <Link href={`/admin/mgmt/posts/${post?.id}/modify`} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded transition">
+              Edit
+            </Link>
+            <Link href={`/admin/mgmt/posts/${post?.id}/delete`} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 rounded transition">
+              Delete
+            </Link>
           </div>
-          <h1 className="pb-1 inline-block border-b border-white text-[2.24rem] font-bold">{post.title}</h1>
+        )}
+
+        {/* 포스트 헤더 */}
+        <header className="mb-12">
+          {/* 카테고리 */}
+          {post.category && (
+            <div className="mb-4">
+              <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold uppercase tracking-wider bg-emerald-100 text-emerald-700">{post.category.name}</span>
+            </div>
+          )}
+
+          {/* 제목 */}
+          <h1 className={cn("font-bold text-gray-900 leading-tight mb-4", compact ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl lg:text-5xl")}>{post.title}</h1>
+
+          {/* 날짜 */}
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <time dateTime={publishDate.toISOString()}>
+              {publishDate
+                .toLocaleDateString("ko-KR", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                })
+                .replace(/\. /g, "/")
+                .replace(".", "")}
+            </time>
+          </div>
+        </header>
+
+        {/* 메인 콘텐츠 + TOC */}
+        <div className={cn("relative", !compact && toc.length > 0 ? "lg:grid lg:grid-cols-[1fr_280px] lg:gap-8" : "")}>
+          {/* 포스트 본문 */}
+          <article
+            className={cn(
+              "prose prose-lg max-w-none",
+              "prose-headings:font-bold prose-headings:text-gray-900 prose-headings:scroll-mt-24",
+              "prose-h1:text-3xl prose-h1:mb-6 prose-h1:mt-12",
+              "prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4",
+              "prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3",
+              "prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-2",
+              "prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-6",
+              "prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline",
+              "prose-strong:text-gray-900 prose-strong:font-semibold",
+              "prose-code:text-pink-600 prose-code:bg-pink-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono prose-code:before:content-none prose-code:after:content-none",
+              "prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:overflow-x-auto prose-pre:rounded-xl",
+              "prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r prose-blockquote:not-italic prose-blockquote:text-gray-700",
+              "prose-ul:list-disc prose-ul:pl-6 prose-ul:mb-6",
+              "prose-ol:list-decimal prose-ol:pl-6 prose-ol:mb-6",
+              "prose-li:text-gray-700 prose-li:mb-2",
+              "prose-img:rounded-xl prose-img:my-8 prose-img:shadow-md",
+              "prose-table:border-collapse prose-table:w-full prose-table:my-8 prose-table:text-sm",
+              "prose-th:bg-gray-50 prose-th:border prose-th:border-gray-200 prose-th:px-4 prose-th:py-3 prose-th:text-left prose-th:font-semibold prose-th:text-gray-700 prose-th:uppercase prose-th:text-xs prose-th:tracking-wider",
+              "prose-td:border prose-td:border-gray-200 prose-td:px-4 prose-td:py-3 prose-td:text-gray-700",
+              "prose-tr:even:bg-gray-50",
+              "prose-hr:border-gray-200 prose-hr:my-12"
+            )}
+          >
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 lg:p-12" dangerouslySetInnerHTML={{ __html: finalHtml }} />
+
+            {/* 태그 목록 */}
+            {post.tags && post.tags.length > 0 && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mt-6">
+                <div className="flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <Link
+                      key={tag.slug}
+                      href={`/blog/tags/${tag.slug}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-700 transition-colors no-underline"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      </svg>
+                      {tag.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </article>
+
+          {/* TOC (Table of Contents) - 데스크탑 사이드바 */}
+          {!compact && toc.length > 0 && (
+            <aside className="hidden lg:block">
+              <div className="sticky top-24">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                  <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Contents</h2>
+                  <nav className="space-y-1">
+                    {toc.map((item) => (
+                      <a
+                        key={item.id}
+                        href={`#${item.id}`}
+                        className={cn(
+                          "block py-2 text-sm transition-colors",
+                          "text-gray-600 hover:text-blue-600",
+                          "border-l-2 border-transparent hover:border-blue-600",
+                          item.level === 2 && "pl-3 font-medium",
+                          item.level === 3 && "pl-6",
+                          item.level > 3 && "pl-9"
+                        )}
+                      >
+                        {item.text}
+                      </a>
+                    ))}
+                  </nav>
+                </div>
+              </div>
+            </aside>
+          )}
         </div>
 
-        <div className="mt-1 flex justify-between text-[0.9rem]">
-          <div>
-            <span className="inline-block mr-2">{post.publishedAt ? new Date(post.publishedAt).toLocaleString("ko-KR") : new Date(post.createdAt).toLocaleString("ko-KR")}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className={cn("relative py-2 pr-4 lg:pt-6 lg:pr-6", !compact && toc.length > 0 ? "grid grid-cols-1 gap-10 lg:grid-cols-[1fr_260px]" : "")}>
-        <article className="px-3 py-2 prose max-w-none bg-white border border-black/10 rounded-lg">
-          <div dangerouslySetInnerHTML={{ __html: finalHtml }} />
-        </article>
-
+        {/* 모바일 TOC */}
         {!compact && toc.length > 0 && (
-          <aside className="fixed lg:sticky lg:top-6 lg:overflow-auto">
-            <div className="rounded-xl border border-black/10 bg-white p-5">
-              <div className="text-xl font-extrabold">Contents</div>
-              <nav className="mt-4 space-y-2 text-[15px] leading-6">
+          <div className="lg:hidden mt-8">
+            <details className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <summary className="cursor-pointer px-6 py-4 font-semibold text-gray-900 flex items-center justify-between hover:bg-gray-50 transition text-sm uppercase tracking-wider">
+                <span>Contents</span>
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <nav className="px-6 pb-4 space-y-1 border-t border-gray-100">
                 {toc.map((item) => (
-                  <a key={item.id} href={`#${item.id}`} className={["block text-black/70 hover:text-black", item.level === 2 ? "pl-0" : item.level === 3 ? "pl-4" : "pl-8"].join(" ")}>
+                  <a key={item.id} href={`#${item.id}`} className={cn("block py-2 text-sm text-gray-600 hover:text-blue-600 transition-colors", item.level === 2 && "pl-0 font-medium", item.level === 3 && "pl-4", item.level > 3 && "pl-8")}>
                     {item.text}
                   </a>
                 ))}
               </nav>
-            </div>
-          </aside>
+            </details>
+          </div>
         )}
       </div>
     </div>

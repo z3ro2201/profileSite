@@ -77,6 +77,66 @@ model File {
   postLinks PostFile[]
 }
 
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  parentId  Int?     // 대댓글인 경우 부모 댓글 ID
+  
+  // 작성자 정보
+  authorName     String
+  authorEmail    String?
+  authorHomepage String?
+  authorIp       String?  @db.VarChar(45)
+  
+  // 댓글 내용
+  content   String   @db.Text
+  isSecret  Boolean  @default(false) // 비밀댓글 여부
+  
+  // 상태
+  isApproved Boolean  @default(true)  // 승인 여부
+  isDeleted  Boolean  @default(false) // 삭제 여부
+  
+  // 시간
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // 관계
+  post     Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+  
+  @@index([postId, createdAt])
+  @@index([parentId])
+  @@index([authorEmail])
+  @@index([isApproved, isDeleted])
+}
+
+model Trackback {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  
+  // 트랙백 정보
+  url       String   @db.VarChar(500)  // 트랙백을 보낸 글의 URL
+  title     String?                     // 트랙백을 보낸 글의 제목
+  excerpt   String?  @db.Text          // 발췌문
+  blogName  String?                     // 블로그 이름
+  
+  // 상태
+  isApproved Boolean  @default(false)  // 스팸 방지를 위해 기본 false
+  isDeleted  Boolean  @default(false)
+  
+  // 시간
+  createdAt DateTime @default(now())
+  
+  // 관계
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@index([postId, createdAt])
+  @@index([isApproved, isDeleted])
+}
+
+
 model Post {
   id          Int        @id @default(autoincrement())
   title       String
@@ -94,6 +154,10 @@ model Post {
   lat         Float?
   lng         Float?
   files       PostFile[]
+  comments   Comment[]
+  trackbacks Trackback[]
+  commentCount   Int @default(0)
+  trackbackCount Int @default(0)
 
   @@index([state, createdAt])
   @@index([authorId, createdAt])
