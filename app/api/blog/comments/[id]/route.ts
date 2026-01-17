@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth/server";
 
 type Context = {
-  params: { commentId: string };
+  params: { id: string };
 };
 
 function bad(message: string, status = 400) {
@@ -16,7 +16,7 @@ export async function DELETE(_req: NextRequest, { params }: Context) {
   try {
     await requireAdmin();
 
-    const id = Number(params.commentId);
+    const id = Number(params.id);
     if (!Number.isFinite(id) || id < 1) {
       return bad("Invalid comment id");
     }
