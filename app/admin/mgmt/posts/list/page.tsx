@@ -1,20 +1,29 @@
 import PostListLayout from "@/layout/admin/posts/postList";
 import { apiFetch } from "@/lib/apiFetch";
-import Link from "next/link";
-const ListPage = async () => {
-  const { posts } = await apiFetch<{ ok: true; posts: any[]; nextCursor: number | null }>("/admin/blog/posts/list", { cache: "no-store" });
-  const submitDeletePost = async (id: number) => {
-    try {
-      const data = await apiFetch(`posts/${id}`, { method: "DELETE" });
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-    }
+
+type Props = {
+  searchParams?: {
+    take?: string;
   };
+};
+
+const DEFAULT_TAKE = 20;
+
+const ListPage = async ({ searchParams }: Props) => {
+  const takeRaw = searchParams?.take;
+  const take = Number.isFinite(Number(takeRaw)) ? Math.min(Math.max(Number(takeRaw), 1), 100) : DEFAULT_TAKE;
+
+  const { posts } = await apiFetch<{
+    ok: true;
+    posts: any[];
+    nextCursor: number | null;
+  }>(`/admin/blog/posts/list?take=${take}`, {
+    cache: "no-store",
+  });
+
   return (
     <>
       <h1>글 관리</h1>
-
       <PostListLayout posts={posts} />
     </>
   );

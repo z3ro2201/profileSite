@@ -10,12 +10,12 @@ const PostListLayout = ({ posts }: { posts: any[] }) => {
   const submitDeletePost = async (id: number) => {
     try {
       const data = await apiFetch(`/admin/blog/posts/${id}`, { method: "DELETE" });
-      console.log(data);
     } catch (error) {
-      console.error(error);
       alert(error);
     }
   };
+
+  console.log(posts);
   return (
     <T.Table>
       <T.Thead>
@@ -35,7 +35,7 @@ const PostListLayout = ({ posts }: { posts: any[] }) => {
         {posts.map((p: any) => (
           <T.Tr key={p.id}>
             <T.Td align="center" width="10%">
-              &nbsp;
+              {p.category.name}
             </T.Td>
             <T.Td align="center" width="50%">
               <Link className="block" href={`./${p.id}`}>

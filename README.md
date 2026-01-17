@@ -167,6 +167,7 @@ yarn install
 ```bash
 npx prisma migrate dev --name add_page_visits --create-only
 npx prisma migrate dev --name add-comments-trackbacks
+npx prisma migrate dev --name add-comment-password
 
 npx prisma generate --schema prisma/schema.loa.prisma
 npx prisma migrate dev

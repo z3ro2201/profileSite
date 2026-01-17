@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import Link from "next/link";
 
@@ -9,14 +10,14 @@ type CommentType = {
   authorHomepage?: string | null;
   content: string;
   isSecret: boolean;
-  createdAt: string;
+  createdAt: string | Date;
   replies?: CommentType[];
 };
 
 type Props = {
   postId: number;
   comments: CommentType[];
-  canViewSecret?: boolean; // 작성자/관리자만 true
+  canViewSecret?: boolean;
 };
 
 const CommentSection = ({ postId, comments, canViewSecret = false }: Props) => {
@@ -24,25 +25,22 @@ const CommentSection = ({ postId, comments, canViewSecret = false }: Props) => {
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mt-8">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">댓글 {comments.length}개</h2>
 
-      {/* 댓글 목록 */}
       <div className="space-y-6">
         {comments.map((comment) => (
-          <CommentItem key={comment.id} comment={comment} postId={postId} canViewSecret={canViewSecret} />
+          <CommentItem key={comment.id} comment={comment} postId={postId} canViewSecret={canViewSecret} isAdmin={canViewSecret} />
         ))}
       </div>
 
-      {/* 댓글 작성 폼 */}
-      <CommentForm postId={postId} parentId={null} />
+      <CommentForm postId={postId} parentId={null} isAdmin={canViewSecret} />
     </div>
   );
 };
 
-// 개별 댓글 컴포넌트
-const CommentItem = ({ comment, postId, canViewSecret, isReply = false }: { comment: CommentType; postId: number; canViewSecret: boolean; isReply?: boolean }) => {
+const CommentItem = ({ comment, postId, canViewSecret, isAdmin = false, isReply = false }: { comment: CommentType; postId: number; canViewSecret: boolean; isAdmin?: boolean; isReply?: boolean }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const date = new Date(comment.createdAt);
 
-  // 비밀댓글이고 볼 수 없는 경우
   if (comment.isSecret && !canViewSecret) {
     return (
       <div className={`${isReply ? "ml-12" : ""}`}>
@@ -53,45 +51,72 @@ const CommentItem = ({ comment, postId, canViewSecret, isReply = false }: { comm
     );
   }
 
+  const handleDelete = async () => {
+    if (!confirm("정말 이 댓글을 삭제하시겠습니까?")) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/blog/comments/${comment.id}`, { method: "DELETE" });
+
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({ message: "Unknown error" }));
+        throw new Error(error.message || `Failed to delete (${res.status})`);
+      }
+
+      alert("댓글이 삭제되었습니다");
+      window.location.reload();
+    } catch (err: any) {
+      console.error("Delete error:", err);
+      alert(`댓글 삭제에 실패했습니다: ${err.message}`);
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className={`${isReply ? "ml-12" : ""}`}>
       <div className="border-l-4 border-blue-500 pl-4">
-        {/* 댓글 헤더 */}
-        <div className="flex items-center gap-2 mb-2 text-sm">
-          {comment.authorHomepage ? (
-            <Link href={comment.authorHomepage} target="_blank" rel="noopener noreferrer" className="font-semibold text-gray-900 hover:text-blue-600">
-              {comment.authorName}
-            </Link>
-          ) : (
-            <span className="font-semibold text-gray-900">{comment.authorName}</span>
-          )}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2 text-sm">
+            {comment.authorHomepage ? (
+              <Link href={comment.authorHomepage} target="_blank" rel="noopener noreferrer" className="font-semibold text-gray-900 hover:text-blue-600">
+                {comment.authorName}
+              </Link>
+            ) : (
+              <span className="font-semibold text-gray-900">{comment.authorName}</span>
+            )}
 
-          <span className="text-gray-400">•</span>
+            <span className="text-gray-400">•</span>
 
-          <time className="text-gray-500">
-            {date
-              .toLocaleDateString("ko-KR", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-              })
-              .replace(/\. /g, "-")
-              .replace(".", "")}{" "}
-            {date.toLocaleTimeString("ko-KR", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </time>
+            <time className="text-gray-500">
+              {date
+                .toLocaleDateString("ko-KR", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                })
+                .replace(/\. /g, "-")
+                .replace(".", "")}{" "}
+              {date.toLocaleTimeString("ko-KR", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </time>
 
-          {comment.isSecret && (
-            <>
-              <span className="text-gray-400">•</span>
-              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">🔒 비밀댓글</span>
-            </>
+            {comment.isSecret && (
+              <>
+                <span className="text-gray-400">•</span>
+                <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">🔒 비밀댓글</span>
+              </>
+            )}
+          </div>
+
+          {isAdmin && (
+            <button onClick={handleDelete} disabled={isDeleting} className="text-xs text-red-600 hover:text-red-700 hover:underline disabled:opacity-50">
+              {isDeleting ? "삭제 중..." : "삭제"}
+            </button>
           )}
         </div>
 
-        {/* 홈페이지 (있는 경우) */}
         {comment.authorHomepage && (
           <div className="mb-2">
             <span className="text-xs text-gray-500">
@@ -103,29 +128,25 @@ const CommentItem = ({ comment, postId, canViewSecret, isReply = false }: { comm
           </div>
         )}
 
-        {/* 댓글 내용 */}
         <div className="text-gray-700 whitespace-pre-wrap mb-3">{comment.content}</div>
 
-        {/* 답글 버튼 */}
         {!isReply && (
           <button onClick={() => setShowReplyForm(!showReplyForm)} className="text-sm text-gray-500 hover:text-blue-600 transition">
             답글 작성
           </button>
         )}
 
-        {/* 답글 작성 폼 */}
         {showReplyForm && (
           <div className="mt-4">
-            <CommentForm postId={postId} parentId={comment.id} onCancel={() => setShowReplyForm(false)} />
+            <CommentForm postId={postId} parentId={comment.id} onCancel={() => setShowReplyForm(false)} isAdmin={isAdmin} />
           </div>
         )}
       </div>
 
-      {/* 대댓글 목록 */}
       {comment.replies && comment.replies.length > 0 && (
         <div className="mt-4 space-y-4">
           {comment.replies.map((reply) => (
-            <CommentItem key={reply.id} comment={reply} postId={postId} canViewSecret={canViewSecret} isReply={true} />
+            <CommentItem key={reply.id} comment={reply} postId={postId} canViewSecret={canViewSecret} isAdmin={isAdmin} isReply={true} />
           ))}
         </div>
       )}
@@ -133,12 +154,12 @@ const CommentItem = ({ comment, postId, canViewSecret, isReply = false }: { comm
   );
 };
 
-// 댓글 작성 폼
-const CommentForm = ({ postId, parentId, onCancel }: { postId: number; parentId: number | null; onCancel?: () => void }) => {
+const CommentForm = ({ postId, parentId, onCancel, isAdmin = false }: { postId: number; parentId: number | null; onCancel?: () => void; isAdmin?: boolean }) => {
   const [formData, setFormData] = useState({
     authorName: "",
     authorEmail: "",
     authorHomepage: "",
+    authorPassword: "", // ✅ 추가
     content: "",
     isSecret: false,
   });
@@ -146,12 +167,33 @@ const CommentForm = ({ postId, parentId, onCancel }: { postId: number; parentId:
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.authorName.trim()) {
+    // 관리자는 자동 입력
+    const submitData = isAdmin
+      ? {
+          ...formData,
+          authorName: "관리자",
+          authorEmail: "admin@example.com",
+          authorPassword: "admin-password", // 관리자는 고정 비밀번호
+        }
+      : formData;
+
+    if (!submitData.authorName.trim()) {
       alert("이름을 입력해주세요");
       return;
     }
 
-    if (!formData.content.trim()) {
+    // ✅ 비밀번호 검증 (일반 사용자만)
+    if (!isAdmin && !submitData.authorPassword.trim()) {
+      alert("비밀번호를 입력해주세요");
+      return;
+    }
+
+    if (!isAdmin && submitData.authorPassword.length < 4) {
+      alert("비밀번호는 4자 이상이어야 합니다");
+      return;
+    }
+
+    if (!submitData.content.trim()) {
       alert("내용을 입력해주세요");
       return;
     }
@@ -161,7 +203,7 @@ const CommentForm = ({ postId, parentId, onCancel }: { postId: number; parentId:
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...formData,
+          ...submitData,
           parentId,
         }),
       });
@@ -173,13 +215,13 @@ const CommentForm = ({ postId, parentId, onCancel }: { postId: number; parentId:
         authorName: "",
         authorEmail: "",
         authorHomepage: "",
+        authorPassword: "",
         content: "",
         isSecret: false,
       });
 
       if (onCancel) onCancel();
 
-      // 페이지 새로고침 또는 댓글 목록 refetch
       window.location.reload();
     } catch (err) {
       console.error(err);
@@ -189,30 +231,50 @@ const CommentForm = ({ postId, parentId, onCancel }: { postId: number; parentId:
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <input
-          type="text"
-          placeholder="이름 *"
-          required
-          value={formData.authorName}
-          onChange={(e) => setFormData({ ...formData, authorName: e.target.value })}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-        <input
-          type="email"
-          placeholder="이메일"
-          value={formData.authorEmail}
-          onChange={(e) => setFormData({ ...formData, authorEmail: e.target.value })}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-        <input
-          type="url"
-          placeholder="홈페이지"
-          value={formData.authorHomepage}
-          onChange={(e) => setFormData({ ...formData, authorHomepage: e.target.value })}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-      </div>
+      {/* ✅ 일반 사용자만 입력 필드 표시 */}
+      {!isAdmin && (
+        <>
+          {/* 이름과 비밀번호 (필수) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input
+              type="text"
+              placeholder="이름 *"
+              required
+              value={formData.authorName}
+              onChange={(e) => setFormData({ ...formData, authorName: e.target.value })}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <input
+              type="password"
+              placeholder="비밀번호 * (4자 이상)"
+              required
+              minLength={4}
+              maxLength={20}
+              value={formData.authorPassword}
+              onChange={(e) => setFormData({ ...formData, authorPassword: e.target.value })}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* 이메일과 홈페이지 (선택) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input
+              type="email"
+              placeholder="이메일 (선택)"
+              value={formData.authorEmail}
+              onChange={(e) => setFormData({ ...formData, authorEmail: e.target.value })}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <input
+              type="url"
+              placeholder="홈페이지 (선택)"
+              value={formData.authorHomepage}
+              onChange={(e) => setFormData({ ...formData, authorHomepage: e.target.value })}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+        </>
+      )}
 
       <textarea
         placeholder="댓글을 입력하세요 *"
