@@ -15,7 +15,7 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const postId = parsePostId((await params).id);
 
-  const { post } = await apiFetch<PublicPostDetailResponse>(`/blog/posts/${postId}`, {
+  const { post } = await apiFetch<PublicPostDetailResponse>(`admin/blog/posts/${postId}`, {
     cache: "force-cache",
   });
 
@@ -31,7 +31,7 @@ export default async function AdminPostViewPage({ params }: Props) {
   const isAdminUser = await isAdmin();
 
   // ✅ apiFetch 사용
-  const { post } = await apiFetch<PublicPostDetailResponse>(`/blog/posts/${postId}`, {
+  const { post } = await apiFetch<PublicPostDetailResponse>(`/admin/blog/posts/${postId}`, {
     cache: "force-cache",
   });
 

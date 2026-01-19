@@ -10,6 +10,8 @@ export type PostEditorProp = {
   PostContent?: string;
   PostTag?: string;
   PostCategoryId?: number | null;
+  fileIds?: string[];
+  PostFiles?: PostFileInfo[];
 };
 
 export type PostUpsertProp = {
@@ -22,7 +24,23 @@ export type PostUpsertProp = {
   tags?: string[];
 
   authorId: number;
+  fileIds?: string[];
 };
+
+export interface PostFileInfo {
+  fileId: string;
+  role: string | null;
+  sort: number;
+  file: {
+    id: string;
+    originalName: string | null;
+    objectKey: string;
+    mimeType: string | null;
+    sizeBytes: bigint | null;
+    width: number | null;
+    height: number | null;
+  };
+}
 
 // ========================================
 // Public (일반 사용자용)
@@ -155,6 +173,8 @@ export type AdminPostDetail = {
     id: number;
     name: string | null;
   };
+
+  files?: PostFileInfo[];
 };
 
 export type AdminPostDetailResponse = {

@@ -30,7 +30,10 @@ export async function POST(req: Request) {
   const tagSlugs = Array.isArray(body.tags) ? body.tags.map((t) => t.trim()).filter(Boolean) : [];
 
   // categoryId optional
-  const categoryId = body.categoryId === undefined ? null : body.categoryId; // undefined면 null로 처리
+  const categoryId = body.categoryId === undefined ? null : body.categoryId;
+
+  // 🆕 fileIds 처리
+  const fileIds = Array.isArray(body.fileIds) ? body.fileIds.filter(Boolean) : [];
 
   const created = await prisma.post.create({
     data: {
@@ -39,14 +42,27 @@ export async function POST(req: Request) {
       contentHtml: body.contentHtml ?? null,
       state,
       publishedAt,
-
       authorId,
       categoryId,
 
+      // 태그 연결
       ...(tagSlugs.length
         ? {
             tags: {
               connect: tagSlugs.map((slug) => ({ slug })),
+            },
+          }
+        : {}),
+
+      // 🆕 파일 연결
+      ...(fileIds.length
+        ? {
+            files: {
+              create: fileIds.map((fileId: string, index: number) => ({
+                fileId,
+                role: index === 0 ? "thumbnail" : "content",
+                sort: index,
+              })),
             },
           }
         : {}),

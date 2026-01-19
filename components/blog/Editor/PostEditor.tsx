@@ -3,7 +3,7 @@ import "@toast-ui/editor/dist/toastui-editor.css";
 
 import { Editor } from "@toast-ui/react-editor";
 import { useEffect, useRef, useState } from "react";
-import type { PostStateProp, PostEditorProp } from "@/types/Posts";
+import type { PostStateProp, PostEditorProp, PostFileInfo } from "@/types/Posts";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Radio } from "@/components/ui/Radio";
@@ -12,16 +12,23 @@ import { Button } from "@/components/ui/Button";
 import { AdminCategoryListResponse, Categories } from "@/types/Category";
 import { apiFetch } from "@/lib/apiFetch";
 
-const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostTag, PostCategoryId }: PostEditorProp) => {
+const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostTag, PostCategoryId, PostFiles }: PostEditorProp) => {
   const editorRef = useRef<Editor>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState<string>(PostTitle ?? "");
   const [categories, setCategories] = useState<Categories[]>([]);
-  const [categoryId, setCategoryId] = useState<string>(
-    PostCategoryId?.toString() ?? "" // ✅ number를 string으로 변환
-  );
+  const [categoryId, setCategoryId] = useState<string>(PostCategoryId?.toString() ?? "");
   const [tagText, setTagText] = useState<string>(PostTag ?? "");
   const [postState, setPostState] = useState<PostStateProp>(PostState ?? "DRAFT");
+
+  // 업로드된 파일 ID 추적 (기존 파일 포함)
+  const [uploadedFileIds, setUploadedFileIds] = useState<string[]>(PostFiles?.map((f) => f.fileId) ?? []);
+
+  // 업로드된 파일 정보 (UI 표시용)
+  const [uploadedFiles, setUploadedFiles] = useState<PostFileInfo[]>(PostFiles ?? []);
+
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -31,6 +38,86 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
       }
     })();
   }, []);
+
+  // 이미지 업로드 핸들러 (Toast UI Editor용)
+  const handleImageUpload = async (blob: Blob | File, callback: (url: string, altText: string) => void) => {
+    const formData = new FormData();
+    formData.append("image", blob);
+
+    try {
+      const data = await apiFetch<{ url: string; fileId: string; file?: any }>("/admin/blog/posts/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      // 업로드된 파일 ID 저장
+      setUploadedFileIds((prev) => [...prev, data.fileId]);
+
+      // Toast UI Editor에 이미지 URL 전달
+      callback(data.url, "");
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      alert("이미지 업로드에 실패했습니다.");
+    }
+  };
+
+  // 파일 업로드 핸들러 (별도 업로드 버튼용)
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+
+    try {
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const data = await apiFetch<{ url: string; fileId: string; file?: any }>("/admin/blog/posts/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        // 파일 ID 추가
+        setUploadedFileIds((prev) => [...prev, data.fileId]);
+
+        // 파일 정보 추가 (UI 표시용)
+        const newFileInfo: PostFileInfo = {
+          fileId: data.fileId,
+          role: "content",
+          sort: uploadedFiles.length,
+          file: {
+            id: data.fileId,
+            originalName: file.name,
+            objectKey: data.url,
+            mimeType: file.type,
+            sizeBytes: BigInt(file.size),
+            width: null,
+            height: null,
+          },
+        };
+        setUploadedFiles((prev) => [...prev, newFileInfo]);
+      }
+
+      alert(`${files.length}개 파일이 업로드되었습니다.`);
+
+      // 파일 input 초기화
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } catch (error) {
+      console.error("File upload failed:", error);
+      alert("파일 업로드에 실패했습니다.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // 파일 삭제
+  const handleFileRemove = (fileId: string) => {
+    setUploadedFileIds((prev) => prev.filter((id) => id !== fileId));
+    setUploadedFiles((prev) => prev.filter((f) => f.fileId !== fileId));
+  };
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -59,43 +146,33 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
       contentMd,
       tags,
       state: postState,
-      authorId: 1, // TODO: 로그인 붙이면 서버에서 가져오게 변경
+      authorId: 1,
       categoryId: categoryId ? Number(categoryId) : undefined,
       contentHtml: null,
+      fileIds: uploadedFileIds,
     };
 
     try {
-      const res =
+      const data =
         PostType === "new"
-          ? await fetch("/api/admin/blog/posts", {
+          ? await apiFetch("/admin/blog/posts", {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload),
+              body: payload,
             })
-          : await fetch(`/api/admin/blog/posts/${PostId}`, {
+          : await apiFetch(`/admin/blog/posts/${PostId}`, {
               method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload),
+              body: payload,
             });
-
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        console.error("저장 실패:", data);
-        alert(data?.message ?? "저장 실패");
-        return;
-      }
 
       console.log("저장 성공:", data);
       alert("저장되었습니다");
 
-      // 새 글 작성 후 수정 페이지로 이동
       if (PostType === "new" && data?.post?.id) {
-        window.location.href = `/admin/blog/posts/${data.post.id}/edit`;
+        window.location.href = `/admin/blog/posts/${data.post.id}`;
       }
-    } catch (err) {
-      console.error(err);
-      alert("네트워크 오류");
+    } catch (error: any) {
+      console.error("저장 실패:", error);
+      alert(error?.message ?? "저장 실패");
     }
   };
 
@@ -124,7 +201,56 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
 
       {/* 에디터 */}
       <div className="border border-gray-200 rounded-lg overflow-hidden">
-        <Editor ref={editorRef} initialValue={PostContent ?? ""} previewStyle="vertical" height="600px" initialEditType="markdown" useCommandShortcut={true} />
+        <Editor
+          ref={editorRef}
+          initialValue={PostContent ?? ""}
+          previewStyle="vertical"
+          height="600px"
+          initialEditType="markdown"
+          useCommandShortcut={true}
+          hooks={{
+            addImageBlobHook: handleImageUpload,
+          }}
+        />
+      </div>
+
+      {/* 🆕 파일 업로드 섹션 */}
+      <div className="border border-gray-200 rounded-lg p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-medium text-gray-700">첨부 파일</h3>
+          <div>
+            <input ref={fileInputRef} type="file" multiple accept="image/*,video/*,application/pdf,.doc,.docx,.zip" onChange={handleFileUpload} className="hidden" id="file-upload" />
+            <label htmlFor="file-upload">
+              <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+                {isUploading ? "업로드 중..." : "파일 추가"}
+              </Button>
+            </label>
+          </div>
+        </div>
+
+        {/* 업로드된 파일 목록 */}
+        {uploadedFiles.length > 0 ? (
+          <div className="space-y-2">
+            {uploadedFiles.map((pf) => (
+              <div key={pf.fileId} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
+                <div className="flex items-center gap-3">
+                  {pf.file.mimeType?.startsWith("image/") && <img src={pf.file.objectKey} alt={pf.file.originalName ?? ""} className="w-12 h-12 object-cover rounded" />}
+                  <div className="text-sm">
+                    <p className="font-medium text-gray-700">{pf.file.originalName}</p>
+                    <p className="text-gray-500 text-xs">
+                      {pf.file.mimeType} • {pf.file.sizeBytes ? `${Number(pf.file.sizeBytes) / 1024}KB` : ""}
+                    </p>
+                  </div>
+                </div>
+                <button type="button" onClick={() => handleFileRemove(pf.fileId)} className="text-red-500 hover:text-red-700 text-sm px-2 py-1">
+                  삭제
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500 text-center py-4">첨부된 파일이 없습니다.</p>
+        )}
       </div>
 
       {/* 태그 */}

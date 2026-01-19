@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 
 type Props = {
   postId?: number;
-  post?: AdminPostDetail; // ✅ PublicPostDetail → AdminPostDetail
+  post?: AdminPostDetail;
 };
 
 const PostEditor = dynamic(() => import("@/components/blog/Editor/PostEditor"), {
@@ -27,9 +27,10 @@ export default function PostEditorWrapper({ postId, post }: Props) {
       PostId={postId ?? null}
       PostTitle={post?.title}
       PostContent={post?.contentMd}
-      PostState={post?.state} // ✅ 추가
-      PostTag={post?.tagsString} // ✅ 추가
-      PostCategoryId={post?.categoryId ?? undefined} // ✅ 추가
+      PostState={post?.state}
+      PostTag={post?.tagsString}
+      PostCategoryId={post?.categoryId ?? undefined}
+      PostFiles={post?.files} // 🆕 추가
     />
   );
 }

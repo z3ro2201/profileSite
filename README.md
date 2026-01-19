@@ -7,24 +7,20 @@
 ## ✨ 주요 기능
 
 - 🔐 인증
-
   - 비밀번호 로그인 (bcrypt)
   - Google OTP (TOTP)
   - Passkey (WebAuthn)
   - JWT **httpOnly 쿠키** 세션
 
 - 🛡️ 보안
-
   - Edge Middleware로 `/admin/**` 보호
   - `/admin/login`, `/admin/logout` 예외 처리
 
 - 📝 콘텐츠
-
   - 게시글(Post) / 카테고리(Category) / 태그(Tag)
   - 관리자 전용 글 작성
 
 - ⚙️ 인프라
-
   - Prisma v7 + MariaDB
   - Prisma Adapter (MariaDB)
 
@@ -168,6 +164,8 @@ yarn install
 npx prisma migrate dev --name add_page_visits --create-only
 npx prisma migrate dev --name add-comments-trackbacks
 npx prisma migrate dev --name add-comment-password
+npx prisma migrate dev --name add_file_metadata_fields
+npx prisma migrate dev --name sync_schema --create-only
 
 npx prisma generate --schema prisma/schema.loa.prisma
 npx prisma migrate dev
@@ -192,19 +190,16 @@ npx @next/codemod@latest middleware-to-proxy .
 ## 🔐 인증 플로우 요약
 
 - **Password 로그인**
-
   1. 비밀번호 검증
   2. OTP 활성화 시 → OTP 검증
   3. 성공 시 JWT 쿠키 발급
 
 - **Passkey 로그인**
-
   1. WebAuthn challenge 발급
   2. 브라우저 인증
   3. 검증 성공 시 JWT 쿠키 발급
 
 - **관리자 보호**
-
   - `/admin/**` → 로그인 필수
   - `/admin/login`, `/admin/logout` → 예외
 

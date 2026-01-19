@@ -1,3 +1,4 @@
+// app/api/admin/blog/posts/[id]/route.ts
 import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { PostUpsertProp } from "@/types/Posts";
@@ -23,14 +24,14 @@ export async function GET(_req: Request, ctx: { params: MaybePromise<{ id: strin
       title: true,
       contentMd: true,
       contentHtml: true,
-      state: true, // ✅ DRAFT | PUBLISHED | ARCHIVED
+      state: true,
       publishedAt: true,
       createdAt: true,
       updatedAt: true,
-      categoryId: true, // ✅ 카테고리 ID
+      categoryId: true,
       category: {
         select: {
-          id: true, // ✅ ID 포함
+          id: true,
           slug: true,
           name: true,
         },
@@ -43,8 +44,26 @@ export async function GET(_req: Request, ctx: { params: MaybePromise<{ id: strin
       },
       author: {
         select: {
-          id: true, // ✅ ID 포함
+          id: true,
           name: true,
+        },
+      },
+      files: {
+        include: {
+          file: {
+            select: {
+              id: true,
+              originalName: true,
+              objectKey: true, // 전체 경로가 여기 포함됨
+              mimeType: true,
+              sizeBytes: true,
+              width: true,
+              height: true,
+            },
+          },
+        },
+        orderBy: {
+          sort: "asc",
         },
       },
     },
@@ -52,10 +71,16 @@ export async function GET(_req: Request, ctx: { params: MaybePromise<{ id: strin
 
   if (!post) return bad("Post not found", 404);
 
-  // AdminPostDetail 형식으로 변환
   const adminPost = {
     ...post,
-    tagsString: post.tags.map((t) => t.slug).join(", "), // ✅ PostEditor용 문자열
+    tagsString: post.tags.map((t) => t.slug).join(", "),
+    files: post.files.map((pf) => ({
+      ...pf,
+      file: {
+        ...pf.file,
+        sizeBytes: pf.file.sizeBytes ? pf.file.sizeBytes.toString() : null, // BigInt → String
+      },
+    })),
   };
 
   return NextResponse.json({ ok: true, post: adminPost });
@@ -126,10 +151,31 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
       set: [], // 기존 태그 모두 제거
       ...(tagSlugs.length
         ? {
-            connect: tagSlugs.map((slug) => ({ slug })), // 새 태그 연결
+            connect: tagSlugs.map((slug) => ({ slug })),
           }
         : {}),
     };
+  }
+
+  // 🆕 파일 업데이트
+  if (Array.isArray(body.fileIds)) {
+    const fileIds = body.fileIds.filter(Boolean);
+
+    // 기존 파일 연결 모두 삭제
+    await prisma.postFile.deleteMany({
+      where: { postId },
+    });
+
+    // 새 파일 연결 추가
+    if (fileIds.length > 0) {
+      data.files = {
+        create: fileIds.map((fileId: string, index: number) => ({
+          fileId,
+          role: index === 0 ? "thumbnail" : "content",
+          sort: index,
+        })),
+      };
+    }
   }
 
   // DB 업데이트
@@ -172,7 +218,8 @@ export async function DELETE(_req: Request, ctx: Ctx) {
       return NextResponse.json({ ok: false, message: "Post not found" }, { status: 404 });
     }
 
-    // 삭제
+    // 🆕 연결된 파일은 Cascade로 자동 삭제됨 (PostFile 관계)
+    // File 자체는 삭제하지 않음 (다른 포스트에서 사용할 수 있음)
     await prisma.post.delete({ where: { id: postId } });
 
     return NextResponse.json({ ok: true, id: postId }, { status: 200 });

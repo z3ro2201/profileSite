@@ -35,20 +35,16 @@ model PasskeyCredential {
 }
 
 model Category {
-  id       Int    @id @default(autoincrement())
-  slug     String @unique
-  name     String
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  name        String
+  order       Int      @default(0)
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   description String?
-
-  order    Int    @default(0)
-  isPublic Boolean @default(true)
-
-  posts    Post[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  posts       Post[]
 }
-
 
 model Tag {
   id    Int    @id @default(autoincrement())
@@ -59,54 +55,49 @@ model Tag {
 
 model File {
   id             String  @id @default(cuid())
-  storage        String // "s3" | "r2" | "local"
+  storage        String  // "s3" | "r2" | "local"
   bucket         String?
-  objectKey      String // 스토리지 경로/키
+  objectKey      String  // 스토리지 경로/키
+  
   originalName   String?
+  storedName     String? // 🆕 추가
   mimeType       String?
   sizeBytes      BigInt?
-  checksumSha256 String? // 중복/무결성 체크용(선택)
+  checksumSha256 String?
 
-  width       Int? // 이미지면
+  width       Int?
   height      Int?
-  durationSec Int? // 영상/오디오면
+  durationSec Int?
 
   createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt 
   deletedAt DateTime?
 
   postLinks PostFile[]
+  
+  @@index([storage, objectKey])
+  @@index([createdAt])
 }
 
 
 model Comment {
-  id        Int      @id @default(autoincrement())
-  postId    Int
-  parentId  Int?     // 대댓글인 경우 부모 댓글 ID
-  
-  // 작성자 정보
+  id             Int       @id @default(autoincrement())
+  postId         Int
+  parentId       Int?
   authorName     String
   authorEmail    String?
   authorHomepage String?
-  authorPassword String   @default("legacy-comment") 
-  authorIp       String?  @db.VarChar(45)
-  
-  // 댓글 내용
-  content   String   @db.Text
-  isSecret  Boolean  @default(false) // 비밀댓글 여부
-  
-  // 상태
-  isApproved Boolean  @default(true)  // 승인 여부
-  isDeleted  Boolean  @default(false) // 삭제 여부
-  
-  // 시간
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // 관계
-  post     Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies  Comment[] @relation("CommentReplies")
-  
+  authorIp       String?   @db.VarChar(45)
+  content        String    @db.Text
+  isSecret       Boolean   @default(false)
+  isApproved     Boolean   @default(true)
+  isDeleted      Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  parent         Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies        Comment[] @relation("CommentReplies")
+  post           Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+
   @@index([postId, createdAt])
   @@index([parentId])
   @@index([authorEmail])
@@ -114,51 +105,42 @@ model Comment {
 }
 
 model Trackback {
-  id        Int      @id @default(autoincrement())
-  postId    Int
-  
-  // 트랙백 정보
-  url       String   @db.VarChar(500)  // 트랙백을 보낸 글의 URL
-  title     String?                     // 트랙백을 보낸 글의 제목
-  excerpt   String?  @db.Text          // 발췌문
-  blogName  String?                     // 블로그 이름
-  
-  // 상태
-  isApproved Boolean  @default(false)  // 스팸 방지를 위해 기본 false
+  id         Int      @id @default(autoincrement())
+  postId     Int
+  url        String   @db.VarChar(500)
+  title      String?
+  excerpt    String?  @db.Text
+  blogName   String?
+  isApproved Boolean  @default(false)
   isDeleted  Boolean  @default(false)
-  
-  // 시간
-  createdAt DateTime @default(now())
-  
-  // 관계
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  
+  createdAt  DateTime @default(now())
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
   @@index([postId, createdAt])
   @@index([isApproved, isDeleted])
 }
 
-
 model Post {
-  id          Int        @id @default(autoincrement())
-  title       String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  authorId    Int
-  categoryId  Int?
-  contentHtml String?    @db.LongText
-  contentMd   String     @db.LongText
-  publishedAt DateTime?
-  state       PostState  @default(DRAFT)
-  author      User       @relation(fields: [authorId], references: [id])
-  category    Category?  @relation(fields: [categoryId], references: [id])
-  tags        Tag[]      @relation("PostToTag")
-  lat         Float?
-  lng         Float?
-  files       PostFile[]
-  comments   Comment[]
-  trackbacks Trackback[]
-  commentCount   Int @default(0)
-  trackbackCount Int @default(0)
+  id             Int         @id @default(autoincrement())
+  title          String
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  authorId       Int
+  categoryId     Int?
+  contentHtml    String?     @db.LongText
+  contentMd      String      @db.LongText
+  publishedAt    DateTime?
+  state          PostState   @default(DRAFT)
+  lat            Float?
+  lng            Float?
+  commentCount   Int         @default(0)
+  trackbackCount Int         @default(0)
+  comments       Comment[]
+  author         User        @relation(fields: [authorId], references: [id])
+  category       Category?   @relation(fields: [categoryId], references: [id])
+  files          PostFile[]
+  trackbacks     Trackback[]
+  tags           Tag[]       @relation("PostToTag")
 
   @@index([state, createdAt])
   @@index([authorId, createdAt])
@@ -172,41 +154,40 @@ model PostFile {
   role   String?
   sort   Int     @default(0)
   alt    String?
-
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  file File @relation(fields: [fileId], references: [id], onDelete: Restrict)
+  file   File    @relation(fields: [fileId], references: [id])
+  post   Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@id([postId, fileId])
   @@index([fileId])
   @@index([postId, role, sort])
 }
 
-enum PostState {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
 model PageVisit {
-  id                String   @id @default(cuid())
-  visitorId         String   @map("visitor_id")
-  sessionId         String   @map("session_id")
-  pagePath          String   @map("page_path") @db.VarChar(500)
-  referrer          String   @db.VarChar(500)
-  userAgent         String?  @map("user_agent") @db.Text
-  ipAddress         String?  @map("ip_address") @db.VarChar(45)
-  country           String?  @db.VarChar(100)
-  city              String?  @db.VarChar(100)
-  deviceType        String?  @map("device_type") @db.VarChar(50)
-  browser           String?  @db.VarChar(100)
-  os                String?  @db.VarChar(100)
-  screenResolution  String?  @map("screen_resolution") @db.VarChar(50)
-  language          String?  @db.VarChar(10)
-  visitedAt         DateTime @default(now()) @map("visited_at")
+  id               String   @id @default(cuid())
+  visitorId        String   @map("visitor_id")
+  sessionId        String   @map("session_id")
+  pagePath         String   @map("page_path") @db.VarChar(500)
+  referrer         String   @db.VarChar(500)
+  userAgent        String?  @map("user_agent") @db.Text
+  ipAddress        String?  @map("ip_address") @db.VarChar(45)
+  country          String?  @db.VarChar(100)
+  city             String?  @db.VarChar(100)
+  deviceType       String?  @map("device_type") @db.VarChar(50)
+  browser          String?  @db.VarChar(100)
+  os               String?  @db.VarChar(100)
+  screenResolution String?  @map("screen_resolution") @db.VarChar(50)
+  language         String?  @db.VarChar(10)
+  visitedAt        DateTime @default(now()) @map("visited_at")
 
   @@index([visitedAt])
   @@index([pagePath])
   @@index([visitorId])
   @@index([sessionId])
   @@map("page_visits")
+}
+
+enum PostState {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
