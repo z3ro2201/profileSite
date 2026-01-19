@@ -8,7 +8,12 @@ export async function GET() {
 
   try {
     const payload = await verifyAuthToken(token);
-    return NextResponse.json({ authenticated: true, userId: payload.sub, email: payload.email, name: payload.name });
+    return NextResponse.json({
+      authenticated: true,
+      id: payload.sub,
+      email: payload.email,
+      name: payload.name,
+    });
   } catch {
     return NextResponse.json({ authenticated: false }, { status: 200 });
   }

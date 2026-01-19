@@ -3,8 +3,8 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
 async function main() {
-  const email = "";
-  const plainPassword = "";
+  const email = "admin@example.com";
+  const plainPassword = "mgoon1358!";
 
   const hash = await bcrypt.hash(plainPassword, 12);
 

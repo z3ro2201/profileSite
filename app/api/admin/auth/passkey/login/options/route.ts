@@ -11,14 +11,13 @@ function isAuthenticatorTransportFuture(v: unknown): v is AuthenticatorTransport
   return v === "usb" || v === "nfc" || v === "ble" || v === "internal" || v === "hybrid" || v === "smart-card";
 }
 
-// ✅ DB 실체에 맞춤: transports = string | null
 type PasskeyRow = {
   credentialId: CredId;
   transports: string | null;
 };
 
 function toBase64UrlString(v: CredId): string {
-  if (typeof v === "string") return v; // 이미 base64url로 저장했다고 가정
+  if (typeof v === "string") return v;
   return isoBase64URL.fromBuffer(Buffer.from(v));
 }
 
@@ -47,24 +46,49 @@ function parseTransports(v: string | null): AuthenticatorTransportFuture[] | und
 }
 
 export async function POST(req: Request) {
-  const { userId } = await req.json();
-  if (!userId) return NextResponse.json({ error: "userId is required" }, { status: 400 });
+  try {
+    const body = await req.json();
+    const userId = body.userId;
 
-  const rpID = process.env.WEBAUTHN_RP_ID ?? "localhost";
+    // 입력 검증
+    if (!userId || typeof userId !== "number") {
+      return NextResponse.json({ error: "userId is required and must be a number" }, { status: 400 });
+    }
 
-  const creds: PasskeyRow[] = await prisma.passkeyCredential.findMany({
-    where: { userId },
-    select: { credentialId: true, transports: true },
-  });
+    // 환경 변수 (register와 동일하게)
+    const rpID = process.env.RP_ID;
 
-  const options = await generateAuthenticationOptions({
-    rpID,
-    allowCredentials: creds.map((c) => ({
-      id: toBase64UrlString(c.credentialId),
-      transports: parseTransports(c.transports), // ✅ any 없음
-    })),
-    userVerification: "preferred",
-  });
+    if (!rpID) {
+      console.error("Missing RP_ID environment variable");
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+    }
 
-  return NextResponse.json(options);
+    // Passkey 조회
+    const creds: PasskeyRow[] = await prisma.passkeyCredential.findMany({
+      where: { userId },
+      select: { credentialId: true, transports: true },
+    });
+
+    // Passkey가 없으면
+    if (creds.length === 0) {
+      return NextResponse.json({ error: "No passkeys found for this user" }, { status: 404 });
+    }
+
+    // 인증 옵션 생성
+    const options = await generateAuthenticationOptions({
+      rpID,
+      allowCredentials: creds.map((c) => ({
+        id: toBase64UrlString(c.credentialId),
+        type: "public-key",
+        transports: parseTransports(c.transports),
+      })),
+      userVerification: "preferred",
+      timeout: 300000, // 5분
+    });
+
+    return NextResponse.json(options);
+  } catch (error) {
+    console.error("Passkey login options error:", error);
+    return NextResponse.json({ error: "Failed to generate authentication options" }, { status: 500 });
+  }
 }
