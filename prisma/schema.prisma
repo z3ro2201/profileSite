@@ -87,6 +87,7 @@ model Comment {
   authorName     String
   authorEmail    String?
   authorHomepage String?
+  authorPassword String    @default("legacy-comment")
   authorIp       String?   @db.VarChar(45)
   content        String    @db.Text
   isSecret       Boolean   @default(false)
