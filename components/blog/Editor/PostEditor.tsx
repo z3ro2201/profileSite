@@ -176,6 +176,36 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
     }
   };
 
+  // 파일 삽입
+  const insertFileToEditor = (file: PostFileInfo) => {
+    const editorInstance = editorRef.current?.getInstance();
+    if (!editorInstance) return;
+
+    const mimeType = file.file.mimeType || "";
+    const url = file.file.objectKey;
+    const fileName = file.file.originalName || "file";
+
+    if (mimeType.startsWith("image/")) {
+      // 이미지 삽입 (마크다운)
+      editorInstance.insertText(`![${fileName}](${url})\n`);
+    } else if (mimeType.startsWith("video/")) {
+      // 동영상 삽입 (HTML)
+      const videoHtml = `
+<video controls width="100%" style="max-width: 800px;">
+  <source src="${url}" type="${mimeType}">
+  Your browser does not support the video tag.
+</video>
+
+`;
+      editorInstance.insertText(videoHtml);
+    } else {
+      // 기타 파일 (다운로드 링크)
+      editorInstance.insertText(`[📎 ${fileName}](${url})\n`);
+    }
+
+    alert("본문에 삽입되었습니다.");
+  };
+
   return (
     <form onSubmit={onSubmit} className="max-w-5xl mx-auto space-y-6 p-6">
       <div className="flex items-center justify-between">
@@ -231,22 +261,54 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
         {/* 업로드된 파일 목록 */}
         {uploadedFiles.length > 0 ? (
           <div className="space-y-2">
-            {uploadedFiles.map((pf) => (
-              <div key={pf.fileId} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
-                <div className="flex items-center gap-3">
-                  {pf.file.mimeType?.startsWith("image/") && <img src={pf.file.objectKey} alt={pf.file.originalName ?? ""} className="w-12 h-12 object-cover rounded" />}
-                  <div className="text-sm">
-                    <p className="font-medium text-gray-700">{pf.file.originalName}</p>
-                    <p className="text-gray-500 text-xs">
-                      {pf.file.mimeType} • {pf.file.sizeBytes ? `${Number(pf.file.sizeBytes) / 1024}KB` : ""}
-                    </p>
+            {uploadedFiles.map((pf) => {
+              const mimeType = pf.file.mimeType || "";
+              const isImage = mimeType.startsWith("image/");
+              const isVideo = mimeType.startsWith("video/");
+
+              return (
+                <div key={pf.fileId} className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
+                  <div className="flex items-center gap-3 flex-1">
+                    {/* 썸네일 */}
+                    {isImage && <img src={pf.file.objectKey} alt={pf.file.originalName ?? ""} className="w-16 h-16 object-cover rounded" />}
+                    {isVideo && (
+                      <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
+                        <span className="text-2xl">🎥</span>
+                      </div>
+                    )}
+                    {!isImage && !isVideo && (
+                      <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
+                        <span className="text-2xl">📎</span>
+                      </div>
+                    )}
+
+                    {/* 파일 정보 */}
+                    <div className="text-sm flex-1">
+                      <p className="font-medium text-gray-700">{pf.file.originalName}</p>
+                      <p className="text-gray-500 text-xs">
+                        {pf.file.mimeType}
+                        {pf.file.sizeBytes && ` • ${(Number(pf.file.sizeBytes) / 1024).toFixed(1)}KB`}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 액션 버튼들 */}
+                  <div className="flex gap-2">
+                    {/* 🆕 본문 삽입 버튼 */}
+                    <button type="button" onClick={() => insertFileToEditor(pf)} className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded border border-blue-200">
+                      {isImage && "🖼️ 이미지 삽입"}
+                      {isVideo && "🎥 동영상 삽입"}
+                      {!isImage && !isVideo && "📎 링크 삽입"}
+                    </button>
+
+                    {/* 삭제 버튼 */}
+                    <button type="button" onClick={() => handleFileRemove(pf.fileId)} className="px-3 py-1 text-sm text-red-500 hover:text-red-700 hover:bg-red-50 rounded">
+                      삭제
+                    </button>
                   </div>
                 </div>
-                <button type="button" onClick={() => handleFileRemove(pf.fileId)} className="text-red-500 hover:text-red-700 text-sm px-2 py-1">
-                  삭제
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <p className="text-sm text-gray-500 text-center py-4">첨부된 파일이 없습니다.</p>
