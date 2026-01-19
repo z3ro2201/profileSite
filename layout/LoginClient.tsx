@@ -36,53 +36,80 @@ export default function LoginClient() {
   };
 
   // 🆕 Passkey 로그인
+  // const onPasskeyLogin = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+
+  //   if (!passkeyEmail || !passkeyEmail.includes("@")) {
+  //     alert("이메일을 입력해주세요.");
+  //     return;
+  //   }
+
+  //   setIsPasskeyLoading(true);
+
+  //   try {
+  //     // 1. 이메일로 userId 조회
+  //     const { userId } = await apiFetch<{ userId: number }>("/admin/auth/user-by-email", {
+  //       method: "POST",
+  //       body: { email: passkeyEmail },
+  //     });
+
+  //     // 2. 인증 옵션 가져오기
+  //     const options = await apiFetch("/admin/auth/passkey/login/options", {
+  //       method: "POST",
+  //       body: { userId },
+  //     });
+
+  //     // 3. 브라우저에서 Passkey 인증
+  //     const authResp: AuthenticationResponseJSON = await startAuthentication(options);
+
+  //     // 4. 서버에 검증 요청
+  //     await apiFetch("/admin/auth/passkey/login/verify", {
+  //       method: "POST",
+  //       body: authResp,
+  //     });
+
+  //     // 5. 로그인 성공
+  //     alert("로그인 성공!");
+  //     router.replace(nextUrl);
+  //   } catch (error: any) {
+  //     console.error("Passkey login error:", error);
+
+  //     if (error.name === "NotAllowedError") {
+  //       alert("인증이 취소되었습니다.");
+  //     } else if (error.name === "NotSupportedError") {
+  //       alert("이 브라우저는 Passkey를 지원하지 않습니다.");
+  //     } else {
+  //       alert(error?.message ?? "Passkey 로그인 중 오류가 발생했습니다.");
+  //     }
+  //   } finally {
+  //     setIsPasskeyLoading(false);
+  //   }
+  // };
   const onPasskeyLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!passkeyEmail || !passkeyEmail.includes("@")) {
-      alert("이메일을 입력해주세요.");
-      return;
-    }
-
-    setIsPasskeyLoading(true);
-
     try {
-      // 1. 이메일로 userId 조회
+      console.log("1️⃣ Looking up user by email:", passkeyEmail);
       const { userId } = await apiFetch<{ userId: number }>("/admin/auth/user-by-email", {
         method: "POST",
         body: { email: passkeyEmail },
       });
+      console.log("2️⃣ Found userId:", userId);
 
-      // 2. 인증 옵션 가져오기
+      console.log("3️⃣ Getting login options...");
       const options = await apiFetch("/admin/auth/passkey/login/options", {
         method: "POST",
         body: { userId },
       });
+      console.log("4️⃣ Options:", options);
 
-      // 3. 브라우저에서 Passkey 인증
-      const authResp: AuthenticationResponseJSON = await startAuthentication(options);
+      console.log("5️⃣ Starting authentication...");
+      const authResp = await startAuthentication(options);
+      console.log("6️⃣ Auth response:", authResp);
 
-      // 4. 서버에 검증 요청
-      await apiFetch("/admin/auth/passkey/login/verify", {
-        method: "POST",
-        body: authResp,
-      });
-
-      // 5. 로그인 성공
-      alert("로그인 성공!");
-      router.replace(nextUrl);
+      // ...
     } catch (error: any) {
-      console.error("Passkey login error:", error);
-
-      if (error.name === "NotAllowedError") {
-        alert("인증이 취소되었습니다.");
-      } else if (error.name === "NotSupportedError") {
-        alert("이 브라우저는 Passkey를 지원하지 않습니다.");
-      } else {
-        alert(error?.message ?? "Passkey 로그인 중 오류가 발생했습니다.");
-      }
-    } finally {
-      setIsPasskeyLoading(false);
+      console.error("❌ Error at step:", error);
     }
   };
 
