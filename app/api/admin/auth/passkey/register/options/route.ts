@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { generateRegistrationOptions } from "@simplewebauthn/server";
 import { prisma } from "@/lib/prisma";
 import { seal } from "@/lib/secure-cookie";
-import { toBase64Url } from "@/lib/base64url";
+import { isoBase64URL } from "@simplewebauthn/server/helpers";
 
 export async function POST(req: Request) {
   try {
@@ -40,14 +40,22 @@ export async function POST(req: Request) {
       userName: user.email,
       userDisplayName: user.name ?? user.email,
       attestationType: "none",
+
       excludeCredentials: existing.map((c) => ({
-        id: toBase64Url(c.credentialId),
+        id: isoBase64URL.fromBuffer(Buffer.from(c.credentialId)),
         type: "public-key",
       })),
+
+      // ✅ username-less(Discoverable) Passkey 강제
       authenticatorSelection: {
-        residentKey: "preferred",
-        userVerification: "preferred",
+        authenticatorAttachment: "platform",
+        residentKey: "required",
+        requireResidentKey: true,
+        userVerification: "required",
       },
+
+      // (선택) 디버깅에 도움
+      extensions: { credProps: true },
     });
 
     const token = await seal({ challenge: options.challenge, userId, origin, rpID }, 300);

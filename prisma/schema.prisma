@@ -27,6 +27,10 @@ model PasskeyCredential {
   counter      Int       @default(0)
   name         String?
   transports   String?
+
+  deviceType   String?   // "singleDevice" | "multiDevice"
+  backedUp     Boolean?  // true/false
+
   createdAt    DateTime  @default(now())
   lastUsedAt   DateTime?
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)

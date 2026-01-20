@@ -1,89 +1,39 @@
+// app/api/admin/auth/passkey/login/options/route.ts
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
-import { isoBase64URL } from "@simplewebauthn/server/helpers";
-import { prisma } from "@/lib/prisma";
+import { seal } from "@/lib/secure-cookie";
 
-type CredId = string | Uint8Array | Buffer;
-
-type AuthenticatorTransportFuture = "usb" | "nfc" | "ble" | "internal" | "hybrid" | "smart-card";
-
-function isAuthenticatorTransportFuture(v: unknown): v is AuthenticatorTransportFuture {
-  return v === "usb" || v === "nfc" || v === "ble" || v === "internal" || v === "hybrid" || v === "smart-card";
-}
-
-type PasskeyRow = {
-  credentialId: CredId;
-  transports: string | null;
+type SavedAuth = {
+  challenge: string;
+  origin: string;
+  rpID: string;
 };
 
-function toBase64UrlString(v: CredId): string {
-  if (typeof v === "string") return v;
-  return isoBase64URL.fromBuffer(Buffer.from(v));
-}
-
-function parseTransports(v: string | null): AuthenticatorTransportFuture[] | undefined {
-  if (!v) return undefined;
-
-  const s = v.trim();
-
-  // JSON 문자열: '["usb","nfc"]'
-  if (s.startsWith("[")) {
-    try {
-      const arr: unknown = JSON.parse(s);
-      if (Array.isArray(arr)) {
-        return arr.filter(isAuthenticatorTransportFuture);
-      }
-    } catch {
-      return undefined;
-    }
-  }
-
-  // CSV 문자열: "usb,nfc,ble"
-  return s
-    .split(",")
-    .map((t) => t.trim())
-    .filter(isAuthenticatorTransportFuture);
-}
-
-export async function POST(req: Request) {
+export async function POST() {
   try {
-    const body = await req.json();
-    const userId = body.userId;
-
-    // 입력 검증
-    if (!userId || typeof userId !== "number") {
-      return NextResponse.json({ error: "userId is required and must be a number" }, { status: 400 });
-    }
-
-    // 환경 변수 (register와 동일하게)
     const rpID = process.env.RP_ID;
+    const origin = process.env.APP_ORIGIN;
 
-    if (!rpID) {
-      console.error("Missing RP_ID environment variable");
+    if (!rpID || !origin) {
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
-    // Passkey 조회
-    const creds: PasskeyRow[] = await prisma.passkeyCredential.findMany({
-      where: { userId },
-      select: { credentialId: true, transports: true },
-    });
-
-    // Passkey가 없으면
-    if (creds.length === 0) {
-      return NextResponse.json({ error: "No passkeys found for this user" }, { status: 404 });
-    }
-
-    // 인증 옵션 생성
     const options = await generateAuthenticationOptions({
       rpID,
-      allowCredentials: creds.map((c) => ({
-        id: toBase64UrlString(c.credentialId),
-        type: "public-key",
-        transports: parseTransports(c.transports),
-      })),
-      userVerification: "preferred",
-      timeout: 300000, // 5분
+      userVerification: "required",
+      timeout: 300000,
+      // ✅ username-less 핵심: allowCredentials를 넣지 않음
+    });
+
+    const token = await seal({ challenge: options.challenge, origin, rpID }, 300);
+    const cookieStore = await cookies();
+    cookieStore.set("webauthn_auth", token, {
+      httpOnly: true,
+      secure: origin.startsWith("https://"),
+      sameSite: "lax",
+      path: "/",
+      maxAge: 300,
     });
 
     return NextResponse.json(options);
