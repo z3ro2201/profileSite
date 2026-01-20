@@ -11,13 +11,33 @@ model User {
   email           String              @unique
   name            String?
   createdAt       DateTime            @default(now())
+
   totpConfirmedAt DateTime?
   totpEnabled     Boolean             @default(false)
   totpSecretEnc   String?
+
+  totpLastStep    BigInt?
+
   passwordHash    String?
   passkeys        PasskeyCredential[]
   posts           Post[]
+  recoveryCodes   UserRecoveryCode[]
 }
+
+// OTP 복구용
+model UserRecoveryCode {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  codeHash  String   @db.VarChar(128)
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@unique([codeHash])
+}
+
 
 model PasskeyCredential {
   id           Int       @id @default(autoincrement())

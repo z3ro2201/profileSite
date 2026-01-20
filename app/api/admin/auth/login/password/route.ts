@@ -1,3 +1,4 @@
+// app/api/admin/auth/login/password/route.ts
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
@@ -15,7 +16,7 @@ export async function POST(req: Request) {
 
     // 사용자 조회
     const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() }, // 🆕 이메일 정규화
+      where: { email: String(email).toLowerCase().trim() },
       select: {
         id: true,
         email: true,
@@ -30,21 +31,21 @@ export async function POST(req: Request) {
     }
 
     // 비밀번호 검증
-    const ok = await bcrypt.compare(password, user.passwordHash);
+    const ok = await bcrypt.compare(String(password), user.passwordHash);
     if (!ok) {
       return NextResponse.json({ error: "비밀번호를 확인해주세요." }, { status: 401 });
     }
 
-    // OTP 활성화 시 2단계 인증 요구
+    // ✅ OTP 활성화 시: 여기서는 쿠키 발급하지 않고 2단계로 넘김
     if (user.totpEnabled) {
       return NextResponse.json({
-        ok: false,
+        ok: true,
         requiresOtp: true,
         userId: user.id,
       });
     }
 
-    // JWT 쿠키 발급
+    // ✅ OTP 미사용 시: JWT 쿠키 발급
     const jwt = await signAuthToken({
       sub: String(user.id),
       email: user.email,
@@ -53,12 +54,11 @@ export async function POST(req: Request) {
 
     const { name, options } = authCookieOptions();
 
-    const res = NextResponse.json({ ok: true });
+    const res = NextResponse.json({ ok: true, requiresOtp: false });
     res.cookies.set(name, jwt, options);
-
     return res;
   } catch (error) {
-    console.error("Login error:", error); // 🆕 에러 로깅
+    console.error("Login error:", error);
     return NextResponse.json({ error: "서버 오류입니다." }, { status: 500 });
   }
 }
