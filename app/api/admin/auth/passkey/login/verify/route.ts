@@ -27,8 +27,7 @@ export async function POST(req: Request) {
     if (!saved) return NextResponse.json({ error: "잘못되거나 종료되었습니다." }, { status: 400 });
 
     // ✅ credentialId 매칭 안정화: simplewebauthn helper 사용
-    const credBuf = isoBase64URL.toBuffer(body.id);
-
+    const credBuf = Buffer.from(body.id);
     const credential = await prisma.passkeyCredential.findFirst({
       where: { credentialId: credBuf },
       select: { id: true, userId: true, credentialId: true, publicKey: true, counter: true },
