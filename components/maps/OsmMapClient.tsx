@@ -25,7 +25,7 @@ export default function OsmMapClient({ lat, lng, zoom = 14, height = 320, placeL
   const center = useMemo(() => ({ lat, lng }), [lat, lng]);
 
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-gray-200 shadow-sm" style={{ height }}>
+    <div className="relative w-full overflow-hidden" style={{ height }}>
       <MapContainer center={center} zoom={zoom} scrollWheelZoom={false} style={{ height: "100%", width: "100%" }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
         <Marker position={center} icon={markerIcon}>

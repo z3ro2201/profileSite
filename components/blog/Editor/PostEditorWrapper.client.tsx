@@ -31,6 +31,11 @@ export default function PostEditorWrapper({ postId, post }: Props) {
       PostTag={post?.tagsString}
       PostCategoryId={post?.categoryId ?? undefined}
       PostFiles={post?.files} // 🆕 추가
+      PostLat={post?.lat}
+      PostLng={post?.lng}
+      PostPlaceName={post?.placeName}
+      PostPlaceAddress={post?.address}
+      PostMapOnly={post?.mapOnly ?? false}
     />
   );
 }

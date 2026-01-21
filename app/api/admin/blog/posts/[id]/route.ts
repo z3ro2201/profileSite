@@ -30,6 +30,10 @@ export async function GET(_req: Request, ctx: { params: MaybePromise<{ id: strin
       updatedAt: true,
       lat: true,
       lng: true,
+      placeName: true,
+      address: true,
+      mapOnly: true,
+
       categoryId: true,
       category: {
         select: {
@@ -129,6 +133,26 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
 
   if (body.categoryId !== undefined) {
     data.categoryId = body.categoryId;
+  }
+
+  if (body.address !== undefined) {
+    data.address = body.address;
+  }
+
+  if (body.placeName !== undefined) {
+    data.placeName = body.placeName;
+  }
+
+  if (body.lat !== undefined) {
+    data.lat = body.lat;
+  }
+
+  if (body.lng !== undefined) {
+    data.lng = body.lng;
+  }
+
+  if (body.mapOnly !== undefined) {
+    data.mapOnly = body.mapOnly;
   }
 
   // 상태 변경 처리

@@ -32,7 +32,7 @@ export default async function AdminPostViewPage({ params }: Props) {
 
   // ✅ apiFetch 사용
   const { post } = await apiFetch<PublicPostDetailResponse>(`/admin/blog/posts/${postId}`, {
-    cache: "force-cache",
+    cache: "no-store",
   });
 
   // ✅ 댓글도 apiFetch 사용

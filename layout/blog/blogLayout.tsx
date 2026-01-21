@@ -162,7 +162,7 @@ export function BlogLayout({ children, defaultActiveMenu = "posts", categories, 
           </Link>
 
           {/* 전체 글 보기 */}
-          <Link href="" className="mt-4 block text-xs font-semibold text-gray-800 uppercase tracking-wider px-4 mb-3">
+          <Link href="/blog/posts" className="mt-4 block text-xs font-semibold text-gray-800 uppercase tracking-wider px-4 mb-3">
             전체 글
           </Link>
 

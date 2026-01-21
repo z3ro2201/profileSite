@@ -12,6 +12,11 @@ export type PostEditorProp = {
   PostCategoryId?: number | null;
   fileIds?: string[];
   PostFiles?: PostFileInfo[];
+  PostLat?: number | null;
+  PostLng?: number | null;
+  PostPlaceName?: string | null;
+  PostPlaceAddress?: string | null;
+  PostMapOnly?: boolean;
 };
 
 export type PostUpsertProp = {
@@ -167,6 +172,12 @@ export type AdminPostDetail = {
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
+
+  lat?: number;
+  lng?: number;
+  placeName?: string | null;
+  address?: string | null;
+  mapOnly?: boolean;
 
   categoryId: number | null;
   category: {

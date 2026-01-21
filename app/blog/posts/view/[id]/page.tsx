@@ -80,7 +80,7 @@ const BlogPostViewPage = async (props: Props) => {
   // Markdown to HTML
   const { html, toc } = await markdownToHtmlWithToc(post.contentMd);
   const finalHtml = post.contentHtml ?? html;
-
+  console.log(post);
   return (
     <>
       <PostViewClient post={post} finalHtml={finalHtml} toc={toc} isAdmin={isAdminUser} />

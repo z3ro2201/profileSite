@@ -30,12 +30,14 @@ export async function POST(req: Request) {
     return bad("Invalid JSON body");
   }
 
+  const mapOnly = Boolean((body as any).mapOnly);
+
   const title = (body.title ?? "").trim();
   const contentMd = body.contentMd ?? "";
   const authorId = body.authorId;
 
-  if (!title) return bad("title is required");
-  if (!contentMd) return bad("contentMd is required");
+  if (!title) return bad("글 제목을 입력하세요.");
+  if (!contentMd && !mapOnly) return bad("내용을 입력하세요.");
   if (!authorId || typeof authorId !== "number") return bad("authorId is required");
 
   const state = body.state ?? "DRAFT";
@@ -52,7 +54,11 @@ export async function POST(req: Request) {
 
   const lat = latRaw === null ? null : clampLat(latRaw);
   const lng = lngRaw === null ? null : clampLng(lngRaw);
-
+  const placeName = ((body as any).placeName ?? "").toString().trim() || null;
+  const address = ((body as any).address ?? "").toString().trim() || null;
+  if (mapOnly && (lat === null || lng === null)) {
+    return bad("장소만 기록하시려면 위도, 경도는 필수로 입력해야 합니다.");
+  }
   // (선택) 둘 중 하나만 있으면 둘 다 null 처리하고 싶다면:
   // const hasBoth = lat !== null && lng !== null;
   // const latFinal = hasBoth ? lat : null;
@@ -70,6 +76,9 @@ export async function POST(req: Request) {
 
       lat,
       lng,
+      placeName,
+      address,
+      mapOnly,
 
       ...(tagSlugs.length
         ? {

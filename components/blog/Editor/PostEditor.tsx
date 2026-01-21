@@ -11,8 +11,9 @@ import { Button } from "@/components/ui/Button";
 
 import { AdminCategoryListResponse, Categories } from "@/types/Category";
 import { apiFetch } from "@/lib/apiFetch";
+import { Checkbox } from "@/components/ui/Checkbox";
 
-const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostTag, PostCategoryId, PostFiles }: PostEditorProp) => {
+const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostTag, PostCategoryId, PostFiles, PostLat, PostLng, PostPlaceName, PostPlaceAddress, PostMapOnly }: PostEditorProp) => {
   const editorRef = useRef<Editor>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -21,8 +22,11 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
   const [categoryId, setCategoryId] = useState<string>(PostCategoryId?.toString() ?? "");
   const [tagText, setTagText] = useState<string>(PostTag ?? "");
   const [postState, setPostState] = useState<PostStateProp>(PostState ?? "DRAFT");
-  const [lat, setLat] = useState<number | null>(null);
-  const [lng, setLng] = useState<number | null>(null);
+  const [lat, setLat] = useState<number | null>(PostLat ?? null);
+  const [lng, setLng] = useState<number | null>(PostLng ?? null);
+  const [placeName, setPlaceName] = useState<string>(PostPlaceName ?? "");
+  const [placeAddress, setPlaceAddress] = useState<string>(PostPlaceAddress ?? "");
+  const [mapOnly, setMapOnly] = useState<boolean>(PostMapOnly ?? false);
 
   // 업로드된 파일 ID 추적 (기존 파일 포함)
   const [uploadedFileIds, setUploadedFileIds] = useState<string[]>(PostFiles?.map((f) => f.fileId) ?? []);
@@ -133,7 +137,7 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
       return;
     }
 
-    if (!contentMd.trim()) {
+    if (!mapOnly && !contentMd.trim()) {
       alert("내용을 입력해주세요");
       return;
     }
@@ -154,6 +158,9 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
       fileIds: uploadedFileIds,
       lat,
       lng,
+      placeName: placeName,
+      address: placeAddress,
+      mapOnly,
     };
 
     try {
@@ -168,11 +175,13 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
               body: payload,
             });
 
-      console.log("저장 성공:", data);
       alert("저장되었습니다");
 
       if (PostType === "new" && data?.post?.id) {
-        // window.location.href = `/admin/mgmt/posts/${data.post.id}`;
+        window.location.href = `/admin/mgmt/posts/${data.post.id}`;
+      }
+      if (PostType === "update" && PostId) {
+        window.location.href = `/admin/mgmt/posts/${PostId}`;
       }
     } catch (error: any) {
       console.error("저장 실패:", error);
@@ -317,34 +326,57 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
           <p className="text-sm text-gray-500 text-center py-4">첨부된 파일이 없습니다.</p>
         )}
       </div>
-
       {/* 태그 */}
       <Input type="text" className="w-full" value={tagText} onChange={(event) => setTagText(event.target.value)} placeholder="태그 (쉼표로 구분, 예: react, nextjs, typescript)" label="태그" />
-
       {/* 위치정보 */}
-      <div className="flex justify-between items-center pt-4 border-t border-gray-200 gap-4">
+      <div className="flex flex-col pt-4 border-t border-gray-200 gap-4">
         <div className="w-full">
+          <Checkbox checked={mapOnly} onChange={() => setMapOnly((prev) => !prev)} label="본문 작성없이 장소만 기록" />
+        </div>
+        <div className="pt-4 w-full border-t border-gray-200">
           <Input
             type="text"
-            value={lat ?? ""}
+            value={placeName ?? ""}
             onChange={(e) => {
-              const v = e.target.value.trim();
-              if (!isNumeric(v)) return; // ❌ 숫자 아니면 무시
-              setLat(v === "" || v === "-" || v === "." ? null : Number(v));
+              setPlaceName(e.target.value);
             }}
-            label="위도(Latitude)"
+            label="장소명(PlaceName)"
           />
         </div>
-        <div className="w-full">
+        <div className="flex pt-4 justify-between items-center gap-4 border-t border-gray-200">
+          <div className="w-full">
+            <Input
+              type="text"
+              value={lat ?? ""}
+              onChange={(e) => {
+                const v = e.target.value.trim();
+                if (!isNumeric(v)) return; // ❌ 숫자 아니면 무시
+                setLat(v === "" || v === "-" || v === "." ? null : Number(v));
+              }}
+              label="위도(Latitude)"
+            />
+          </div>
+          <div className="w-full">
+            <Input
+              type="text"
+              value={lng ?? ""}
+              onChange={(e) => {
+                const v = e.target.value.trim();
+                if (!isNumeric(v)) return;
+                setLng(v === "" || v === "-" || v === "." ? null : Number(v));
+              }}
+              label="경도(Longtitude)"
+            />
+          </div>
+        </div>
+        <div className="w-full pt-4 border-t border-gray-200">
           <Input
             type="text"
-            value={lng ?? ""}
+            value={placeAddress ?? ""}
             onChange={(e) => {
-              const v = e.target.value.trim();
-              if (!isNumeric(v)) return;
-              setLng(v === "" || v === "-" || v === "." ? null : Number(v));
+              setPlaceAddress(e.target.value);
             }}
-            label="경도(Longtitude)"
+            label="주소"
           />
         </div>
       </div>
