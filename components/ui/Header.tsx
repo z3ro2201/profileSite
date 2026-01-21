@@ -84,10 +84,13 @@ export interface HeaderSearchProps extends React.InputHTMLAttributes<HTMLInputEl
 export function HeaderSearch({ placeholder = "Type here...", className = "", ...props }: HeaderSearchProps) {
   return (
     <>
-      <label htmlFor="header-search-input" className="sr-only">
-        검색
-      </label>
-      <input id="header-search-input" type="search" placeholder={placeholder} className={`hidden sm:block px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${className}`} aria-label="페이지 검색" {...props} />
+      <form method="get">
+        <input type="hidden" name="scope" value="all" />
+        <label htmlFor="header-search-input" className="sr-only">
+          검색
+        </label>
+        <input id="header-search-input" name="q" type="search" placeholder={placeholder} className={`hidden sm:block px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${className}`} aria-label="페이지 검색" {...props} />
+      </form>
     </>
   );
 }

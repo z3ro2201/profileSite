@@ -27,6 +27,9 @@ export type PostUpsertProp = {
   fileIds?: string[];
   lat?: number;
   lng?: number;
+  placeName?: string | null;
+  address?: string | null;
+  mapOnly?: boolean;
 };
 
 export interface PostFileInfo {
@@ -92,6 +95,10 @@ export type PublicPostDetail = {
   lat: number | null;
   lng: number | null;
 
+  placeName?: string | null;
+  address?: string | null;
+  mapOnly?: boolean;
+
   category: {
     slug: string;
     name: string;
@@ -120,13 +127,13 @@ export type PublicPostDetailResponse = {
 export type AdminPostListItem = {
   id: number;
   title: string;
-  state: PostStateProp; // ✅ 상태 추가
+  state: PostStateProp;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
 
   category: {
-    id: number; // ✅ id 추가
+    id: number;
     slug: string;
     name: string;
   } | null;
@@ -137,7 +144,7 @@ export type AdminPostListItem = {
   }[];
 
   author: {
-    id: number; // ✅ id 추가
+    id: number;
     name: string | null;
   };
 };
@@ -156,12 +163,12 @@ export type AdminPostDetail = {
   title: string;
   contentMd: string;
   contentHtml: string | null;
-  state: PostStateProp; // ✅ 상태
+  state: PostStateProp;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
 
-  categoryId: number | null; // ✅ categoryId 추가
+  categoryId: number | null;
   category: {
     id: number;
     slug: string;
@@ -172,7 +179,7 @@ export type AdminPostDetail = {
     slug: string;
     name: string;
   }[];
-  tagsString: string; // ✅ 쉼표로 구분된 문자열 (PostEditor용)
+  tagsString: string; // 쉼표로 구분된 문자열 (PostEditor용)
 
   author: {
     id: number;

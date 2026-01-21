@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-type Body = { items: Array<{ id: number; order: number }> };
+type Body = {
+  items: Array<{
+    id: number;
+    order: number;
+    parentId?: number | null; // ✅ 추가
+  }>;
+};
 
 export async function PUT(req: Request) {
   let body: Body;
@@ -20,18 +26,27 @@ export async function PUT(req: Request) {
   if (ids.some((n) => !Number.isFinite(n) || n <= 0)) {
     return NextResponse.json({ ok: false, message: "invalid id" }, { status: 400 });
   }
-  if (new Set(ids).size !== ids.length) {
-    return NextResponse.json({ ok: false, message: "duplicate id" }, { status: 400 });
+
+  try {
+    await prisma.$transaction(
+      items.map((x) => {
+        const data: any = { order: Math.trunc(Number(x.order)) };
+
+        // ✅ parentId 변경도 지원
+        if ("parentId" in x) {
+          data.parentId = x.parentId || null;
+        }
+
+        return prisma.category.update({
+          where: { id: x.id },
+          data,
+        });
+      }),
+    );
+
+    return NextResponse.json({ ok: true }, { status: 200 });
+  } catch (e: any) {
+    console.error("❌ Reorder error:", e);
+    return NextResponse.json({ ok: false, message: "server error" }, { status: 500 });
   }
-
-  await prisma.$transaction(
-    items.map((x) =>
-      prisma.category.update({
-        where: { id: x.id },
-        data: { order: Math.trunc(Number(x.order)) },
-      })
-    )
-  );
-
-  return NextResponse.json({ ok: true }, { status: 200 });
 }

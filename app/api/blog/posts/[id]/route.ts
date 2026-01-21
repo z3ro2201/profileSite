@@ -25,13 +25,16 @@ export async function GET(_req: Request, ctx: { params: MaybePromise<{ id: strin
       updatedAt: true,
       lat: true,
       lng: true,
+      placeName: true,
+      address: true,
+      mapOnly: true,
       category: { select: { slug: true, name: true } },
       tags: { select: { slug: true, name: true } },
       author: { select: { name: true } },
     },
   });
 
-  if (!post) return bad("Post not found", 404);
+  if (!post) return bad("해당 포스트를 찾을 수 없습니다.", 404);
 
   return NextResponse.json({ ok: true, post });
 }

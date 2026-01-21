@@ -1,0 +1,340 @@
+// app/blog/posts/[id]/page.tsx
+import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { apiFetch } from "@/lib/apiFetch";
+import type { PublicPostDetailResponse } from "@/types/Posts";
+import { markdownToHtmlWithToc } from "@/lib/markdown";
+import PostViewClient from "@/layout/blog/PostViewClient";
+import CommentSection from "@/layout/blog/CommentClient";
+import { isAdmin } from "@/lib/auth/server";
+import { isBot } from "@/lib/botDetection";
+import Link from "next/link";
+
+type Props = {
+  params: Promise<{ id?: string | string[] }>;
+  searchParams?: Promise<{ id?: string }>;
+};
+
+const stripAndTrim = (input: string, maxLen = 160) => {
+  const text = input
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text.length > maxLen ? text.slice(0, maxLen - 1) + "…" : text;
+};
+
+// ✅ 메타데이터 생성
+export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
+  const { id } = await params;
+  const postId = Number(id);
+
+  if (!Number.isFinite(postId)) return { title: "Post" };
+
+  const { post } = await apiFetch<PublicPostDetailResponse>(`/blog/posts/${postId}`, {
+    cache: "force-cache",
+  });
+
+  const source = post.contentHtml ?? post.contentMd ?? "";
+  const description = stripAndTrim(source);
+
+  return {
+    title: post.title,
+    description,
+    openGraph: {
+      title: post.title,
+      description,
+      type: "article",
+      publishedTime: post.publishedAt,
+      modifiedTime: post.updatedAt,
+      authors: [post.author?.name || "2ER0"],
+      images: post.thumbnail ? [post.thumbnail] : undefined,
+      tags: post.tags?.map((t: any) => t.name) || [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description,
+      images: post.thumbnail ? [post.thumbnail] : undefined,
+    },
+  };
+};
+
+const BlogPostViewPage = async (props: Props) => {
+  const params = await props.params;
+  const searchParams = props.searchParams ? await props.searchParams : undefined;
+
+  const raw = params?.id ?? searchParams?.id;
+  const postId = Number(raw);
+
+  if (!Number.isFinite(postId)) {
+    throw new Error(`Invalid post id: ${String(raw)}`);
+  }
+
+  // ✅ 봇 감지
+  const h = await headers();
+  const userAgent = h.get("user-agent") || "";
+  const isBotRequest = isBot(userAgent);
+
+  // 관리자 확인
+  const isAdminUser = await isAdmin();
+
+  // 포스트 데이터
+  const { post } = await apiFetch<PublicPostDetailResponse>(`/blog/posts/${postId}`, {
+    cache: "force-cache",
+  });
+
+  // 댓글 데이터
+  const commentsData = await apiFetch<{
+    ok: boolean;
+    comments: any[];
+    canViewSecret: boolean;
+  }>(`/blog/posts/${postId}/comments`, {
+    cache: "no-store",
+  });
+
+  const comments = commentsData.comments || [];
+
+  // Markdown to HTML
+  const { html, toc } = await markdownToHtmlWithToc(post.contentMd);
+  const finalHtml = post.contentHtml ?? html;
+
+  // ✅ 봇이면 SSR 버전
+  if (isBotRequest) {
+    return <PostViewSSR post={post} finalHtml={finalHtml} toc={toc} comments={comments} isAdmin={isAdminUser} />;
+  }
+
+  // ✅ 일반 사용자는 CSR 버전
+  return (
+    <>
+      <PostViewClient post={post} finalHtml={finalHtml} toc={toc} isAdmin={isAdminUser} />
+      ㄴㄴ
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <CommentSection postId={postId} comments={comments} canViewSecret={isAdminUser} />
+      </div>
+    </>
+  );
+};
+
+export default BlogPostViewPage;
+
+// ==========================================
+// SSR 버전 (봇 및 JavaScript 미지원 환경)
+// ==========================================
+function PostViewSSR({ post, finalHtml, toc, comments, isAdmin }: { post: any; finalHtml: string; toc: any[]; comments: any[]; isAdmin: boolean }) {
+  // ✅ JSON-LD 구조화 데이터
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: stripAndTrim(post.contentHtml ?? post.contentMd ?? ""),
+    image: post.thumbnail || undefined,
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt,
+    author: {
+      "@type": "Person",
+      name: post.author?.name || "2ER0",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "2ER0",
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://example.com/blog/posts/${post.id}`,
+    },
+    articleSection: post.category?.name,
+    keywords: post.tags?.map((t: any) => t.name).join(", "),
+  };
+
+  // Breadcrumb JSON-LD
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "홈",
+        item: "https://example.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "블로그",
+        item: "https://example.com/blog/posts",
+      },
+      ...(post.category
+        ? [
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: post.category.name,
+              item: `https://example.com/blog/posts?category=${post.category.slug}`,
+            },
+          ]
+        : []),
+      {
+        "@type": "ListItem",
+        position: post.category ? 4 : 3,
+        name: post.title,
+        item: `https://example.com/blog/posts/${post.id}`,
+      },
+    ],
+  };
+
+  return (
+    <>
+      {/* JSON-LD */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+
+      {/* 메인 콘텐츠 */}
+      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 헤더 */}
+        <header className="mb-8">
+          {/* Breadcrumb */}
+          <nav className="text-sm text-gray-600 mb-4">
+            <ol className="flex items-center gap-2">
+              <li>
+                <Link href="/blog/posts" className="hover:text-blue-600">
+                  블로그
+                </Link>
+              </li>
+              {post.category && (
+                <>
+                  <li>/</li>
+                  <li>
+                    <Link href={`/blog/posts?category=${post.category.slug}`} className="hover:text-blue-600">
+                      {post.category.name}
+                    </Link>
+                  </li>
+                </>
+              )}
+            </ol>
+          </nav>
+
+          {/* 카테고리 */}
+          {post.category && (
+            <Link href={`/blog/posts?category=${post.category.slug}`} className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm mb-3">
+              {post.category.name}
+            </Link>
+          )}
+
+          {/* 제목 */}
+          <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
+
+          {/* 메타 정보 */}
+          <div className="flex items-center gap-4 text-sm text-gray-600">
+            <span>{post.author?.name || "2ER0"}</span>
+            <span>•</span>
+            <time dateTime={post.publishedAt}>{new Date(post.publishedAt).toLocaleDateString("ko-KR")}</time>
+            {post.updatedAt !== post.publishedAt && (
+              <>
+                <span>•</span>
+                <span>수정: {new Date(post.updatedAt).toLocaleDateString("ko-KR")}</span>
+              </>
+            )}
+          </div>
+
+          {/* 태그 */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {post.tags.map((tag: any) => (
+                <Link key={tag.id} href={`/blog/posts?tag=${tag.name}`} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200">
+                  #{tag.name}
+                </Link>
+              ))}
+            </div>
+          )}
+        </header>
+
+        {/* 썸네일 */}
+        {post.thumbnail && (
+          <div className="mb-8">
+            <img src={post.thumbnail} alt={post.title} className="w-full rounded-lg" />
+          </div>
+        )}
+
+        {/* 목차 */}
+        {toc && toc.length > 0 && (
+          <nav className="mb-8 p-4 bg-gray-50 rounded-lg">
+            <h2 className="text-lg font-semibold mb-3">목차</h2>
+            <ol className="space-y-1">
+              {toc.map((item: any, idx: number) => (
+                <li key={idx} style={{ paddingLeft: `${(item.level - 1) * 16}px` }}>
+                  <a href={`#${item.id}`} className="text-blue-600 hover:underline">
+                    {item.text}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )}
+
+        {/* 본문 */}
+        <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: finalHtml }} />
+
+        {/* 관리자 버튼 */}
+        {isAdmin && (
+          <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded">
+            <p className="text-sm text-gray-700 mb-2">관리자 전용</p>
+            <Link href={`/admin/blog/posts/${post.id}/edit`} className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+              글 수정하기
+            </Link>
+          </div>
+        )}
+      </article>
+
+      {/* 댓글 섹션 (SSR 버전) */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <section className="mt-12 border-t pt-8">
+          <h2 className="text-2xl font-bold mb-6">댓글 {comments.length}개</h2>
+
+          {/* 댓글 목록 */}
+          {comments.length === 0 ? (
+            <p className="text-gray-500">첫 댓글을 작성해보세요!</p>
+          ) : (
+            <div className="space-y-6">
+              {comments.map((comment: any) => (
+                <CommentItemSSR key={comment.id} comment={comment} isAdmin={isAdmin} />
+              ))}
+            </div>
+          )}
+
+          {/* 댓글 작성 안내 */}
+          <div className="mt-8 p-4 bg-gray-50 rounded-lg text-center">
+            <p className="text-gray-600">댓글을 작성하려면 JavaScript를 활성화해주세요.</p>
+          </div>
+        </section>
+      </div>
+    </>
+  );
+}
+
+// 댓글 아이템 (SSR 버전)
+function CommentItemSSR({ comment, isAdmin, level = 0 }: { comment: any; isAdmin: boolean; level?: number }) {
+  return (
+    <div className="border-l-2 border-gray-200 pl-4" style={{ marginLeft: level * 24 }}>
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="font-semibold">{comment.authorName}</span>
+            {comment.isSecret && <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">비밀</span>}
+            <time className="text-sm text-gray-500">{new Date(comment.createdAt).toLocaleDateString("ko-KR")}</time>
+          </div>
+
+          {comment.isSecret && !isAdmin ? <p className="text-gray-500 italic">비밀 댓글입니다.</p> : <p className="text-gray-700 whitespace-pre-wrap">{comment.content}</p>}
+        </div>
+      </div>
+
+      {/* 대댓글 */}
+      {comment.children && comment.children.length > 0 && (
+        <div className="mt-4 space-y-4">
+          {comment.children.map((child: any) => (
+            <CommentItemSSR key={child.id} comment={child} isAdmin={isAdmin} level={level + 1} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

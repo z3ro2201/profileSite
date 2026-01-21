@@ -1,6 +1,8 @@
+// components/ui/Badge.tsx
 import React from "react";
 
-export type BadgeVariant = "success" | "error" | "warning" | "info" | "neutral";
+export type BadgeVariant = "success" | "error" | "warning" | "info" | "neutral" | "primary" | "secondary" | "purple" | "pink" | "indigo" | "teal";
+
 export type BadgeSize = "sm" | "md" | "lg";
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
@@ -24,6 +26,12 @@ export function Badge({ children, variant = "neutral", size = "md", className = 
     warning: "bg-amber-100 text-amber-700",
     info: "bg-blue-100 text-blue-700",
     neutral: "bg-gray-100 text-gray-600",
+    primary: "bg-blue-500 text-white",
+    secondary: "bg-gray-500 text-white",
+    purple: "bg-purple-100 text-purple-700",
+    pink: "bg-pink-100 text-pink-700",
+    indigo: "bg-indigo-100 text-indigo-700",
+    teal: "bg-teal-100 text-teal-700",
   };
 
   const sizeStyles: Record<BadgeSize, string> = {
