@@ -1,3 +1,4 @@
+import OsmMapClient from "@/components/maps/OsmMapClient";
 import { cn } from "@/lib/cn";
 import Link from "next/link";
 
@@ -11,6 +12,8 @@ type Props = {
     publishedAt: string | Date | null;
     category?: { name: string } | null;
     tags?: Array<{ slug: string; name: string }>; // ✅ 추가
+    lat?: number | null;
+    lng?: number | null;
   };
   finalHtml: string;
   toc: TocItem[];
@@ -20,10 +23,14 @@ type Props = {
 
 const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
   const publishDate = post.publishedAt ? new Date(post.publishedAt) : new Date(post.createdAt);
+  const hasCoord = Number.isFinite(post.lat) && Number.isFinite(post.lng);
+  const lat = (post.lat ?? 0) as number;
+  const lng = (post.lng ?? 0) as number;
 
+  console.log(hasCoord, lat, lng);
   return (
-    <div className="min-h-screen">
-      <div className={cn("mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8", compact ? "py-6" : "py-12")}>
+    <div>
+      <div className={cn("mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8", compact ? "py-2" : "py-4")}>
         {/* 관리자 액션 - 우측 상단 고정 */}
         {isAdmin && (
           <div className="fixed top-24 right-8 z-50 flex gap-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
@@ -88,7 +95,7 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
               "prose-th:bg-gray-50 prose-th:border prose-th:border-gray-200 prose-th:px-4 prose-th:py-3 prose-th:text-left prose-th:font-semibold prose-th:text-gray-700 prose-th:uppercase prose-th:text-xs prose-th:tracking-wider",
               "prose-td:border prose-td:border-gray-200 prose-td:px-4 prose-td:py-3 prose-td:text-gray-700",
               "prose-tr:even:bg-gray-50",
-              "prose-hr:border-gray-200 prose-hr:my-12"
+              "prose-hr:border-gray-200 prose-hr:my-12",
             )}
           >
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 lg:p-12" dangerouslySetInnerHTML={{ __html: finalHtml }} />
@@ -131,7 +138,7 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
                           "border-l-2 border-transparent hover:border-blue-600",
                           item.level === 2 && "pl-3 font-medium",
                           item.level === 3 && "pl-6",
-                          item.level > 3 && "pl-9"
+                          item.level > 3 && "pl-9",
                         )}
                       >
                         {item.text}
@@ -165,6 +172,34 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
           </div>
         )}
       </div>
+
+      {/* ✅ 지도: 헤더 바로 아래 */}
+      {hasCoord && !compact && (
+        <div className={cn("mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-2")}>
+          <div className="mt-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">위치 정보</h2>
+            <OsmMapClient lat={lat} lng={lng} zoom={20} height={340} placeLabel={null} />
+            <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500">
+              <a
+                className="underline hover:text-gray-700"
+                target="_blank"
+                rel="noreferrer"
+                href={`https://www.openstreetmap.org/?mlat=${encodeURIComponent(String(lat))}&mlon=${encodeURIComponent(String(lng))}#map=17/${encodeURIComponent(String(lat))}/${encodeURIComponent(String(lng))}`}
+              >
+                OSM에서 열기
+              </a>
+              <span>·</span>
+              <a className="underline hover:text-gray-700" target="_blank" rel="noreferrer" href={`https://www.google.com/maps?q=${encodeURIComponent(`${lat},${lng}`)}`}>
+                Google Maps에서 열기
+              </a>
+              <span>·</span>
+              <span>
+                {lat.toFixed(6)}, {lng.toFixed(6)}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

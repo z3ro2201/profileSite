@@ -24,6 +24,9 @@
   - Prisma v7 + MariaDB
   - Prisma Adapter (MariaDB)
 
+- 지도
+  - leaflet
+
 ---
 
 ## 🧱 기술 스택
@@ -140,6 +143,9 @@ sudo dnf -y install tesseract
 sudo dnf -y install tesseract-langpack-eng tesseract-langpack-kor tesseract-langpack-jpn
 sudo dnf -y install ImageMagick
 yarn install
+yarn add leaflet react-leaflet
+yarn add -D @types/leaflet
+
 ````
 
 ```windows
