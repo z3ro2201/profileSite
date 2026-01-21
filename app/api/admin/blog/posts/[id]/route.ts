@@ -28,6 +28,8 @@ export async function GET(_req: Request, ctx: { params: MaybePromise<{ id: strin
       publishedAt: true,
       createdAt: true,
       updatedAt: true,
+      lat: true,
+      lng: true,
       categoryId: true,
       category: {
         select: {

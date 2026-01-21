@@ -21,6 +21,8 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
   const [categoryId, setCategoryId] = useState<string>(PostCategoryId?.toString() ?? "");
   const [tagText, setTagText] = useState<string>(PostTag ?? "");
   const [postState, setPostState] = useState<PostStateProp>(PostState ?? "DRAFT");
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
 
   // 업로드된 파일 ID 추적 (기존 파일 포함)
   const [uploadedFileIds, setUploadedFileIds] = useState<string[]>(PostFiles?.map((f) => f.fileId) ?? []);
@@ -150,6 +152,8 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
       categoryId: categoryId ? Number(categoryId) : undefined,
       contentHtml: null,
       fileIds: uploadedFileIds,
+      lat,
+      lng,
     };
 
     try {
@@ -168,7 +172,7 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
       alert("저장되었습니다");
 
       if (PostType === "new" && data?.post?.id) {
-        window.location.href = `/admin/blog/posts/${data.post.id}`;
+        // window.location.href = `/admin/mgmt/posts/${data.post.id}`;
       }
     } catch (error: any) {
       console.error("저장 실패:", error);
@@ -206,13 +210,14 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
     alert("본문에 삽입되었습니다.");
   };
 
+  const isNumeric = (v: string) => /^-?\d*(\.\d*)?$/.test(v); // 음수 + 소수 허용
+
   return (
     <form onSubmit={onSubmit} className="max-w-5xl mx-auto space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-800">글 {PostType === "new" ? "작성" : "수정"}</h1>
         {PostType === "update" && PostId && <span className="text-sm text-gray-500">ID: {PostId}</span>}
       </div>
-
       {/* 카테고리 + 제목 */}
       <div className="flex gap-3">
         <Select
@@ -228,7 +233,6 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
         />
         <Input type="text" className="flex-1" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="제목을 입력하세요" />
       </div>
-
       {/* 에디터 */}
       <div className="border border-gray-200 rounded-lg overflow-hidden">
         <Editor
@@ -243,7 +247,6 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
           }}
         />
       </div>
-
       {/* 🆕 파일 업로드 섹션 */}
       <div className="border border-gray-200 rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
@@ -317,6 +320,34 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
 
       {/* 태그 */}
       <Input type="text" className="w-full" value={tagText} onChange={(event) => setTagText(event.target.value)} placeholder="태그 (쉼표로 구분, 예: react, nextjs, typescript)" label="태그" />
+
+      {/* 위치정보 */}
+      <div className="flex justify-between items-center pt-4 border-t border-gray-200 gap-4">
+        <div className="w-full">
+          <Input
+            type="text"
+            value={lat ?? ""}
+            onChange={(e) => {
+              const v = e.target.value.trim();
+              if (!isNumeric(v)) return; // ❌ 숫자 아니면 무시
+              setLat(v === "" || v === "-" || v === "." ? null : Number(v));
+            }}
+            label="위도(Latitude)"
+          />
+        </div>
+        <div className="w-full">
+          <Input
+            type="text"
+            value={lng ?? ""}
+            onChange={(e) => {
+              const v = e.target.value.trim();
+              if (!isNumeric(v)) return;
+              setLng(v === "" || v === "-" || v === "." ? null : Number(v));
+            }}
+            label="경도(Longtitude)"
+          />
+        </div>
+      </div>
 
       {/* 상태 + 저장 버튼 */}
       <div className="flex justify-between items-center pt-4 border-t border-gray-200">
