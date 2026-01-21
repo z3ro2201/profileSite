@@ -49,7 +49,7 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
       <div className={cn("mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8", compact ? "py-2" : "py-4")}>
         {/* 관리자 액션 - 우측 상단 고정 */}
         {isAdmin && (
-          <div className="fixed top-24 right-8 z-50 flex gap-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
+          <div className="fixed top-24 right-8 z-490 flex gap-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2">
             <Link href={`/admin/mgmt/posts/${post?.id}/modify`} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded transition">
               수정
             </Link>

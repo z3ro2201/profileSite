@@ -16,7 +16,7 @@ export function Sidebar({ children, isOpen = false, onClose, className = "", ...
   return (
     <aside
       className={`
-        fixed lg:static inset-y-0 left-0 z-50
+        fixed lg:static inset-y-0 left-0 z-550
         w-64 bg-white border-r border-gray-200 flex flex-col
         transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
@@ -178,5 +178,5 @@ export interface SidebarOverlayProps {
 export function SidebarOverlay({ isOpen, onClose }: SidebarOverlayProps) {
   if (!isOpen) return null;
 
-  return <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={onClose} aria-hidden="true" />;
+  return <div className="fixed inset-0 bg-black/50 z-500 lg:hidden" onClick={onClose} aria-hidden="true" />;
 }
