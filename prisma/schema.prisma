@@ -156,8 +156,14 @@ model Post {
   contentMd      String      @db.LongText
   publishedAt    DateTime?
   state          PostState   @default(DRAFT)
+
+  placeName      String?     @map("place_name") @db.VarChar(200)
+  address        String?     @db.VarChar(500)
   lat            Float?
   lng            Float?
+  mapOnly        Boolean     @default(false) @map("map_only")
+
+  
   commentCount   Int         @default(0)
   trackbackCount Int         @default(0)
   comments       Comment[]
