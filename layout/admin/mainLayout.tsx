@@ -7,6 +7,7 @@ import { Header, HeaderContainer, HeaderTitle, HeaderSearch } from "@/components
 import { Logo } from "@/components/ui/Logo";
 import { MenuButton, Icons } from "@/components/ui/MenuButton";
 import { Button } from "@/components/ui/Button";
+import { RssIcon, Redo2Icon } from "lucide-react";
 export interface AdminLayoutProps {
   children: React.ReactNode;
   defaultActiveMenu?: string;
@@ -14,6 +15,7 @@ export interface AdminLayoutProps {
 import { useAdminUi } from "@/layout/admin/AdminUiProvider";
 
 import { SessionUserProp } from "@/types/Users";
+import { usePathname } from "next/navigation";
 
 export interface AdminLayoutProps {
   children: React.ReactNode;
@@ -28,6 +30,7 @@ export interface AdminLayoutProps {
 export function AdminLayout({ children, defaultActiveMenu = "tables", isLoggedIn = false, user = null, title = "", breadcrumb = "", onSignOut }: AdminLayoutProps) {
   const adminUi = useAdminUi();
 
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(defaultActiveMenu);
 
@@ -59,6 +62,8 @@ export function AdminLayout({ children, defaultActiveMenu = "tables", isLoggedIn
   ];
 
   const accountMenuItems = [
+    { id: "블로그", icon: Icons.User, label: "블로그", link: "/blog/posts" },
+    { id: "현재 글 본문보기", icon: Icons.User, label: "현재 글 본문보기", link: `/blog/posts/view/${pathname.split("/").pop()}` },
     { id: "내 정보", icon: Icons.User, label: "내 정보", link: "/admin/mgmt/users/me" },
     { id: "로그아웃", icon: Icons.UserPlus, label: "로그아웃", link: "/admin/logout" },
   ];
