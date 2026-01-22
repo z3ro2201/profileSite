@@ -21,7 +21,7 @@ export async function POST() {
 
     const options = await generateAuthenticationOptions({
       rpID,
-      userVerification: "required",
+      userVerification: "preferred",
       timeout: 300000,
       // ✅ username-less 핵심: allowCredentials를 넣지 않음
     });

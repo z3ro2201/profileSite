@@ -22,7 +22,6 @@ type PasskeyCredential = {
 const isSixDigits = (v: string) => /^[0-9]{6}$/.test(v);
 
 const ProfileLayout = ({ users }: { users: MeResponse }) => {
-  console.log(users);
   const [userName, setUserName] = useState<string>(users.name ?? "");
   const [userPassword, setUserPassword] = useState<string>("");
   const [newPassword1, setNewPassword1] = useState<string>("");
@@ -361,7 +360,16 @@ const ProfileLayout = ({ users }: { users: MeResponse }) => {
               <div className="flex-1 space-y-2">
                 <div className="flex items-center gap-2">
                   <label className="w-28 text-sm">6자리 코드:</label>
-                  <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={6} className="flex-1 p-2 border border-gray-300 rounded" value={otpToken} onChange={(e) => setOtpToken(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="123456" />
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={6}
+                    className="flex-1 p-2 border border-gray-300 rounded"
+                    value={otpToken}
+                    onChange={(e) => setOtpToken(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    placeholder="123456"
+                  />
                   <button type="button" className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:opacity-50" onClick={confirmOtp} disabled={isOtpConfirming}>
                     {isOtpConfirming ? "확인 중..." : "확인"}
                   </button>

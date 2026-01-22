@@ -48,10 +48,9 @@ export async function POST(req: Request) {
 
       // ✅ username-less(Discoverable) Passkey 강제
       authenticatorSelection: {
-        authenticatorAttachment: "platform",
-        residentKey: "required",
+        residentKey: "preferred",
         requireResidentKey: true,
-        userVerification: "required",
+        userVerification: "preferred",
       },
 
       // (선택) 디버깅에 도움
