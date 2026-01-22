@@ -15,7 +15,7 @@ const ProfilePage = async () => {
     email: res.email,
     name: res.name,
   };
-
+  console.log(res);
   return <ProfileLayout users={users} />;
 };
 
