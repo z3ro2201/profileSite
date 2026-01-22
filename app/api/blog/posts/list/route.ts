@@ -80,6 +80,7 @@ export async function GET(req: Request) {
                 name: true,
                 slug: true,
                 depth: true,
+                description: true,
 
                 children: {
                   where: { isPublic: true },

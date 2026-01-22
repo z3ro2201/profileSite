@@ -25,6 +25,7 @@ export async function GET(req: Request, context: RouteContext) {
         id: true,
         name: true,
         slug: true,
+        description: true,
         depth: true,
 
         // ✅ 해당 카테고리의 게시글도 함께
@@ -51,7 +52,7 @@ export async function GET(req: Request, context: RouteContext) {
     });
 
     if (!category) {
-      return NextResponse.json({ ok: false, message: "Category not found" }, { status: 404 });
+      return NextResponse.json({ ok: false, message: "요청하신 카테고리를 찾을 수 없어요." }, { status: 404 });
     }
 
     const nextCursor = category.posts.length === take ? (category.posts[category.posts.length - 1]?.id ?? null) : null;
@@ -62,11 +63,12 @@ export async function GET(req: Request, context: RouteContext) {
         id: category.id,
         name: category.name,
         slug: category.slug,
+        description: category.description,
       },
       posts: category.posts,
       nextCursor,
     });
   } catch (error) {
-    return NextResponse.json({ ok: false, message: "Server error" }, { status: 500 });
+    return NextResponse.json({ ok: false, message: "서버에 문제가 발생했어요." }, { status: 500 });
   }
 }

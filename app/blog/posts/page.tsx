@@ -84,11 +84,14 @@ const BlogListPage = async ({ searchParams }: Props) => {
 
   const [postsData, categoryData] = await Promise.all([
     apiFetch<PublicPostListResponse>(`/blog/posts/list${query ? `?${query}` : ""}`, { cache: "no-store" }),
-    categorySlug ? apiFetch<{ ok: boolean; category: { id: number; name: string; slug: string } }>(`/blog/category/list/${categorySlug}`, { cache: "no-store" }).catch(() => null) : null, // ✅ category 없으면 null
+    categorySlug ? apiFetch<{ ok: boolean; category: { id: number; name: string; slug: string; description: string } }>(`/blog/category/list/${categorySlug}`, { cache: "no-store" }).catch(() => null) : null, // ✅ category 없으면 null
   ]);
 
   const { posts } = postsData;
   const categoryInfo = categoryData?.category;
+
+  const pageDescription = categoryInfo ? categoryInfo.description : null;
+  console.log(categoryInfo);
 
   const pageTitle = (() => {
     if (categoryInfo) return `${categoryInfo.name} 글 목록`;
@@ -108,6 +111,7 @@ const BlogListPage = async ({ searchParams }: Props) => {
         pageTitle={pageTitle}
         isEmpty={isEmpty}
         isFeed={isFeed}
+        pageDescription={pageDescription}
         category={typeof sp.category === "string" ? sp.category : undefined}
         tag={typeof sp.tag === "string" ? sp.tag : undefined}
         q={typeof sp.q === "string" ? sp.q : undefined}
@@ -121,6 +125,7 @@ const BlogListPage = async ({ searchParams }: Props) => {
       {hasFilter && (
         <header className="mb-8">
           <h1 className="text-3xl font-bold">{pageTitle}</h1>
+          {pageDescription && <h4 className="text-md text-gray-500">{pageDescription}</h4>}
         </header>
       )}
 
@@ -172,7 +177,7 @@ const BlogListPage = async ({ searchParams }: Props) => {
 export default BlogListPage;
 
 // SSR 버전
-function PostListSSR({ posts, pageTitle, isEmpty, isFeed, category, tag, q }: any) {
+function PostListSSR({ posts, pageTitle, pageDescription, isEmpty, isFeed, category, tag, q }: any) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": isFeed ? "Blog" : "CollectionPage",
@@ -190,7 +195,7 @@ function PostListSSR({ posts, pageTitle, isEmpty, isFeed, category, tag, q }: an
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mx-auto w-full px-5 py-10">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold">{pageTitle}</h1>
+          <h1 className="text-3xl font-bold">{pageTitle}</h1> {pageDescription && <h4 className="text-md text-gray-500">{pageDescription}</h4>}
           {posts.length > 0 && <p className="mt-2 text-gray-600">총 {posts.length}개</p>}
         </header>
         <section>
