@@ -4,6 +4,25 @@ import type { Prisma } from "@prisma/client";
 
 type Scope = "all" | "post" | "tag" | "category";
 
+type CategoryWithChildren = {
+  id: number;
+  name: string;
+  slug: string;
+  depth: number;
+  children: {
+    id: number;
+    name: string;
+    slug: string;
+    depth: number;
+    children?: {
+      id: number;
+      name: string;
+      slug: string;
+      depth: number;
+    }[];
+  }[];
+};
+
 function jsonBad(message: string, status = 400) {
   return NextResponse.json({ ok: false, message }, { status });
 }
@@ -30,11 +49,10 @@ export async function GET(req: Request) {
     const category = (url.searchParams.get("category") ?? "").trim();
     const tag = (url.searchParams.get("tag") ?? "").trim();
 
-    // ✅ "필터 없음" 판정 (q/scope/category/tag/cursor/take 모두 없을 때)
     const hasQuery = !!q;
     const hasCategory = !!category;
     const hasTag = !!tag;
-    const hasScope = (url.searchParams.get("scope") ?? "").trim().length > 0; // 명시된 경우만 true
+    const hasScope = (url.searchParams.get("scope") ?? "").trim().length > 0;
 
     const cursorRaw = url.searchParams.get("cursor");
     const cursor = cursorRaw ? Number(cursorRaw) : null;
@@ -43,17 +61,64 @@ export async function GET(req: Request) {
     const takeRaw = url.searchParams.get("take");
     const isFeed = !hasQuery && !hasCategory && !hasTag && !hasScope && !cursorRaw && !takeRaw;
 
-    // ✅ take: 기본 10이지만, feed(필터 없음)면 4로
-    const take = clampInt(takeRaw, isFeed ? 4 : 10, 1, 50);
+    const take = clampInt(takeRaw, isFeed ? 10 : 10, 1, 50);
 
-    // ---------------------------
-    // where
-    // ---------------------------
+    // ✅ 카테고리 정보 + 하위 카테고리 ID 수집
+    const categoryInfoPromise = category
+      ? prisma.category.findUnique({
+          where: { slug: category, isPublic: true },
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            depth: true,
+            children: {
+              where: { isPublic: true },
+              orderBy: [{ order: "asc" }, { id: "asc" }],
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                depth: true,
+
+                children: {
+                  where: { isPublic: true },
+                  select: {
+                    id: true,
+                    name: true,
+                    slug: true,
+                    depth: true,
+                  },
+                },
+              },
+            },
+          },
+        })
+      : null;
+
+    const categoryInfo = await categoryInfoPromise;
+
+    // ✅ 현재 카테고리 + 모든 하위 카테고리 ID 수집
+    const categoryIds: number[] = [];
+    if (categoryInfo) {
+      categoryIds.push(categoryInfo.id);
+
+      // 1단계 하위
+      categoryInfo.children.forEach((child) => {
+        categoryIds.push(child.id);
+
+        // 2단계 하위
+        child.children?.forEach((grandChild) => {
+          categoryIds.push(grandChild.id);
+        });
+      });
+    }
+
+    // where 조건
     const where: Prisma.PostWhereInput = {
       state: "PUBLISHED",
     };
 
-    // ✅ scope-driven query
     if (q) {
       if (scope === "post") {
         where.title = { contains: q };
@@ -66,9 +131,9 @@ export async function GET(req: Request) {
       }
     }
 
-    // ✅ additional filters (AND)
-    if (category) {
-      where.AND = [...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []), { category: { slug: category } }];
+    // ✅ 카테고리 필터: 현재 + 하위 카테고리 모두 포함
+    if (categoryIds.length > 0) {
+      where.AND = [...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []), { categoryId: { in: categoryIds } }];
     }
 
     if (tag) {
@@ -86,10 +151,7 @@ export async function GET(req: Request) {
         publishedAt: true,
         createdAt: true,
         updatedAt: true,
-
-        // ✅ feed 모드에서만 단건처럼 렌더할 본문을 내려줌
         contentHtml: isFeed,
-
         category: { select: { slug: true, name: true } },
         tags: { select: { slug: true, name: true } },
         author: { select: { name: true } },
@@ -102,6 +164,7 @@ export async function GET(req: Request) {
       ok: true,
       posts,
       nextCursor,
+      ...(categoryInfo && { categoryInfo }),
       meta: {
         q,
         scope,

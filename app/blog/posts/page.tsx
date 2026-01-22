@@ -11,6 +11,7 @@ type SearchParams = {
   category?: string | string[];
   tag?: string | string[];
   q?: string;
+  take?: string;
 };
 
 type Props = {
@@ -67,28 +68,51 @@ const BlogListPage = async ({ searchParams }: Props) => {
   const isBotRequest = isBot(h.get("user-agent") || "");
 
   const qs = new URLSearchParams();
-  const hasFilter = typeof sp.category === "string" || typeof sp.tag === "string" || typeof sp.q === "string";
+  const hasFilter = typeof sp.category === "string" || typeof sp.tag === "string" || typeof sp.q === "string" || typeof sp.take === "string";
 
   if (typeof sp.category === "string") qs.set("category", sp.category);
   if (typeof sp.tag === "string") qs.set("tag", sp.tag);
   if (typeof sp.q === "string") qs.set("q", sp.q);
+  if (typeof sp.take === "string") qs.set("take", sp.take);
+  else if (hasFilter) {
+    qs.set("take", "10");
+  }
 
   const query = qs.toString();
+
+  const categorySlug = typeof sp.category === "string" ? sp.category : null;
+
+  const [postsData, categoryData] = await Promise.all([
+    apiFetch<PublicPostListResponse>(`/blog/posts/list${query ? `?${query}` : ""}`, { cache: "no-store" }),
+    categorySlug ? apiFetch<{ ok: boolean; category: { id: number; name: string; slug: string } }>(`/blog/category/list/${categorySlug}`, { cache: "no-store" }).catch(() => null) : null, // ✅ category 없으면 null
+  ]);
+
+  const { posts } = postsData;
+  const categoryInfo = categoryData?.category;
+
   const pageTitle = (() => {
-    if (typeof sp.category === "string") return `${decodeURIComponent(sp.category)} 글 목록`;
+    if (categoryInfo) return `${categoryInfo.name} 글 목록`;
     if (typeof sp.tag === "string") return `#${decodeURIComponent(sp.tag)} 글 목록`;
     if (typeof sp.q === "string") return `"${sp.q}" 검색 결과`;
     return "공개된 글 목록";
   })();
-
-  const { posts } = await apiFetch<PublicPostListResponse>(`/blog/posts/list${query ? `?${query}` : ""}`, { cache: "no-store" });
 
   const isFeed = !hasFilter;
   const isEmpty = posts.length === 0;
 
   // ✅ 봇용 SSR
   if (isBotRequest) {
-    return <PostListSSR posts={posts} pageTitle={pageTitle} isEmpty={isEmpty} isFeed={isFeed} category={typeof sp.category === "string" ? sp.category : undefined} tag={typeof sp.tag === "string" ? sp.tag : undefined} q={typeof sp.q === "string" ? sp.q : undefined} />;
+    return (
+      <PostListSSR
+        posts={posts}
+        pageTitle={pageTitle}
+        isEmpty={isEmpty}
+        isFeed={isFeed}
+        category={typeof sp.category === "string" ? sp.category : undefined}
+        tag={typeof sp.tag === "string" ? sp.tag : undefined}
+        q={typeof sp.q === "string" ? sp.q : undefined}
+      />
+    );
   }
 
   // 기존 CSR
