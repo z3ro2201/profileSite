@@ -8,7 +8,7 @@ type MeResponse = {
   name: string | null;
 };
 const ProfilePage = async () => {
-  const res = await apiFetch<MeResponse>("/api/admin/users/me", { cache: "no-store" });
+  const res = await apiFetch<MeResponse>("/admin/users/me", { cache: "no-store" });
 
   const users = {
     id: res.userId ?? res.id ?? 0,
