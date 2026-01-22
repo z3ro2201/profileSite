@@ -22,6 +22,7 @@ type PasskeyCredential = {
 const isSixDigits = (v: string) => /^[0-9]{6}$/.test(v);
 
 const ProfileLayout = ({ users }: { users: MeResponse }) => {
+  console.log(users);
   const [userName, setUserName] = useState<string>(users.name ?? "");
   const [userPassword, setUserPassword] = useState<string>("");
   const [newPassword1, setNewPassword1] = useState<string>("");
