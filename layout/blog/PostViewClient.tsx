@@ -181,7 +181,7 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
                 {post.address && (
                   <div className="flex flex-col lg:flex-row lg:justify-between">
                     <div className="text-md">{post.address}</div>
-                    <div>
+                    <div className="mt-2 lg:mt-0">
                       <span>
                         {lat.toFixed(6)}, {lng.toFixed(6)}
                       </span>
