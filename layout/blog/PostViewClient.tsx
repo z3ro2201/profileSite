@@ -105,7 +105,7 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
                 "prose-th:bg-gray-50 prose-th:border prose-th:border-gray-200 prose-th:px-4 prose-th:py-3 prose-th:text-left prose-th:font-semibold prose-th:text-gray-700 prose-th:uppercase prose-th:text-xs prose-th:tracking-wider",
                 "prose-td:border prose-td:border-gray-200 prose-td:px-4 prose-td:py-3 prose-td:text-gray-700",
                 "prose-tr:even:bg-gray-50",
-                "prose-hr:border-gray-200 prose-hr:my-12",
+                "prose-hr:border-gray-200 prose-hr:my-12"
               )}
             >
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 lg:p-12" dangerouslySetInnerHTML={{ __html: finalHtml }} />
@@ -135,11 +135,7 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
                     <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Contents</h2>
                     <nav className="space-y-1">
                       {toc.map((item) => (
-                        <a
-                          key={item.id}
-                          href={`#${item.id}`}
-                          className={cn("block py-2 text-sm transition-colors", "text-gray-600 hover:text-blue-600", "border-l-2 border-transparent hover:border-blue-600", item.level === 2 && "pl-3 font-medium", item.level === 3 && "pl-6", item.level > 3 && "pl-9")}
-                        >
+                        <a key={item.id} href={`#${item.id}`} className={cn("block py-2 text-sm transition-colors", "text-gray-600 hover:text-blue-600", "border-l-2 border-transparent hover:border-blue-600", item.level === 2 && "pl-3 font-medium", item.level === 3 && "pl-6", item.level > 3 && "pl-9")}>
                           {item.text}
                         </a>
                       ))}
@@ -183,7 +179,7 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
               <div className="pt-3 pb-4 px-5 flex flex-col flex-wrap text-xs text-gray-500">
                 {post.placeName && <div className="text-xl font-bold text-black">{post.placeName}</div>}
                 {post.address && (
-                  <div className="flex justify-between">
+                  <div className="flex flex-col lg:flex-row lg:justify-between">
                     <div className="text-md">{post.address}</div>
                     <div>
                       <span>
