@@ -145,7 +145,16 @@ export default function LoginClient() {
             <form onSubmit={onOtpVerify} className="space-y-3">
               <p className="text-sm text-gray-600">OTP가 활성화된 계정입니다. Authenticator 앱의 6자리 코드를 입력해주세요.</p>
 
-              <input className="w-full border border-gray-300 rounded px-3 py-2 tracking-widest text-center" placeholder="123456" inputMode="numeric" pattern="[0-9]*" maxLength={6} value={otpToken} onChange={(e) => setOtpToken(e.target.value.replace(/\D/g, "").slice(0, 6))} />
+              <input
+                className="w-full border border-gray-300 rounded px-3 py-2 tracking-widest text-center"
+                placeholder="123456"
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                value={otpToken}
+                onChange={(e) => setOtpToken(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              />
 
               <button className="w-full bg-purple-500 text-white rounded px-3 py-2 hover:bg-purple-600 transition disabled:opacity-50" type="submit" disabled={isOtpVerifying}>
                 {isOtpVerifying ? "인증 중..." : "OTP 인증"}
@@ -175,7 +184,11 @@ export default function LoginClient() {
               <p className="text-sm text-gray-600 mb-4">얼굴인식, 지문 또는 PIN으로 빠르고 안전하게 로그인하세요.</p>
 
               <form onSubmit={onPasskeyLogin} className="space-y-3">
-                <button className="w-full bg-green-500 text-white rounded px-3 py-2 hover:bg-green-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2" type="submit" disabled={isPasskeyLoading}>
+                <button
+                  className="w-full bg-green-500 text-white rounded px-3 py-2 hover:bg-green-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  type="submit"
+                  disabled={isPasskeyLoading}
+                >
                   {isPasskeyLoading ? (
                     <>
                       <span className="animate-spin">⏳</span>
