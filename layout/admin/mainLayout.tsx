@@ -62,10 +62,29 @@ export function AdminLayout({ children, defaultActiveMenu = "tables", isLoggedIn
   ];
 
   const accountMenuItems = [
-    { id: "블로그", icon: Icons.User, label: "블로그", link: "/blog/posts" },
-    { id: "현재 글 본문보기", icon: Icons.User, label: "현재 글 본문보기", link: `/blog/posts/view/${pathname.split("/").pop()}` },
     { id: "내 정보", icon: Icons.User, label: "내 정보", link: "/admin/mgmt/users/me" },
     { id: "로그아웃", icon: Icons.UserPlus, label: "로그아웃", link: "/admin/logout" },
+  ];
+
+  // ✅ /admin/mgmt/post/123 형태 체크
+  const isPostDetail = /^\/admin\/mgmt\/post\/\d+$/.test(pathname);
+  // ✅ /admin/mgmt/post/123/modify 형태 체크
+  const isPostModify = /^\/admin\/mgmt\/post\/\d+\/modify$/.test(pathname);
+
+  const shouldShowItem = (itemId: string) => {
+    const postOnlyIds = ["0", "1"];
+
+    if (postOnlyIds.includes(itemId)) {
+      return isPostDetail || isPostModify;
+    }
+
+    return true;
+  };
+
+  const postId = pathname.match(/\d+/)?.[0] ?? null;
+  const blogMenuItems = [
+    { id: "블로그", icon: RssIcon, label: "블로그", link: "/blog/posts" },
+    { id: "현재 글 바로가기", icon: Redo2Icon, label: "현재 글 바로가기", link: `/blog/posts/view/${postId}` },
   ];
 
   return (
@@ -109,9 +128,29 @@ export function AdminLayout({ children, defaultActiveMenu = "tables", isLoggedIn
             })}
           </SidebarSection>
 
+          {/* 글 관리 */}
+          {postId && (
+            <SidebarSection title="글 관리" className="mt-4">
+              {blogMenuItems.map((item) => (
+                <SidebarMenuItem
+                  key={item.id}
+                  icon={<item.icon size={16} />}
+                  active={activeMenu === item.id}
+                  onClick={() => {
+                    setActiveMenu(item.id);
+                    setSidebarOpen(false);
+                  }}
+                  {...(item.link ? { link: item.link } : {})}
+                >
+                  {item.label}
+                </SidebarMenuItem>
+              ))}
+            </SidebarSection>
+          )}
+
           {/* Account Pages */}
           <SidebarSection title="계정 관리" className="mt-4">
-            {accountMenuItems.map((item) => {
+            {accountMenuItems.map((item, id) => {
               const Icon = item.icon;
               return (
                 <SidebarMenuItem
