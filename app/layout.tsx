@@ -54,12 +54,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   };
   return (
     <html lang="ko">
-      <body>
+      <head>
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6002054718389108"
           crossOrigin="anonymous"
         />
+        <meta name="google-adsense-account" content="ca-pub-6002054718389108" />
+      </head>
+      <body>
         <Script
           id="jsonld-person"
           type="application/ld+json"
