@@ -112,7 +112,7 @@ const PortfolioPage = () => {
           <GalleryInfo title="옴니 컨트롤러 (node.js, 로그인 필요)" date="2025-12-30" />
         </GalleryContainer>
 
-        <GalleryContainer link="//radio.2er0.io/" target="_blank" title="옴니 컨트롤러 (에어컨)">
+        <GalleryContainer link="//radio.2er0.io/" target="_blank" title="라디오">
           <GalleryPicture>
             <Image src={"/app/damoaRadio.png"} width={295} height={195} alt="라디오" />
           </GalleryPicture>
