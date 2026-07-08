@@ -6,7 +6,8 @@ import type { Metadata } from "next";
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const title = "포트폴리오";
-  const description = "웹 개발자 2ER0의 포트폴리오입니다. 과거 수상이력과, 취미로 만든 PHP·Next.js·Node.js·Asterisk 기반 사이드 프로젝트를 정리했습니다.";
+  const description =
+    "웹 개발자 2ER0의 포트폴리오입니다. 과거 수상이력과, 취미로 만든 PHP·Next.js·Node.js·Asterisk 기반 사이드 프로젝트를 정리했습니다.";
 
   return {
     title,
@@ -109,6 +110,13 @@ const PortfolioPage = () => {
             <Image src={"/portfolio/omniController.png"} width={295} height={195} alt="옴니컨트롤러" />
           </GalleryPicture>
           <GalleryInfo title="옴니 컨트롤러 (node.js, 로그인 필요)" date="2025-12-30" />
+        </GalleryContainer>
+
+        <GalleryContainer link="//radio.2er0.io/" target="_blank" title="옴니 컨트롤러 (에어컨)">
+          <GalleryPicture>
+            <Image src={"/app/damoaRadio.png"} width={295} height={195} alt="라디오" />
+          </GalleryPicture>
+          <GalleryInfo title="라디오 (WEB)" date="2026-07-08" />
         </GalleryContainer>
       </div>
     </div>

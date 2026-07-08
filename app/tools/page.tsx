@@ -77,6 +77,15 @@ const APPS: AppItem[] = [
     badge: "UTILITY",
     openApi: false,
   },
+  {
+    key: "damoa-radio",
+    title: "라디오",
+    desc: "파편화된 라디오 앱을 한곳에 모아 청취할 수 있도록 했습니다.",
+    href: "https://radio.2er0.io",
+    image: "/app/damoaRadio.png",
+    badge: "UTILITY",
+    openApi: false,
+  },
 ];
 
 const ToolsPage = () => {
@@ -90,16 +99,33 @@ const ToolsPage = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {APPS.map((app) => (
-            <Link key={app.key} href={app.href} className="group rounded-2xl bg-white/80 backdrop-blur-md border border-white/20 shadow-sm overflow-hidden hover:bg-white transition">
+            <Link
+              key={app.key}
+              href={app.href}
+              className="group rounded-2xl bg-white/80 backdrop-blur-md border border-white/20 shadow-sm overflow-hidden hover:bg-white transition"
+            >
               <div className="relative w-full aspect-[1200/630] bg-black/5">
-                <Image src={app.image} alt={app.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover" priority />
+                <Image
+                  src={app.image}
+                  alt={app.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover"
+                  priority
+                />
               </div>
 
               <div className="p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[11px] px-2 py-1 rounded-full border border-black/10 bg-white/70 text-gray-700">{app.badge}</span>
+                  <span className="text-[11px] px-2 py-1 rounded-full border border-black/10 bg-white/70 text-gray-700">
+                    {app.badge}
+                  </span>
 
-                  {app.openApi && <span className="text-[11px] px-2 py-1 rounded-full border border-black/10 bg-white/70 text-gray-700">OpenAPI</span>}
+                  {app.openApi && (
+                    <span className="text-[11px] px-2 py-1 rounded-full border border-black/10 bg-white/70 text-gray-700">
+                      OpenAPI
+                    </span>
+                  )}
                 </div>
 
                 <div className="text-base font-semibold text-gray-900 group-hover:underline">{app.title}</div>
@@ -111,7 +137,11 @@ const ToolsPage = () => {
           ))}
         </div>
 
-        {APPS.length === 0 && <div className="w-full h-[240px] flex items-center justify-center bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 shadow-sm text-gray-700">준비 중입니다.</div>}
+        {APPS.length === 0 && (
+          <div className="w-full h-[240px] flex items-center justify-center bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 shadow-sm text-gray-700">
+            준비 중입니다.
+          </div>
+        )}
       </div>
     </div>
   );
