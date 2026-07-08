@@ -1,6 +1,7 @@
 # profileSite
 
 개인 블로그 & 관리자 페이지 프로젝트입니다. **Next.js 16 (App Router)** 기반으로 구축되었으며, **JWT 쿠키 인증**, **Passkey(WebAuthn)**, **Google OTP(TOTP)**를 지원합니다. 데이터베이스는 **MariaDB + Prisma(v7)** 를 사용합니다.
+(~26.07까지 사용된 페이지 입니다.)
 
 ---
 
