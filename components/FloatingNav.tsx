@@ -33,7 +33,7 @@ import { useNavTheme } from "@/components/theme/NavThemeContext";
 // 블로그/앱은 이미 있는 라우트를 그대로 사용 (구조 변경 예정이라 s4에 복제하지 않음)
 const S4_NAV = [
   { href: "/s4", label: "첫화면", icon: House },
-  { href: "/s4/profile", label: "프로필", icon: User },
+  // { href: "/s4/profile", label: "프로필", icon: User },
   { href: "/blog", label: "블로그", icon: Newspaper },
   { href: "/s4/project", label: "프로젝트", icon: Briefcase },
   { href: "/s4/ui", label: "UI", icon: Layers },
@@ -149,7 +149,8 @@ export function FloatingNav() {
   // .s4-root 스코프 밖에 있음. SeasonShell을 쓰는 경로(/s4, /privacy 등)에서만
   // 스스로 .s4-root를 씌워서 teal 톤을 가져오고, /blog처럼 SeasonShell을 안 쓰는
   // 곳에서는 기본(ui-v2) 톤으로 자연스럽게 렌더링되게 한다.
-  const usesSeasonShell = pathname === "/s4" || pathname.startsWith("/s4/") || pathname === "/privacy" || pathname.startsWith("/privacy/");
+  const usesSeasonShell =
+    pathname === "/s4" || pathname.startsWith("/s4/") || pathname === "/privacy" || pathname.startsWith("/privacy/");
   const scopeClass = usesSeasonShell ? `s4-root${isDark ? " dark" : ""}` : "";
 
   return (

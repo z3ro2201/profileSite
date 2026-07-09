@@ -10,8 +10,9 @@ export const serif = { fontFamily: "'Fraunces', serif", fontOpticalSizing: "auto
 export const sans = { fontFamily: "'DM Sans', system-ui, sans-serif" } as CSSProperties;
 
 // ── tile helpers ──────────────────────────────────────────────────────────
-export const tile =
-  "rounded-2xl border border-[rgba(26,26,22,0.08)] bg-[var(--card)] p-5 flex flex-col overflow-hidden";
+// border-[rgba(26,26,22,0.08)]처럼 색을 고정하면 다크모드에서 배경과 거의 같은 색이 돼서
+// 경계가 안 보임. border-border(=var(--border), 라이트/다크 각각 정의됨)로 통일.
+export const tile = "rounded-2xl border border-border bg-[var(--card)] p-5 flex flex-col overflow-hidden";
 export const tileTeal = "rounded-2xl border border-[rgba(35,198,169,0.25)] p-5 flex flex-col overflow-hidden";
 export const tileDark = "rounded-2xl p-5 flex flex-col overflow-hidden";
 

@@ -27,7 +27,7 @@ export const generateMetadata = async ({ params }: Props): Promise<Metadata> => 
   if (!Number.isFinite(postId)) return { title: "Post" };
 
   const { post } = await apiFetch<PublicPostDetailResponse>(`/blog/posts/${postId}`, {
-    cache: "force-cache",
+    next: { revalidate: 3600 }, // 온디맨드 재검증(admin API에서 revalidatePath) + 1시간 백스톱
   });
 
   const source = post.contentHtml ?? post.contentMd ?? "";
@@ -78,7 +78,7 @@ const BlogPostViewPage = async (props: Props) => {
 
   // ✅ apiFetch 사용 (자동으로 /api 붙음)
   const { post } = await apiFetch<PublicPostDetailResponse>(`/blog/posts/${postId}`, {
-    cache: "force-cache",
+    next: { revalidate: 3600 }, // 온디맨드 재검증(admin API에서 revalidatePath) + 1시간 백스톱
   });
 
   // ✅ 댓글도 apiFetch 사용

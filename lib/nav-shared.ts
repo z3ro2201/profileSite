@@ -13,26 +13,26 @@ export const PLAYLIST: { title: string; artist: string; ytId: string }[] = [
   },
   {
     ytId: "nieI1ZssoA8",
-    artist: "명탐정 코난 OST (Kuraki Mai)",
-    title: "명탐정 코난 : 제로의 집행인 주제곡 [후쿠야마 마사하루 - 零 -ZERO-] ",
+    artist: "명탐정 코난 OST (福山 雅治)",
+    title: "명탐정 코난 : 제로의 집행인 닫는곡 / 福山 雅治 - 零 -ZERO- [후쿠야마 마사하루 - 제로 -ZERO-] ",
   },
   {
     ytId: "m4UuJWVt4Zc",
     artist: "명탐정 코난 OST (MISIA)",
-    title: "명탐정 코난 하이웨이의 타천사 OST : MISIA - 라스트 댄스를 그대와 (ラストダンスあなたと)",
+    title: "명탐정 코난 : 하이웨이의 타천사 닫는곡 / MISIA - ラストダンスあなたと (MISIA - 라스트 댄스를 그대와)",
   },
   {
     ytId: "Q4mR65GIrmE",
-    artist: "명탐정 코난 OST (MISIA)",
-    title: "B’z - 世界はあなたの色になる(세계는 당신의 색이 된다)_명탐정코난: 순흑의 악몽ED",
+    artist: "명탐정 코난 OST (B’z)",
+    title: "명탐정 코난 : 순흑의 악몽 닫는곡 / B’z - 世界はあなたの色になる(B’z - 세계는 당신의 색이 된다)",
   },
   {
     ytId: "CPOcUhe3tIk",
     artist: "명탐정 코난 OST (ZARD)",
-    title: "명탐정 코난 : 수편선상의 음모 / ZARD - 夏を待つセイル (帆)のように (ZARD - 여름을 기다리는 돛처럼)",
+    title: "명탐정 코난 : 수편선상의 음모 닫는곡 / ZARD - 夏を待つセイル (帆)のように (ZARD - 여름을 기다리는 돛처럼)",
   },
   {
-    ytId: "L7Z-8qc07d0",
+    ytId: "FKRY8B42-oo",
     artist: "명탐정 코난 OST (いきものがかり)",
     title: "명탐정 코난 : 11번째 스트라이커 / いきものがかり - ハルウタ (이키모노 가카리 - 봄노래)",
   },

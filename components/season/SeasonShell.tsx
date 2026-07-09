@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Github, Mail, Sun, Moon } from "lucide-react";
 import { BG, mono, serif, sans, TEAL } from "@/app/s4/_lib/theme";
 import { PROFILE } from "@/lib/profile";
@@ -20,7 +21,7 @@ function ThemeToggle({ isDark, onToggle }: { isDark: boolean; onToggle: () => vo
 
 // season5가 오면: 이 컴포넌트 내부(색/폰트/헤더 마크업)만 새 시즌 것으로 바꾸면 됨.
 // /blog, /privacy처럼 이 셸을 쓰는 페이지들은 코드 수정 없이 자동으로 새 시즌 룩을 따라감.
-export function SeasonShell({ children }: { children: React.ReactNode }) {
+export function SeasonShell({ children, fullBleed = false }: { children: React.ReactNode; fullBleed?: boolean }) {
   // 다크모드 상태는 NavThemeContext(ClientShell에서 제공)를 공유해서 씀.
   // 다른 페이지의 FloatingNav도 같은 상태를 보기 때문에, 여기서 토글하면 그쪽에도 그대로 반영됨.
   const { isDark, toggle } = useNavTheme();
@@ -113,8 +114,23 @@ export function SeasonShell({ children }: { children: React.ReactNode }) {
 
       {/* ── page content ── */}
       {/* 하단 플로팅 네비/플레이어는 ClientShell에서 SEASON_SHELL_PATHS 경로들에 공용으로 렌더링됨 */}
-      <main id="main-content" className="max-w-5xl mx-auto px-4 sm:px-8 pt-24 pb-36">
+      <main id="main-content" className={fullBleed ? "pt-14" : "max-w-5xl mx-auto px-4 sm:px-8 pt-24 pb-36"}>
         {children}
+
+        {/* ── footer ── */}
+        <div className={`mt-16 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 ${fullBleed ? "max-w-5xl mx-auto px-4 sm:px-8 pb-10" : ""}`}>
+          <p className="text-xs text-muted-foreground" style={mono}>
+            © {new Date().getFullYear()} {PROFILE.name}. All rights reserved.
+          </p>
+          <div className="flex items-center gap-4">
+            <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors" style={mono}>
+              개인정보처리방침
+            </Link>
+            <Link href="/admin/login" className="text-xs text-muted-foreground hover:text-foreground transition-colors" style={mono}>
+              관리자
+            </Link>
+          </div>
+        </div>
       </main>
 
       {/* ── reduce motion ── */}

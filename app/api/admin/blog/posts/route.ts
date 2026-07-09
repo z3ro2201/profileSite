@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import type { PostUpsertProp } from "@/types/Posts";
 
@@ -113,6 +114,10 @@ export async function POST(req: Request) {
       lng: true,
     },
   });
+
+  // 새 글이 PUBLISHED 상태로 생성됐을 수도 있으니 목록/개별 페이지 캐시 즉시 갱신
+  revalidatePath("/blog/posts");
+  revalidatePath(`/blog/posts/view/${created.id}`);
 
   return NextResponse.json({ ok: true, post: created }, { status: 201 });
 }

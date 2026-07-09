@@ -84,7 +84,7 @@ export function AdminLayout({ children, defaultActiveMenu = "tables", isLoggedIn
 
   const postId = pathname.match(/\d+/)?.[0] ?? null;
   const blogMenuItems = [
-    { id: "블로그", icon: RssIcon, label: "블로그", link: "/blog/posts" },
+    { id: "블로그", icon: RssIcon, label: "블로그", link: "/blog" },
     { id: "현재 글 바로가기", icon: Redo2Icon, label: "현재 글 바로가기", link: `/blog/posts/view/${postId}` },
   ];
 

@@ -35,6 +35,7 @@
   --font-weight-normal: 400;
   --ring: #23c6a9;
   --radius: 0.625rem;
+  --tint: #eef8f6; /* 옅은 강조 배경 (라이트) */
 }
 
 .s4-root.dark {
@@ -56,7 +57,9 @@
   --destructive-foreground: #fca5a5;
   --border: rgba(255, 255, 255, 0.09);
   --input: #40403e;
+  --input-background: #232320;
   --ring: #23c6a9;
+  --tint: rgba(35, 198, 169, 0.1); /* 다크모드용 은은한 teal 틴트 */
 }
 
 @theme inline {

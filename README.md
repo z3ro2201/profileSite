@@ -1,28 +1,18 @@
-# 시즌 셸 공용화 (season5 대비)
+# 다크모드 전면 개선
 
-## 신규 파일
-- `lib/season-shell-paths.ts` — `SEASON_SHELL_PATHS` 배열. 새 유틸리티 페이지를 "현재 시즌처럼" 보이게 하려면 여기에 경로만 추가.
-- `components/season/SeasonShell.tsx` — `app/s4/layout.tsx`에 있던 헤더/다크모드/배경 로직을 통째로 이동. season5가 오면 이 파일 내부만 새로 고치면 됨.
-- `app/privacy/layout.tsx` — `/privacy`에 SeasonShell 적용 (URL은 그대로 `/privacy` 유지).
+## 삭제할 파일
+- `app/s4/_components/PortfolioClient.tsx` — `ProjectClient.tsx`로 이름 바뀐 뒤 안 지워진 죽은 중복 파일
 
 ## 수정 파일
-- `app/s4/layout.tsx` — `SeasonShell`을 감싸는 3줄짜리 얇은 래퍼로 교체
-- `layout/ClientShell.tsx` — 하드코딩된 경로 배열 대신 `SEASON_SHELL_PATHS` 참조
-- `components/FloatingNav.tsx` — `/privacy`에서도 `.s4-root`(teal 톤) 스코프 적용되도록 조건 추가
-
-## 다음에 새 유틸리티 페이지 추가하는 법
-1. `lib/season-shell-paths.ts`의 `SEASON_SHELL_PATHS`에 경로 추가 (예: `"/terms"`)
-2. 해당 라우트에 `layout.tsx` 하나 만들기:
-```tsx
-import { SeasonShell } from "@/components/season/SeasonShell";
-
-const TermsLayout = ({ children }: { children: React.ReactNode }) => {
-  return <SeasonShell>{children}</SeasonShell>;
-};
-
-export default TermsLayout;
-```
-3. `components/FloatingNav.tsx`의 `usesSeasonShell` 조건에도 그 경로 추가 (teal 톤 적용용)
+- `app/s4/_lib/s4-theme.css` — 다크모드용 `--input-background` 토큰 추가
+- `app/s4/_components/HomeClient.tsx` — detective conan 배지, iMessage 말풍선, 하단 3개 버튼(`bg-white`) 다크 대응
+- `app/s4/_components/ProjectClient.tsx` — 필터 pill 테두리 다크 대응
+- `app/s4/_components/DetailPanel.tsx` — 미리보기 플레이스홀더 배경 다크 대응
+- `layout/blog/PostViewClient.tsx` — 글 본문 전체(prose, 카드, TOC, 지도) 다크 대응. 태그 링크가 옛날에 없어진 `/blog/posts?scope=tags&q=` URL을 가리키던 것도 `/blog?tag=`로 수정
+- `layout/blog/CommentClient.tsx` — 댓글 UI 전체 다크 대응 + 예전부터 있던 `useMemo` setState 버그, `catch (err: any)` 타입 버그 수정
 
 ## 확인해본 것
-`tsc --noEmit`, `eslint` 전체 baseline(26/164) 그대로, 새로 깨진 곳 없음.
+`tsc --noEmit`, `eslint` 전체 baseline이 오히려 개선됨(154→152, 위 버그 2개 고친 만큼). 새로 깨진 곳 없음.
+
+## 아직 안 건드린 것
+`app/s4/_components/UIClient.tsx`(컴포넌트 쇼케이스 페이지)에도 하드코딩된 색이 꽤 남아있는데, 실제 콘텐츠가 아니라 UI 예시 모음이라 우선순위 낮다고 판단해서 이번에도 건너뛰었어요. 신경 쓰이시면 말씀해주세요.

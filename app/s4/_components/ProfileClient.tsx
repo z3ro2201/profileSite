@@ -91,7 +91,7 @@ export default function ProfileClient() {
         </div>
 
         {/* tech highlight */}
-        <div className="rounded-2xl border border-border p-5" style={{ background: "#eef8f6" }}>
+        <div className="rounded-2xl border border-border p-5" style={{ background: "var(--tint)" }}>
           <p className="text-[10px] tracking-widest uppercase mb-3" style={{ color: TEAL, ...mono }}>
             주로 쓰는 기술
           </p>

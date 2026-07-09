@@ -17,6 +17,32 @@ import { TEAL, mono, serif, tile, tileTeal, tileDark, TECH_STACK } from "../_lib
 import { PROFILE } from "@/lib/profile";
 import type { GithubStats } from "@/lib/github";
 
+// 0에서 target까지 부드럽게 세는 카운트업 애니메이션
+function useCountUp(target: number, durationMs = 1200) {
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    if (target <= 0) return;
+    let raf: number;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const progress = Math.min((now - start) / durationMs, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      setValue(Math.round(target * eased));
+      if (progress < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, durationMs]);
+
+  return value;
+}
+
+function CountUp({ value }: { value: number }) {
+  const animated = useCountUp(value);
+  return <>{animated}</>;
+}
+
 const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
   const [time, setTime] = useState(new Date());
   useEffect(() => {
@@ -113,7 +139,7 @@ const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
           <p className="text-base font-medium text-foreground leading-tight">명탐정 코난</p>
           <span
             className="inline-block mt-2 text-[10px] px-2 py-0.5 rounded-full"
-            style={{ ...mono, background: "rgba(26,26,22,0.07)", color: "var(--muted-foreground)" }}
+            style={{ ...mono, background: "var(--secondary)", color: "var(--muted-foreground)" }}
           >
             detective conan
           </span>
@@ -129,14 +155,16 @@ const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
           </span>
         </div>
         <div className="flex gap-4 mb-4">
-          {[
-            [githubStats.commits, "commits"],
-            [githubStats.prs, "PRs"],
-            [githubStats.repos, "repos"],
-          ].map(([n, l]) => (
+          {(
+            [
+              [githubStats.commits, "commits"],
+              [githubStats.prs, "PRs"],
+              [githubStats.repos, "repos"],
+            ] as [number, string][]
+          ).map(([n, l]) => (
             <div key={l}>
               <p className="text-2xl font-light text-foreground" style={serif}>
-                {n}
+                <CountUp value={n} />
               </p>
               <p className="text-xs text-muted-foreground" style={mono}>
                 {l}
@@ -240,7 +268,7 @@ const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
       {/* Fun facts */}
       <div
         className={`${tile} col-span-12 md:col-span-4 justify-between`}
-        style={{ minHeight: 160, background: "#eef8f6" }}
+        style={{ minHeight: 160, background: "var(--tint)" }}
       >
         <div className="flex items-center gap-1.5 mb-3">
           <Coffee size={13} style={{ color: TEAL }} />
@@ -262,6 +290,53 @@ const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
         </ul>
       </div>
 
+      {/* Awards */}
+      <div className={`${tile} col-span-12`} style={{ minHeight: 140 }}>
+        <div className="flex items-center gap-1.5 text-muted-foreground mb-5">
+          <Zap size={13} style={{ color: TEAL }} />
+          <span className="text-xs" style={{ color: TEAL, ...mono }}>
+            awards & recognition
+          </span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {[
+            {
+              year: "2008",
+              title: "홈페이지 제작 경진대회 장려",
+              org: "동서울대학",
+              desc: "[동서울 대학 페스티벌] 주제",
+            },
+            {
+              year: "2009",
+              title: "홈페이지 제작 경진대회 은상",
+              org: "단국공업고등학교",
+              desc: "19지구 자율장학회 주최",
+            },
+            {
+              year: "2009",
+              title: "홈페이지 제작 경진대회 우수",
+              org: "동서울대학",
+              desc: "[동서울대학 자원봉사 동호회] 주제",
+            },
+          ].map((a) => (
+            <div key={a.title} className="flex gap-4 p-4 rounded-xl" style={{ background: "var(--secondary)" }}>
+              <div className="flex-shrink-0 text-right">
+                <span className="text-xs font-medium" style={{ color: TEAL, ...mono }}>
+                  {a.year}
+                </span>
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-foreground leading-snug">{a.title}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5 mb-1.5" style={mono}>
+                  {a.org}
+                </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{a.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Contact CTA — iMessage style */}
       <div className={`${tile} col-span-12`} style={{ background: "var(--secondary)", padding: "1.75rem" }}>
         <p className="text-xs tracking-widest uppercase mb-5" style={{ color: TEAL, ...mono }}>
@@ -278,7 +353,7 @@ const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
             </div>
             <div
               className="max-w-xs px-4 py-2.5 rounded-2xl rounded-bl-sm text-sm leading-relaxed"
-              style={{ background: "#e4e4e0", color: "var(--foreground)" }}
+              style={{ background: "var(--secondary)", color: "var(--foreground)" }}
             >
               같이 만들어볼 프로젝트가 있으신가요? 아니면 그냥 안녕이라도 👋
             </div>
@@ -297,7 +372,7 @@ const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
         <div className="flex flex-wrap gap-2">
           <a
             href={`mailto:${PROFILE.email}`}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-border bg-white hover:border-[#23c6a9] hover:text-[#23c6a9] transition-all duration-200"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-border bg-[var(--card)] hover:border-[#23c6a9] hover:text-[#23c6a9] transition-all duration-200"
           >
             <Mail size={13} /> 이메일 보내기
           </a>
@@ -305,7 +380,7 @@ const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
             href={PROFILE.github}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-border bg-white hover:border-[#23c6a9] hover:text-[#23c6a9] transition-all duration-200"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-border bg-[var(--card)] hover:border-[#23c6a9] hover:text-[#23c6a9] transition-all duration-200"
           >
             <Github size={13} /> GitHub
           </a>
@@ -313,7 +388,7 @@ const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
             href={PROFILE.instagram}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-border bg-white hover:border-[#23c6a9] hover:text-[#23c6a9] transition-all duration-200"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-border bg-[var(--card)] hover:border-[#23c6a9] hover:text-[#23c6a9] transition-all duration-200"
           >
             <Instagram size={13} /> Instagram
           </a>

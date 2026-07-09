@@ -163,7 +163,7 @@ export function DetailPanel({ item, onClose }: { item: DetailItem; onClose: () =
                   <div
                     key={i}
                     className="aspect-video rounded-xl flex items-center justify-center"
-                    style={{ background: i === 0 ? item.color : `rgba(26,26,22,0.05)` }}
+                    style={{ background: i === 0 ? item.color : "var(--secondary)" }}
                   >
                     <span className={`${i === 0 ? "text-3xl" : "text-2xl opacity-20"}`}>
                       {i === 0 ? item.emoji : "🖼"}

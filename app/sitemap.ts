@@ -35,7 +35,6 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   // 정적 페이지
   add("/", { changeFrequency: "weekly", priority: 1 });
   add("/blog", { changeFrequency: "daily", priority: 0.9 });
-  add("/blog/posts", { changeFrequency: "daily", priority: 0.8 });
 
   add("/s3", { priority: 0.7 });
   add("/s3/profile", { priority: 0.7 });

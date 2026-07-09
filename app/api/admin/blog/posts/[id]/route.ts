@@ -1,5 +1,6 @@
 // app/api/admin/blog/posts/[id]/route.ts
 import { NextResponse, type NextRequest } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import type { PostUpsertProp } from "@/types/Posts";
 
@@ -220,6 +221,10 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
     },
   });
 
+  // 수정된 글 캐시 즉시 갱신 (force-cache라 이거 없으면 재배포 전까지 옛날 내용 그대로 보임)
+  revalidatePath("/blog/posts");
+  revalidatePath(`/blog/posts/view/${postId}`);
+
   return NextResponse.json({ ok: true, post: updated });
 }
 
@@ -250,6 +255,9 @@ export async function DELETE(_req: Request, ctx: Ctx) {
     // 🆕 연결된 파일은 Cascade로 자동 삭제됨 (PostFile 관계)
     // File 자체는 삭제하지 않음 (다른 포스트에서 사용할 수 있음)
     await prisma.post.delete({ where: { id: postId } });
+
+    revalidatePath("/blog/posts");
+    revalidatePath(`/blog/posts/view/${postId}`);
 
     return NextResponse.json({ ok: true, id: postId }, { status: 200 });
   } catch (e: any) {

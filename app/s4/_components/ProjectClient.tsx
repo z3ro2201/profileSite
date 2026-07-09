@@ -42,7 +42,7 @@ export default function ProjectClient({ items }: { items: DetailItem[] }) {
               style={
                 filter === f
                   ? { background: TEAL, color: "#fff", borderColor: TEAL, ...mono }
-                  : { borderColor: "rgba(26,26,22,0.12)", color: "var(--muted-foreground)", ...mono }
+                  : { borderColor: "var(--border)", color: "var(--muted-foreground)", ...mono }
               }
             >
               {f}
@@ -94,7 +94,7 @@ export default function ProjectClient({ items }: { items: DetailItem[] }) {
             )}
             <button
               onClick={() => setSelected(item)}
-              className="group w-full rounded-2xl border border-[rgba(26,26,22,0.08)] bg-[var(--card)] overflow-hidden hover:border-[rgba(35,198,169,0.3)] hover:shadow-sm transition-all duration-200 text-left"
+              className="group w-full rounded-2xl border border-border bg-[var(--card)] overflow-hidden hover:border-[rgba(35,198,169,0.3)] hover:shadow-sm transition-all duration-200 text-left"
             >
               {/* thumbnail */}
               <div
