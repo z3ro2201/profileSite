@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 
 import { verifyAuthToken, getAuthCookieName } from "@/lib/auth/jwt";
 
-import AdminMain from "@/layout/admin/mainLayout";
 import AdminPublicShell from "@/layout/admin/AdminPublicShell";
 import AdminAuthedShell from "@/layout/admin/AdminAuthedShell";
 
