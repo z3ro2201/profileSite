@@ -18,7 +18,7 @@ export const shareContent = ({ title, text }: { title: string; text: string }) =
 
 export const SharedButton = ({ title, text }: { title: string; text: string }) => {
   return (
-    <div className="flex items-center gap-3 mb-10">
+    <div className="my-10 flex items-center gap-3">
       <button
         className="flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-all hover:opacity-80"
         style={{ background: "#e8eaf6", color: "#5c6bc0", ...sans }}

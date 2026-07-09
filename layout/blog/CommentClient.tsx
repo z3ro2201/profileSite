@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { apiFetch } from "@/lib/apiFetch";
-import { BG, mono, serif, type DetailItem } from "@/app/s4/_lib/theme";
+import { mono } from "@/app/s4/_lib/theme";
+import { Button } from "@/components/ui-v2/button";
+import { Textarea } from "@/components/ui-v2/textarea";
 
 type CommentType = {
   id: number;
@@ -429,13 +431,12 @@ const CommentForm = ({
         </>
       )}
 
-      <textarea
+      <Textarea
         placeholder="댓글을 입력하세요 *"
         required
         rows={4}
         value={formData.content}
         onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-        className="w-full px-4 py-3 border border-border rounded-lg bg-[var(--input-background)] text-foreground focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
       />
 
       <div className="flex items-center justify-between">
@@ -459,12 +460,9 @@ const CommentForm = ({
               취소
             </button>
           )}
-          <button
-            type="submit"
-            className="px-5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
-          >
+          <Button type="submit" variant="default">
             {parentId ? "답글 등록" : "댓글 등록"}
-          </button>
+          </Button>
         </div>
       </div>
     </form>

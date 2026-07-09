@@ -82,7 +82,7 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
           {post.category && (
             <span
               className="text-xs px-3 py-1 rounded-full border"
-              style={{ ...mono, borderColor: TEAL, color: TEAL, background: "transparent" }}
+              style={{ ...mono, borderColor: `${TEAL}13`, color: "#fff", background: TEAL }}
             >
               {post.category.name}
             </span>
@@ -93,7 +93,7 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
             post.tags.map((tag, key) => (
               <span
                 className="flex gap-2 items-center text-xs px-3 py-1 rounded-full border"
-                style={{ ...mono, borderColor: TEAL, color: TEAL, background: "transparent" }}
+                style={{ ...mono, borderColor: `${TEAL}30`, color: TEAL, background: `${TEAL}14` }}
                 key={`${tag}-${key}`}
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,15 +154,15 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
 
       {/* ✅ 지도: 헤더 바로 아래 */}
       {hasCoord && !compact && (
-        <div className={cn("mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8", post.mapOnly ? "" : "py-2")}>
+        <div className={"mx-auto w-full max-w-2xl"}>
           <div className={cn(post.mapOnly ? "" : "mt-6")}>
             <h2 className="text-2xl font-bold text-foreground mb-4">위치 정보</h2>
-            <div className="relative rounded-2xl border border-border shadow-sm overflow-hidden bg-[var(--card)]">
+            <div className="relative rounded-lg border border-border shadow-sm overflow-hidden bg-[var(--card)]">
               <OsmMapClient lat={lat} lng={lng} zoom={20} height={340} placeLabel={post.placeName} />
               <div className="pt-3 pb-4 px-5 flex flex-col flex-wrap text-xs text-muted-foreground">
                 {post.placeName && <div className="text-xl font-bold text-foreground">{post.placeName}</div>}
                 {post.address && (
-                  <div className="flex flex-col lg:flex-row lg:justify-between">
+                  <div className="flex flex-col">
                     <div className="text-md">{post.address}</div>
                     <div className="mt-2 lg:mt-0">
                       <span>
