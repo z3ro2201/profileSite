@@ -1,6 +1,9 @@
 import OsmMapClient from "@/components/maps/OsmMapClient";
 import { cn } from "@/lib/cn";
 import Link from "next/link";
+import { TEAL, mono } from "@/lib/nav-shared";
+import { serif, sans } from "@/app/s4/_lib/theme";
+import { SharedButton } from "@/lib/shared";
 
 type TocItem = { id: string; text: string; level: number };
 
@@ -45,127 +48,107 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
     hour12: false,
   });
   return (
-    <div>
-      <div className={cn("mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8", compact ? "py-2" : "py-4")}>
+    <>
+      <div className="relative max-w-2xl mx-auto">
         {/* 관리자 액션 - 우측 상단 고정 */}
         {isAdmin && (
           <div className="fixed top-24 right-8 z-490 flex gap-2 bg-[var(--card)] rounded-lg shadow-lg border border-border p-2">
-            <Link href={`/admin/mgmt/posts/${post?.id}/modify`} className="px-4 py-2 text-sm font-medium text-foreground hover:bg-blue-50 dark:hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 rounded transition">
+            <Link
+              href={`/admin/mgmt/posts/${post?.id}/modify`}
+              className="px-4 py-2 text-sm font-medium text-foreground hover:bg-blue-50 dark:hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 rounded transition"
+            >
               수정
             </Link>
-            <Link href={`/admin/mgmt/posts/${post?.id}/delete`} className="px-4 py-2 text-sm font-medium text-foreground hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 rounded transition">
+            <Link
+              href={`/admin/mgmt/posts/${post?.id}/delete`}
+              className="px-4 py-2 text-sm font-medium text-foreground hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 rounded transition"
+            >
               삭제
             </Link>
           </div>
         )}
 
-        {/* 포스트 헤더 */}
-        <header className="mb-12">
-          {/* 카테고리 */}
+        {/* back button */}
+        <Link
+          href="/blog"
+          className="flex items-center gap-1.5 mb-8 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          style={mono}
+        >
+          ← 목록으로
+        </Link>
+
+        {/* category badges */}
+        <div className="flex flex-wrap gap-2 mb-4 items-center">
           {post.category && (
-            <div className="mb-4">
-              <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">{post.category.name}</span>
-            </div>
+            <span
+              className="text-xs px-3 py-1 rounded-full border"
+              style={{ ...mono, borderColor: TEAL, color: TEAL, background: "transparent" }}
+            >
+              {post.category.name}
+            </span>
           )}
 
-          {/* 제목 */}
-          <h1 className={cn("font-bold text-foreground leading-tight mb-4", compact ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl lg:text-5xl")}>{post.title}</h1>
-
-          {/* 날짜 */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <time dateTime={publishDate.toISOString()}>
-              {datePart}&nbsp;{timePart}
-            </time>
-          </div>
-        </header>
-
-        {/* 메인 콘텐츠 + TOC */}
-        {!post.mapOnly && (
-          <div className={cn("relative", !compact && toc.length > 0 ? "lg:grid lg:grid-cols-[1fr_280px] lg:gap-8" : "")}>
-            {/* 포스트 본문 */}
-            <article
-              className={cn(
-                "prose prose-lg max-w-none dark:prose-invert",
-                "prose-headings:font-bold prose-headings:scroll-mt-24",
-                "prose-h1:text-3xl prose-h1:mb-6 prose-h1:mt-12",
-                "prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4",
-                "prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3",
-                "prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-2",
-                "prose-p:leading-relaxed prose-p:mb-6",
-                "prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline",
-                "prose-strong:font-semibold",
-                "prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-code:bg-pink-50 dark:prose-code:bg-pink-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono prose-code:before:content-none prose-code:after:content-none",
-                "prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:overflow-x-auto prose-pre:rounded-xl",
-                "prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-500/10 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r prose-blockquote:not-italic",
-                "prose-ul:list-disc prose-ul:pl-6 prose-ul:mb-6",
-                "prose-ol:list-decimal prose-ol:pl-6 prose-ol:mb-6",
-                "prose-li:mb-2",
-                "prose-img:rounded-xl prose-img:my-8 prose-img:shadow-md",
-                "prose-table:border-collapse prose-table:w-full prose-table:my-8 prose-table:text-sm",
-                "prose-th:bg-[var(--secondary)] prose-th:border prose-th:border-border prose-th:px-4 prose-th:py-3 prose-th:text-left prose-th:font-semibold prose-th:uppercase prose-th:text-xs prose-th:tracking-wider",
-                "prose-td:border prose-td:border-border prose-td:px-4 prose-td:py-3",
-                "[&_table_tr:nth-child(even)]:bg-[var(--secondary)]",
-                "prose-hr:border-border prose-hr:my-12"
-              )}
-            >
-              <div className="bg-[var(--card)] rounded-xl shadow-sm border border-border p-8 lg:p-12" dangerouslySetInnerHTML={{ __html: finalHtml }} />
-
-              {/* 태그 목록 */}
-              {post.tags && post.tags.length > 0 && (
-                <div className="bg-[var(--card)] rounded-xl shadow-sm border border-border p-8 mt-6">
-                  <div className="flex flex-wrap gap-2">
-                    {post.tags.map((tag) => (
-                      <Link key={tag.slug} href={`/blog?tag=${tag.slug}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-[var(--secondary)] text-foreground hover:bg-blue-100 dark:hover:bg-blue-500/15 hover:text-blue-700 dark:hover:text-blue-400 transition-colors no-underline">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                        </svg>
-                        {tag.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </article>
-
-            {/* TOC (Table of Contents) - 데스크탑 사이드바 */}
-            {!compact && toc.length > 0 && (
-              <aside className="hidden lg:block">
-                <div className="sticky top-24">
-                  <div className="bg-[var(--card)] rounded-xl border border-border shadow-sm p-6">
-                    <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">Contents</h2>
-                    <nav className="space-y-1">
-                      {toc.map((item) => (
-                        <a key={item.id} href={`#${item.id}`} className={cn("block py-2 text-sm transition-colors", "text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400", "border-l-2 border-transparent hover:border-blue-600 dark:hover:border-blue-400", item.level === 2 && "pl-3 font-medium", item.level === 3 && "pl-6", item.level > 3 && "pl-9")}>
-                          {item.text}
-                        </a>
-                      ))}
-                    </nav>
-                  </div>
-                </div>
-              </aside>
-            )}
-          </div>
-        )}
-
-        {/* 모바일 TOC */}
-        {!post.mapOnly && !compact && toc.length > 0 && (
-          <div className="lg:hidden mt-8">
-            <details className="bg-[var(--card)] rounded-xl border border-border shadow-sm overflow-hidden">
-              <summary className="cursor-pointer px-6 py-4 font-semibold text-foreground flex items-center justify-between hover:bg-[var(--secondary)] transition text-sm uppercase tracking-wider">
-                <span>Contents</span>
-                <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          {post.tags &&
+            post.tags.length > 0 &&
+            post.tags.map((tag, key) => (
+              <span
+                className="flex gap-2 items-center text-xs px-3 py-1 rounded-full border"
+                style={{ ...mono, borderColor: TEAL, color: TEAL, background: "transparent" }}
+                key={`${tag}-${key}`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                  />
                 </svg>
-              </summary>
-              <nav className="px-6 pb-4 space-y-1 border-t border-border">
-                {toc.map((item) => (
-                  <a key={item.id} href={`#${item.id}`} className={cn("block py-2 text-sm text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors", item.level === 2 && "pl-0 font-medium", item.level === 3 && "pl-4", item.level > 3 && "pl-8")}>
-                    {item.text}
-                  </a>
-                ))}
-              </nav>
-            </details>
-          </div>
+                {tag.name}
+              </span>
+            ))}
+        </div>
+
+        {/* title */}
+        <h1 className="text-3xl sm:text-4xl font-light leading-snug mb-4" style={serif}>
+          {post.title}
+        </h1>
+
+        {/* meta: date + reading time */}
+        <p className="text-xs text-muted-foreground mb-6" style={mono}>
+          <time dateTime={publishDate.toISOString()}>
+            {datePart}&nbsp;{timePart}
+          </time>
+          {/* · 읽는 시간 약 5분 */}
+        </p>
+        {/* AI 요약 collapsible */}
+        {/* <div className="rounded-xl mb-8 overflow-hidden" style={{ background: "var(--secondary)" }}>
+          <button
+            onClick={() => setSummaryOpen((v) => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-foreground"
+          >
+            <span style={mono}>✦ AI 요약</span>
+            <ChevronDown
+              size={16}
+              className="text-muted-foreground transition-transform"
+              style={{ transform: summaryOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+            />
+          </button>
+          {summaryOpen && (
+            <div className="px-4 pb-4 text-sm text-muted-foreground leading-relaxed font-light border-t border-border pt-3">
+              이 글은 {selectedPost.title}에 대한 실무 관점의 정리입니다.
+              핵심 개념과 각 케이스별 전략을 코드 예제와 함께 설명하며,
+              실제 프로젝트에서 바로 적용할 수 있는 패턴을 소개합니다.
+            </div>
+          )}
+        </div> */}
+
+        {/* article body */}
+        {!post.mapOnly && (
+          <div
+            className="space-y-5 text-[1.05rem] text-foreground/80 leading-relaxed font-light mb-8"
+            dangerouslySetInnerHTML={{ __html: finalHtml }}
+          />
         )}
       </div>
 
@@ -186,19 +169,39 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
                         {lat.toFixed(6)}, {lng.toFixed(6)}
                       </span>
                       <span> · </span>
-                      <a className="underline hover:text-foreground" target="_blank" rel="noreferrer" href={`https://www.openstreetmap.org/?mlat=${encodeURIComponent(String(lat))}&mlon=${encodeURIComponent(String(lng))}#map=17/${encodeURIComponent(String(lat))}/${encodeURIComponent(String(lng))}`}>
+                      <a
+                        className="underline hover:text-foreground"
+                        target="_blank"
+                        rel="noreferrer"
+                        href={`https://www.openstreetmap.org/?mlat=${encodeURIComponent(String(lat))}&mlon=${encodeURIComponent(String(lng))}#map=17/${encodeURIComponent(String(lat))}/${encodeURIComponent(String(lng))}`}
+                      >
                         Openstreet Map
                       </a>
                       <span> · </span>
-                      <a className="underline hover:text-foreground" target="_blank" rel="noreferrer" href={`https://www.google.com/maps?q=${encodeURIComponent(`${lat},${lng}`)}`}>
+                      <a
+                        className="underline hover:text-foreground"
+                        target="_blank"
+                        rel="noreferrer"
+                        href={`https://www.google.com/maps?q=${encodeURIComponent(`${lat},${lng}`)}`}
+                      >
                         Google Maps
                       </a>
                       <span> · </span>
-                      <a className="underline hover:text-foreground" target="_blank" rel="noreferrer" href={`https://map.naver.com/p/search/${encodeURIComponent(post.address)}`}>
+                      <a
+                        className="underline hover:text-foreground"
+                        target="_blank"
+                        rel="noreferrer"
+                        href={`https://map.naver.com/p/search/${encodeURIComponent(post.address)}`}
+                      >
                         Naver Maps
                       </a>
                       <span> · </span>
-                      <a className="underline hover:text-foreground" target="_blank" rel="noreferrer" href={`https://map.kakao.com/?map_type=TYPE_MAP&q=${encodeURIComponent(`${lat},${lng}`)}&urlLevel=10`}>
+                      <a
+                        className="underline hover:text-foreground"
+                        target="_blank"
+                        rel="noreferrer"
+                        href={`https://map.kakao.com/?map_type=TYPE_MAP&q=${encodeURIComponent(`${lat},${lng}`)}&urlLevel=10`}
+                      >
                         Kakao Maps
                       </a>
                     </div>
@@ -206,11 +209,21 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
                 )}
                 {!post.placeName && !post.address && (
                   <div>
-                    <a className="underline hover:text-foreground" target="_blank" rel="noreferrer" href={`https://www.openstreetmap.org/?mlat=${encodeURIComponent(String(lat))}&mlon=${encodeURIComponent(String(lng))}#map=17/${encodeURIComponent(String(lat))}/${encodeURIComponent(String(lng))}`}>
+                    <a
+                      className="underline hover:text-foreground"
+                      target="_blank"
+                      rel="noreferrer"
+                      href={`https://www.openstreetmap.org/?mlat=${encodeURIComponent(String(lat))}&mlon=${encodeURIComponent(String(lng))}#map=17/${encodeURIComponent(String(lat))}/${encodeURIComponent(String(lng))}`}
+                    >
                       OSM에서 열기
                     </a>
                     <span>·</span>
-                    <a className="underline hover:text-foreground" target="_blank" rel="noreferrer" href={`https://www.google.com/maps?q=${encodeURIComponent(`${lat},${lng}`)}`}>
+                    <a
+                      className="underline hover:text-foreground"
+                      target="_blank"
+                      rel="noreferrer"
+                      href={`https://www.google.com/maps?q=${encodeURIComponent(`${lat},${lng}`)}`}
+                    >
                       Google Maps에서 열기
                     </a>
                     <span>·</span>
@@ -224,7 +237,11 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
           </div>
         </div>
       )}
-    </div>
+
+      <div className="max-w-2xl mx-auto">
+        <SharedButton title={post.title} text={"내용을 공유합니다."} />
+      </div>
+    </>
   );
 };
 

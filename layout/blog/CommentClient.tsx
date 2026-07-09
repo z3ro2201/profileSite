@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { apiFetch } from "@/lib/apiFetch";
+import { BG, mono, serif, type DetailItem } from "@/app/s4/_lib/theme";
 
 type CommentType = {
   id: number;
@@ -23,12 +24,19 @@ type Props = {
 
 const CommentSection = ({ postId, comments, canViewSecret = false }: Props) => {
   return (
-    <div className="bg-[var(--card)] rounded-xl shadow-sm border border-border p-8 mt-8">
-      <h2 className="text-2xl font-bold text-foreground mb-6">댓글 {comments.length}개</h2>
-
+    <div className="max-w-2xl pt-8 mx-auto border-t border-border">
+      <p className="text-sm font-medium text-foreground mb-6" style={mono}>
+        댓글 {comments.length}개
+      </p>
       <div className="space-y-6">
         {comments.map((comment) => (
-          <CommentItem key={comment.id} comment={comment} postId={postId} canViewSecret={canViewSecret} isAdmin={canViewSecret} />
+          <CommentItem
+            key={comment.id}
+            comment={comment}
+            postId={postId}
+            canViewSecret={canViewSecret}
+            isAdmin={canViewSecret}
+          />
         ))}
       </div>
 
@@ -37,7 +45,17 @@ const CommentSection = ({ postId, comments, canViewSecret = false }: Props) => {
   );
 };
 
-const DeletePasswordModal = ({ open, onClose, onConfirm, busy }: { open: boolean; onClose: () => void; onConfirm: (password: string) => void; busy?: boolean }) => {
+const DeletePasswordModal = ({
+  open,
+  onClose,
+  onConfirm,
+  busy,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: (password: string) => void;
+  busy?: boolean;
+}) => {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
@@ -73,10 +91,20 @@ const DeletePasswordModal = ({ open, onClose, onConfirm, busy }: { open: boolean
         </div>
 
         <div className="mt-5 flex justify-end gap-2">
-          <button type="button" onClick={onClose} disabled={!!busy} className="px-4 py-2 text-sm font-medium text-foreground bg-[var(--secondary)] rounded-lg hover:bg-[var(--muted)] disabled:opacity-50">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={!!busy}
+            className="px-4 py-2 text-sm font-medium text-foreground bg-[var(--secondary)] rounded-lg hover:bg-[var(--muted)] disabled:opacity-50"
+          >
             취소
           </button>
-          <button type="button" onClick={() => onConfirm(password)} disabled={!!busy || password.trim().length < 1} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50">
+          <button
+            type="button"
+            onClick={() => onConfirm(password)}
+            disabled={!!busy || password.trim().length < 1}
+            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50"
+          >
             {busy ? "확인 중..." : "삭제"}
           </button>
         </div>
@@ -85,7 +113,19 @@ const DeletePasswordModal = ({ open, onClose, onConfirm, busy }: { open: boolean
   );
 };
 
-const CommentItem = ({ comment, postId, canViewSecret, isAdmin = false, isReply = false }: { comment: CommentType; postId: number; canViewSecret: boolean; isAdmin?: boolean; isReply?: boolean }) => {
+const CommentItem = ({
+  comment,
+  postId,
+  canViewSecret,
+  isAdmin = false,
+  isReply = false,
+}: {
+  comment: CommentType;
+  postId: number;
+  canViewSecret: boolean;
+  isAdmin?: boolean;
+  isReply?: boolean;
+}) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [pwModalOpen, setPwModalOpen] = useState(false);
@@ -146,13 +186,23 @@ const CommentItem = ({ comment, postId, canViewSecret, isAdmin = false, isReply 
 
   return (
     <div className={`${isReply ? "ml-12" : ""}`}>
-      <DeletePasswordModal open={pwModalOpen} busy={isDeleting} onClose={() => setPwModalOpen(false)} onConfirm={handlePasswordConfirm} />
+      <DeletePasswordModal
+        open={pwModalOpen}
+        busy={isDeleting}
+        onClose={() => setPwModalOpen(false)}
+        onConfirm={handlePasswordConfirm}
+      />
 
       <div className="border-l-4 border-blue-500 pl-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2 text-sm">
             {comment.authorHomepage ? (
-              <Link href={comment.authorHomepage} target="_blank" rel="noopener noreferrer" className="font-semibold text-foreground hover:text-blue-600 dark:hover:text-blue-400">
+              <Link
+                href={comment.authorHomepage}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-foreground hover:text-blue-600 dark:hover:text-blue-400"
+              >
                 {comment.authorName}
               </Link>
             ) : (
@@ -179,12 +229,19 @@ const CommentItem = ({ comment, postId, canViewSecret, isAdmin = false, isReply 
             {comment.isSecret && (
               <>
                 <span className="text-muted-foreground">•</span>
-                <span className="text-xs px-2 py-0.5 bg-[var(--secondary)] text-muted-foreground rounded">🔒 비밀댓글</span>
+                <span className="text-xs px-2 py-0.5 bg-[var(--secondary)] text-muted-foreground rounded">
+                  🔒 비밀댓글
+                </span>
               </>
             )}
           </div>
 
-          <button onClick={handleDeleteClick} disabled={isDeleting} className="text-xs text-red-600 hover:text-red-700 hover:underline disabled:opacity-50" title={isAdmin ? "관리자 삭제" : "비밀번호로 삭제"}>
+          <button
+            onClick={handleDeleteClick}
+            disabled={isDeleting}
+            className="text-xs text-red-600 hover:text-red-700 hover:underline disabled:opacity-50"
+            title={isAdmin ? "관리자 삭제" : "비밀번호로 삭제"}
+          >
             {isDeleting ? "삭제 중..." : "삭제"}
           </button>
         </div>
@@ -193,7 +250,12 @@ const CommentItem = ({ comment, postId, canViewSecret, isAdmin = false, isReply 
           <div className="mb-2">
             <span className="text-xs text-muted-foreground">
               homepage:{" "}
-              <Link href={comment.authorHomepage} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+              <Link
+                href={comment.authorHomepage}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+              >
                 {comment.authorHomepage}
               </Link>
             </span>
@@ -203,14 +265,22 @@ const CommentItem = ({ comment, postId, canViewSecret, isAdmin = false, isReply 
         <div className="text-foreground whitespace-pre-wrap mb-3">{comment.content}</div>
 
         {!isReply && (
-          <button onClick={() => setShowReplyForm(!showReplyForm)} className="text-sm text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition">
+          <button
+            onClick={() => setShowReplyForm(!showReplyForm)}
+            className="text-sm text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition"
+          >
             답글 작성
           </button>
         )}
 
         {showReplyForm && (
           <div className="mt-4">
-            <CommentForm postId={postId} parentId={comment.id} onCancel={() => setShowReplyForm(false)} isAdmin={isAdmin} />
+            <CommentForm
+              postId={postId}
+              parentId={comment.id}
+              onCancel={() => setShowReplyForm(false)}
+              isAdmin={isAdmin}
+            />
           </div>
         )}
       </div>
@@ -218,7 +288,14 @@ const CommentItem = ({ comment, postId, canViewSecret, isAdmin = false, isReply 
       {comment.replies && comment.replies.length > 0 && (
         <div className="mt-4 space-y-4">
           {comment.replies.map((reply) => (
-            <CommentItem key={reply.id} comment={reply} postId={postId} canViewSecret={canViewSecret} isAdmin={isAdmin} isReply={true} />
+            <CommentItem
+              key={reply.id}
+              comment={reply}
+              postId={postId}
+              canViewSecret={canViewSecret}
+              isAdmin={isAdmin}
+              isReply={true}
+            />
           ))}
         </div>
       )}
@@ -226,7 +303,17 @@ const CommentItem = ({ comment, postId, canViewSecret, isAdmin = false, isReply 
   );
 };
 
-const CommentForm = ({ postId, parentId, onCancel, isAdmin = false }: { postId: number; parentId: number | null; onCancel?: () => void; isAdmin?: boolean }) => {
+const CommentForm = ({
+  postId,
+  parentId,
+  onCancel,
+  isAdmin = false,
+}: {
+  postId: number;
+  parentId: number | null;
+  onCancel?: () => void;
+  isAdmin?: boolean;
+}) => {
   const [formData, setFormData] = useState({
     authorName: "",
     authorEmail: "",
@@ -353,17 +440,29 @@ const CommentForm = ({ postId, parentId, onCancel, isAdmin = false }: { postId: 
 
       <div className="flex items-center justify-between">
         <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
-          <input type="checkbox" checked={formData.isSecret} onChange={(e) => setFormData({ ...formData, isSecret: e.target.checked })} className="w-4 h-4 text-blue-600 border-border rounded focus:ring-blue-500" />
+          <input
+            type="checkbox"
+            checked={formData.isSecret}
+            onChange={(e) => setFormData({ ...formData, isSecret: e.target.checked })}
+            className="w-4 h-4 text-blue-600 border-border rounded focus:ring-blue-500"
+          />
           비밀댓글
         </label>
 
         <div className="flex gap-2">
           {onCancel && (
-            <button type="button" onClick={onCancel} className="px-5 py-2 text-sm font-medium text-foreground bg-[var(--secondary)] rounded-lg hover:bg-[var(--muted)] transition">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-5 py-2 text-sm font-medium text-foreground bg-[var(--secondary)] rounded-lg hover:bg-[var(--muted)] transition"
+            >
               취소
             </button>
           )}
-          <button type="submit" className="px-5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+          <button
+            type="submit"
+            className="px-5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
+          >
             {parentId ? "답글 등록" : "댓글 등록"}
           </button>
         </div>

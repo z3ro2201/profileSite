@@ -36,7 +36,14 @@ export const generateMetadata = async ({ params }: Props): Promise<Metadata> => 
   // 글에 썸네일이 있으면 그걸, 없으면 metadataBase의 기본 OG 이미지로 자동 폴백
   // (openGraph.images를 아예 안 넣으면 루트 layout의 /preview.png가 상속됨)
   const ogImages = post.thumbnail
-    ? [{ url: post.thumbnail.objectKey, width: post.thumbnail.width ?? undefined, height: post.thumbnail.height ?? undefined, alt: post.title }]
+    ? [
+        {
+          url: post.thumbnail.objectKey,
+          width: post.thumbnail.width ?? undefined,
+          height: post.thumbnail.height ?? undefined,
+          alt: post.title,
+        },
+      ]
     : undefined;
 
   return {
@@ -116,9 +123,7 @@ const BlogPostViewPage = async (props: Props) => {
       />
       <PostViewClient post={post} finalHtml={finalHtml} toc={toc} isAdmin={isAdminUser} />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-        <CommentSection postId={postId} comments={comments} canViewSecret={isAdminUser} />
-      </div>
+      <CommentSection postId={postId} comments={comments} canViewSecret={isAdminUser} />
     </>
   );
 };

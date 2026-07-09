@@ -223,7 +223,7 @@ const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
                     {l.name}
                   </span>
                   <span className="text-xs text-foreground ml-auto" style={mono}>
-                    {l.pct}%
+                    <CountUp value={l.pct} />%
                   </span>
                 </div>
               ))}
