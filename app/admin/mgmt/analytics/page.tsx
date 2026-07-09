@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
+import { TEAL, mono } from "@/lib/nav-shared";
+import { serif } from "@/app/s4/_lib/theme";
 import type { AnalyticsData, PeriodType } from "@/types/Analytics";
 
 interface PeriodOption {
@@ -17,27 +19,25 @@ const periodOptions: PeriodOption[] = [
   { value: "year", label: "최근 1년" },
 ];
 
+const glassCard: React.CSSProperties = {
+  background: "var(--card)",
+  borderRadius: 16,
+  border: "1px solid var(--border)",
+};
+
 const AdminAnalyticsPage = () => {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [period, setPeriod] = useState<PeriodType>("today");
   const [page, setPage] = useState<number>(1);
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, [period, page]);
-
   const fetchAnalytics = async (): Promise<void> => {
     setLoading(true);
     try {
       const response = await fetch(`/api/admin/analytics?period=${period}&page=${page}`);
       const result = await response.json();
-
-      if (response.ok) {
-        setData(result);
-      } else {
-        console.error("Failed to fetch analytics:", result.error);
-      }
+      if (response.ok) setData(result);
+      else console.error("Failed to fetch analytics:", result.error);
     } catch (error) {
       console.error("Failed to fetch analytics:", error);
     } finally {
@@ -45,28 +45,42 @@ const AdminAnalyticsPage = () => {
     }
   };
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- period/page 바뀔 때마다 최신 데이터 재조회
+    fetchAnalytics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchAnalytics는 period/page를 클로저로 참조
+  }, [period, page]);
+
   const handlePeriodChange = (newPeriod: PeriodType): void => {
     setPeriod(newPeriod);
     setPage(1);
   };
 
-  if (loading) return <LoadingState />;
+  if (loading && !data) return <LoadingState />;
   if (!data) return <ErrorState onRetry={fetchAnalytics} />;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <Header period={period} onPeriodChange={handlePeriodChange} />
-        <SummaryCards summary={data.summary} />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <PageViewsCard pageViews={data.pageViews} />
-          <ReferrersCard referrers={data.referrers} totalVisits={data.summary.totalVisits} />
-        </div>
-        <TechStatsGrid devices={data.devices} browsers={data.browsers} operatingSystems={data.operatingSystems} totalVisits={data.summary.totalVisits} />
-        {data.countries.length > 0 && <CountriesCard countries={data.countries} />}
-        <HourlyStatsCard hourlyStats={data.hourlyStats} />
-        <RecentVisitsCard recentVisits={data.recentVisits} pagination={data.pagination} page={page} onPageChange={setPage} />
+    <div className="space-y-6">
+      <Header period={period} onPeriodChange={handlePeriodChange} />
+      <SummaryCards summary={data.summary} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <PageViewsCard pageViews={data.pageViews} />
+        <ReferrersCard referrers={data.referrers} totalVisits={data.summary.totalVisits} />
       </div>
+      <TechStatsGrid
+        devices={data.devices}
+        browsers={data.browsers}
+        operatingSystems={data.operatingSystems}
+        totalVisits={data.summary.totalVisits}
+      />
+      {data.countries.length > 0 && <CountriesCard countries={data.countries} />}
+      <HourlyStatsCard hourlyStats={data.hourlyStats} />
+      <RecentVisitsCard
+        recentVisits={data.recentVisits}
+        pagination={data.pagination}
+        page={page}
+        onPageChange={setPage}
+      />
     </div>
   );
 };
@@ -74,20 +88,28 @@ const AdminAnalyticsPage = () => {
 export default AdminAnalyticsPage;
 
 const LoadingState = () => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div className="flex items-center justify-center py-24">
     <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-      <div className="text-xl text-gray-600">데이터를 불러오는 중...</div>
+      <div
+        className="w-10 h-10 rounded-full border-2 border-t-transparent animate-spin mx-auto mb-4"
+        style={{ borderColor: `${TEAL} transparent transparent transparent` }}
+      />
+      <p className="text-sm text-muted-foreground" style={mono}>
+        데이터를 불러오는 중…
+      </p>
     </div>
   </div>
 );
 
 const ErrorState = ({ onRetry }: { onRetry: () => void }) => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div className="flex items-center justify-center py-24">
     <div className="text-center">
-      <div className="text-6xl mb-4">⚠️</div>
-      <div className="text-xl text-red-600">데이터를 불러올 수 없습니다.</div>
-      <button onClick={onRetry} className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+      <p className="text-sm text-rose-500 mb-4">데이터를 불러올 수 없습니다.</p>
+      <button
+        onClick={onRetry}
+        className="px-5 py-2 rounded-full text-sm font-medium text-white transition-opacity hover:opacity-90"
+        style={{ background: TEAL }}
+      >
         다시 시도
       </button>
     </div>
@@ -95,12 +117,25 @@ const ErrorState = ({ onRetry }: { onRetry: () => void }) => (
 );
 
 const Header = ({ period, onPeriodChange }: { period: PeriodType; onPeriodChange: (period: PeriodType) => void }) => (
-  <div className="mb-8">
-    <h1 className="text-3xl font-bold text-gray-900 mb-2">방문자 통계 대시보드</h1>
-    <p className="text-gray-600">실시간 웹사이트 분석 및 방문자 추적</p>
-    <div className="flex flex-wrap gap-2 mt-6">
+  <div>
+    <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1" style={mono}>
+      Analytics
+    </p>
+    <h2 className="text-2xl font-light text-foreground mb-4" style={serif}>
+      방문자 분석
+    </h2>
+    <div className="flex flex-wrap gap-2">
       {periodOptions.map((p) => (
-        <button key={p.value} onClick={() => onPeriodChange(p.value)} className={`px-5 py-2.5 rounded-lg font-medium transition-all ${period === p.value ? "bg-blue-600 text-white shadow-lg shadow-blue-600/50" : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"}`}>
+        <button
+          key={p.value}
+          onClick={() => onPeriodChange(p.value)}
+          className="px-4 py-1.5 rounded-full text-sm transition-all"
+          style={
+            p.value === period
+              ? { background: TEAL, color: "#fff", ...mono }
+              : { background: "var(--secondary)", color: "var(--muted-foreground)", ...mono }
+          }
+        >
           {p.label}
         </button>
       ))}
@@ -109,40 +144,43 @@ const Header = ({ period, onPeriodChange }: { period: PeriodType; onPeriodChange
 );
 
 const SummaryCards = ({ summary }: { summary: AnalyticsData["summary"] }) => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <StatCard title="총 방문 수" value={summary.totalVisits.toLocaleString()} icon="👁️" color="blue" />
-    <StatCard title="순 방문자" value={summary.uniqueVisitors.toLocaleString()} icon="👤" color="green" />
-    <StatCard title="세션" value={summary.sessions.toLocaleString()} icon="🔄" color="purple" />
-    <StatCard title="평균 페이지/세션" value={summary.avgPagesPerSession} icon="📄" color="orange" />
+  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <StatCard title="총 방문 수" value={summary.totalVisits.toLocaleString()} />
+    <StatCard title="순 방문자" value={summary.uniqueVisitors.toLocaleString()} />
+    <StatCard title="세션" value={summary.sessions.toLocaleString()} />
+    <StatCard title="평균 페이지/세션" value={summary.avgPagesPerSession} />
   </div>
 );
 
-const StatCard = ({ title, value, icon, color }: { title: string; value: string; icon: string; color: "blue" | "green" | "purple" | "orange" }) => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-    <div className="flex items-center justify-between">
-      <div className="flex-1">
-        <p className="text-gray-600 text-sm mb-1">{title}</p>
-        <p className="text-3xl font-bold">{value}</p>
-      </div>
-      <div className="text-5xl">{icon}</div>
-    </div>
+const StatCard = ({ title, value }: { title: string; value: string }) => (
+  <div className="p-5 flex flex-col gap-2" style={glassCard}>
+    <p className="text-[10px] tracking-widest uppercase text-muted-foreground" style={mono}>
+      {title}
+    </p>
+    <p className="text-3xl font-light text-foreground" style={serif}>
+      {value}
+    </p>
   </div>
 );
 
 const PageViewsCard = ({ pageViews }: { pageViews: AnalyticsData["pageViews"] }) => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <h2 className="text-xl font-bold mb-4 flex items-center">
-      <span className="mr-2">📊</span> 페이지별 조회수
-    </h2>
-    <div className="space-y-3 max-h-96 overflow-y-auto">
+  <div className="p-5" style={glassCard}>
+    <p className="text-xs font-medium text-foreground mb-4">페이지별 조회수</p>
+    <div className="space-y-1 max-h-96 overflow-y-auto">
+      {pageViews.length === 0 && <p className="text-xs text-muted-foreground">데이터가 없습니다.</p>}
       {pageViews.map((page, index) => (
-        <div key={index} className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+        <div
+          key={index}
+          className="flex justify-between items-center p-2.5 rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
+        >
           <div className="flex-1 min-w-0">
-            <div className="text-blue-600 font-medium truncate">{page.page_path}</div>
-            <div className="text-xs text-gray-500">{page.unique_visitors.toLocaleString()} 순방문자</div>
+            <div className="text-xs text-foreground truncate font-medium">{page.page_path}</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5" style={mono}>
+              {page.unique_visitors.toLocaleString()} 순방문자
+            </div>
           </div>
-          <div className="text-right ml-4">
-            <div className="text-lg font-bold">{page.views.toLocaleString()}</div>
+          <div className="text-sm font-medium text-foreground ml-4" style={mono}>
+            {page.views.toLocaleString()}
           </div>
         </div>
       ))}
@@ -151,23 +189,28 @@ const PageViewsCard = ({ pageViews }: { pageViews: AnalyticsData["pageViews"] })
 );
 
 const ReferrersCard = ({ referrers, totalVisits }: { referrers: AnalyticsData["referrers"]; totalVisits: number }) => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <h2 className="text-xl font-bold mb-4 flex items-center">
-      <span className="mr-2">🌐</span> 유입 경로
-    </h2>
+  <div className="p-5" style={glassCard}>
+    <p className="text-xs font-medium text-foreground mb-4">유입 경로</p>
     <div className="space-y-3">
-      {referrers.map((ref, index) => (
-        <div key={index} className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
-          <div className="flex items-center">
-            <span className="text-2xl mr-3">{getSourceIcon(ref.source)}</span>
-            <div>
-              <div className="font-medium">{ref.source}</div>
-              <div className="text-xs text-gray-500">{ref.unique_visitors.toLocaleString()} 순방문자</div>
+      {referrers.length === 0 && <p className="text-xs text-muted-foreground">데이터가 없습니다.</p>}
+      {referrers.map((r) => (
+        <div key={r.source}>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs text-foreground">{r.source}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-muted-foreground" style={mono}>
+                {r.visits.toLocaleString()}
+              </span>
+              <span className="text-[10px] font-medium w-9 text-right" style={{ color: TEAL, ...mono }}>
+                {totalVisits ? ((r.visits / totalVisits) * 100).toFixed(1) : "0"}%
+              </span>
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-lg font-bold">{ref.visits.toLocaleString()}</div>
-            <div className="text-xs text-gray-500">{((ref.visits / totalVisits) * 100).toFixed(1)}%</div>
+          <div className="h-1.5 rounded-full" style={{ background: "var(--muted)" }}>
+            <div
+              className="h-1.5 rounded-full"
+              style={{ width: `${totalVisits ? (r.visits / totalVisits) * 100 : 0}%`, background: TEAL }}
+            />
           </div>
         </div>
       ))}
@@ -175,48 +218,63 @@ const ReferrersCard = ({ referrers, totalVisits }: { referrers: AnalyticsData["r
   </div>
 );
 
-const TechStatsGrid = ({ devices, browsers, operatingSystems, totalVisits }: { devices: AnalyticsData["devices"]; browsers: AnalyticsData["browsers"]; operatingSystems: AnalyticsData["operatingSystems"]; totalVisits: number }) => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 className="text-xl font-bold mb-4 flex items-center">
-        <span className="mr-2">📱</span> 디바이스
-      </h2>
+const TechStatsGrid = ({
+  devices,
+  browsers,
+  operatingSystems,
+  totalVisits,
+}: {
+  devices: AnalyticsData["devices"];
+  browsers: AnalyticsData["browsers"];
+  operatingSystems: AnalyticsData["operatingSystems"];
+  totalVisits: number;
+}) => (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="p-5" style={glassCard}>
+      <p className="text-xs font-medium text-foreground mb-4">디바이스</p>
       <div className="space-y-3">
-        {devices.map((device, index) => (
-          <div key={index} className="flex justify-between items-center">
-            <span className="font-medium">{device.device_type}</span>
-            <div className="text-right">
-              <div className="font-bold">{device.count.toLocaleString()}</div>
-              <div className="text-xs text-gray-500">{((device.count / totalVisits) * 100).toFixed(1)}%</div>
+        {devices.map((d, i) => (
+          <div key={i}>
+            <div className="flex justify-between mb-1">
+              <span className="text-xs text-foreground">{d.device_type ?? "알 수 없음"}</span>
+              <span className="text-[10px] font-medium" style={{ color: TEAL, ...mono }}>
+                {totalVisits ? ((d.count / totalVisits) * 100).toFixed(1) : "0"}%
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full" style={{ background: "var(--muted)" }}>
+              <div
+                className="h-1.5 rounded-full"
+                style={{ width: `${totalVisits ? (d.count / totalVisits) * 100 : 0}%`, background: TEAL }}
+              />
             </div>
           </div>
         ))}
       </div>
     </div>
 
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 className="text-xl font-bold mb-4 flex items-center">
-        <span className="mr-2">🌍</span> 브라우저
-      </h2>
-      <div className="space-y-2 max-h-64 overflow-y-auto">
-        {browsers.map((browser, index) => (
-          <div key={index} className="flex justify-between items-center text-sm">
-            <span>{browser.browser}</span>
-            <span className="font-semibold">{browser.count.toLocaleString()}</span>
+    <div className="p-5" style={glassCard}>
+      <p className="text-xs font-medium text-foreground mb-4">브라우저</p>
+      <div className="space-y-2 max-h-52 overflow-y-auto">
+        {browsers.map((b, i) => (
+          <div key={i} className="flex justify-between items-center text-xs text-muted-foreground">
+            <span>{b.browser ?? "알 수 없음"}</span>
+            <span className="text-foreground font-medium" style={mono}>
+              {b.count.toLocaleString()}
+            </span>
           </div>
         ))}
       </div>
     </div>
 
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 className="text-xl font-bold mb-4 flex items-center">
-        <span className="mr-2">💻</span> 운영체제
-      </h2>
-      <div className="space-y-2 max-h-64 overflow-y-auto">
-        {operatingSystems.map((os, index) => (
-          <div key={index} className="flex justify-between items-center text-sm">
-            <span>{os.os}</span>
-            <span className="font-semibold">{os.count.toLocaleString()}</span>
+    <div className="p-5" style={glassCard}>
+      <p className="text-xs font-medium text-foreground mb-4">운영체제</p>
+      <div className="space-y-2 max-h-52 overflow-y-auto">
+        {operatingSystems.map((os, i) => (
+          <div key={i} className="flex justify-between items-center text-xs text-muted-foreground">
+            <span>{os.os ?? "알 수 없음"}</span>
+            <span className="text-foreground font-medium" style={mono}>
+              {os.count.toLocaleString()}
+            </span>
           </div>
         ))}
       </div>
@@ -225,17 +283,22 @@ const TechStatsGrid = ({ devices, browsers, operatingSystems, totalVisits }: { d
 );
 
 const CountriesCard = ({ countries }: { countries: AnalyticsData["countries"] }) => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-    <h2 className="text-xl font-bold mb-4 flex items-center">
-      <span className="mr-2">🗺️</span> 국가별 방문
-    </h2>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {countries.map((country, index) => (
-        <div key={index} className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50">
-          <span className="font-medium">{country.country}</span>
+  <div className="p-5" style={glassCard}>
+    <p className="text-xs font-medium text-foreground mb-4">국가별 방문</p>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+      {countries.map((c, i) => (
+        <div
+          key={i}
+          className="flex justify-between items-center p-2.5 rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
+        >
+          <span className="text-xs text-foreground">{c.country}</span>
           <div className="text-right">
-            <div className="text-lg font-bold">{country.visits.toLocaleString()}</div>
-            <div className="text-xs text-gray-500">{country.unique_visitors.toLocaleString()} 순방문자</div>
+            <div className="text-xs font-medium text-foreground" style={mono}>
+              {c.visits.toLocaleString()}
+            </div>
+            <div className="text-[10px] text-muted-foreground" style={mono}>
+              {c.unique_visitors.toLocaleString()} 순방문자
+            </div>
           </div>
         </div>
       ))}
@@ -245,24 +308,24 @@ const CountriesCard = ({ countries }: { countries: AnalyticsData["countries"] })
 
 const HourlyStatsCard = ({ hourlyStats }: { hourlyStats: AnalyticsData["hourlyStats"] }) => {
   const maxVisits = Math.max(...hourlyStats.map((h) => h.visits), 1);
-
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-      <h2 className="text-xl font-bold mb-4 flex items-center">
-        <span className="mr-2">⏰</span> 시간대별 방문
-      </h2>
-      <div className="flex items-end justify-between gap-1 h-48">
+    <div className="p-5" style={glassCard}>
+      <p className="text-xs font-medium text-foreground mb-4">시간대별 방문</p>
+      <div className="flex items-end justify-between gap-1 h-40">
         {hourlyStats.map((stat) => {
           const height = (stat.visits / maxVisits) * 100;
-
           return (
             <div key={stat.hour} className="flex-1 flex flex-col items-center group">
-              <div className="relative w-full">
-                <div className="w-full bg-gradient-to-t from-blue-600 to-blue-400 rounded-t hover:from-blue-700 hover:to-blue-500 transition-all cursor-pointer" style={{ height: `${Math.max(height, 2)}%` }} title={`${stat.hour}시: ${stat.visits.toLocaleString()}회`}>
-                  <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{stat.visits.toLocaleString()}회</span>
-                </div>
+              <div className="relative w-full flex items-end" style={{ height: 120 }}>
+                <div
+                  className="w-full rounded-t transition-all"
+                  style={{ height: `${Math.max(height, 2)}%`, background: TEAL, opacity: 0.85 }}
+                  title={`${stat.hour}시: ${stat.visits.toLocaleString()}회`}
+                />
               </div>
-              <div className="text-xs mt-2 text-gray-600">{stat.hour}</div>
+              <div className="text-[9px] mt-2 text-muted-foreground" style={mono}>
+                {stat.hour}
+              </div>
             </div>
           );
         })}
@@ -271,32 +334,46 @@ const HourlyStatsCard = ({ hourlyStats }: { hourlyStats: AnalyticsData["hourlySt
   );
 };
 
-const RecentVisitsCard = ({ recentVisits, pagination, page, onPageChange }: { recentVisits: AnalyticsData["recentVisits"]; pagination: AnalyticsData["pagination"]; page: number; onPageChange: (page: number) => void }) => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <h2 className="text-xl font-bold mb-4 flex items-center">
-      <span className="mr-2">📋</span> 최근 방문 기록
-    </h2>
+const RecentVisitsCard = ({
+  recentVisits,
+  pagination,
+  page,
+  onPageChange,
+}: {
+  recentVisits: AnalyticsData["recentVisits"];
+  pagination: AnalyticsData["pagination"];
+  page: number;
+  onPageChange: (page: number) => void;
+}) => (
+  <div className="p-5" style={glassCard}>
+    <p className="text-xs font-medium text-foreground mb-4">최근 방문 기록</p>
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+      <table className="w-full text-xs border-collapse min-w-[640px]">
         <thead>
-          <tr className="border-b-2 border-gray-200">
-            <th className="text-left py-3 px-2 font-semibold">시간</th>
-            <th className="text-left py-3 px-2 font-semibold">페이지</th>
-            <th className="text-left py-3 px-2 font-semibold">유입경로</th>
-            <th className="text-left py-3 px-2 font-semibold">위치</th>
-            <th className="text-left py-3 px-2 font-semibold">디바이스</th>
-            <th className="text-left py-3 px-2 font-semibold">브라우저</th>
+          <tr className="border-b border-border">
+            {["시간", "페이지", "유입경로", "위치", "디바이스", "브라우저"].map((h) => (
+              <th key={h} className="text-left py-2.5 px-2 font-medium text-muted-foreground">
+                {h}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {recentVisits.map((visit) => (
-            <tr key={visit.id} className="border-b border-gray-100 hover:bg-gray-50">
-              <td className="py-3 px-2 whitespace-nowrap text-gray-600">{format(new Date(visit.visited_at), "MM/dd HH:mm:ss")}</td>
-              <td className="py-3 px-2 text-blue-600 max-w-xs truncate">{visit.page_path}</td>
-              <td className="py-3 px-2 text-gray-600 max-w-xs truncate">{visit.referrer}</td>
-              <td className="py-3 px-2 text-gray-600 whitespace-nowrap">{visit.city && visit.country ? `${visit.city}, ${visit.country}` : visit.country || "-"}</td>
-              <td className="py-3 px-2 text-gray-600">{visit.device_type}</td>
-              <td className="py-3 px-2 text-gray-600">{visit.browser}</td>
+            <tr
+              key={visit.id}
+              className="border-b border-border last:border-0 hover:bg-black/[0.02] dark:hover:bg-white/[0.03]"
+            >
+              <td className="py-2.5 px-2 whitespace-nowrap text-muted-foreground" style={mono}>
+                {format(new Date(visit.visited_at), "MM/dd HH:mm:ss")}
+              </td>
+              <td className="py-2.5 px-2 text-foreground max-w-[180px] truncate">{visit.page_path}</td>
+              <td className="py-2.5 px-2 text-muted-foreground max-w-[140px] truncate">{visit.referrer || "-"}</td>
+              <td className="py-2.5 px-2 text-muted-foreground whitespace-nowrap">
+                {visit.city && visit.country ? `${visit.city}, ${visit.country}` : visit.country || "-"}
+              </td>
+              <td className="py-2.5 px-2 text-muted-foreground">{visit.device_type || "-"}</td>
+              <td className="py-2.5 px-2 text-muted-foreground">{visit.browser || "-"}</td>
             </tr>
           ))}
         </tbody>
@@ -304,32 +381,25 @@ const RecentVisitsCard = ({ recentVisits, pagination, page, onPageChange }: { re
     </div>
 
     {pagination.totalPages > 1 && (
-      <div className="flex justify-center items-center gap-2 mt-6">
-        <button onClick={() => onPageChange(Math.max(1, page - 1))} disabled={page === 1} className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors">
+      <div className="flex justify-center items-center gap-3 mt-5">
+        <button
+          onClick={() => onPageChange(Math.max(1, page - 1))}
+          disabled={page === 1}
+          className="px-4 py-1.5 rounded-full text-xs border border-border text-muted-foreground disabled:opacity-40 hover:text-foreground transition-colors"
+        >
           이전
         </button>
-        <span className="px-4 py-2 text-gray-700">
-          페이지 {page} / {pagination.totalPages}
+        <span className="text-xs text-muted-foreground" style={mono}>
+          {page} / {pagination.totalPages}
         </span>
-        <button onClick={() => onPageChange(page + 1)} disabled={page >= pagination.totalPages} className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors">
+        <button
+          onClick={() => onPageChange(page + 1)}
+          disabled={page >= pagination.totalPages}
+          className="px-4 py-1.5 rounded-full text-xs border border-border text-muted-foreground disabled:opacity-40 hover:text-foreground transition-colors"
+        >
           다음
         </button>
       </div>
     )}
   </div>
 );
-
-const getSourceIcon = (source: string): string => {
-  const icons: Record<string, string> = {
-    Direct: "🔗",
-    Google: "🔍",
-    Naver: "N",
-    Facebook: "👥",
-    Instagram: "📷",
-    YouTube: "▶️",
-    "Twitter/X": "🐦",
-    LinkedIn: "💼",
-    Other: "🌐",
-  };
-  return icons[source] || "🌐";
-};
