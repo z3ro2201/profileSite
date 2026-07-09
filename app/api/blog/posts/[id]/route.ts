@@ -31,10 +31,20 @@ export async function GET(_req: Request, ctx: { params: MaybePromise<{ id: strin
       category: { select: { slug: true, name: true } },
       tags: { select: { slug: true, name: true } },
       author: { select: { name: true } },
+      files: {
+        where: { role: "thumbnail" },
+        select: {
+          file: { select: { objectKey: true, mimeType: true, width: true, height: true } },
+        },
+        take: 1,
+      },
     },
   });
 
   if (!post) return bad("해당 포스트를 찾을 수 없습니다.", 404);
 
-  return NextResponse.json({ ok: true, post });
+  const { files, ...rest } = post;
+  const thumbnail = files[0]?.file ?? null;
+
+  return NextResponse.json({ ok: true, post: { ...rest, thumbnail } });
 }

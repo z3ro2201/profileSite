@@ -177,7 +177,10 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
       set: [], // 기존 태그 모두 제거
       ...(tagSlugs.length
         ? {
-            connect: tagSlugs.map((slug) => ({ slug })),
+            connectOrCreate: tagSlugs.map((slug) => ({
+              where: { slug },
+              create: { slug, name: slug },
+            })),
           }
         : {}),
     };

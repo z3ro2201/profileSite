@@ -1,0 +1,115 @@
+/*
+ * season4 전용 테마.
+ * 원본(Figma Make) theme.css는 :root / body / html에 직접 걸려 있어서
+ * 그대로 가져오면 s2, s3, blog 등 다른 라우트까지 영향을 받는다.
+ * 그래서 모든 값을 .s4-root 스코프 아래로 옮기고,
+ * dark 모드도 document.documentElement가 아니라 .s4-root.dark 로만 토글한다.
+ * (app/s4/layout.tsx 최상단 div에 className="s4-root" / "s4-root dark" 를 준다)
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap");
+
+.s4-root {
+  --font-size: 16px;
+  --background: #fafaf8;
+  --foreground: #1a1a16;
+  --card: #f3f3ef;
+  --card-foreground: #1a1a16;
+  --popover: #fafaf8;
+  --popover-foreground: #1a1a16;
+  --primary: #23c6a9;
+  --primary-foreground: #ffffff;
+  --secondary: #f0f0ec;
+  --secondary-foreground: #1a1a16;
+  --muted: #ebebe7;
+  --muted-foreground: #595951;
+  --accent: #23c6a9;
+  --accent-foreground: #ffffff;
+  --destructive: #d4183d;
+  --destructive-foreground: #ffffff;
+  --border: rgba(26, 26, 22, 0.1);
+  --input: transparent;
+  --input-background: #f0f0ec;
+  --switch-background: #c4c4bc;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #23c6a9;
+  --radius: 0.625rem;
+}
+
+.s4-root.dark {
+  --background: #111110;
+  --foreground: #f0f0ec;
+  --card: #1a1a18;
+  --card-foreground: #f0f0ec;
+  --popover: #1a1a18;
+  --popover-foreground: #f0f0ec;
+  --primary: #23c6a9;
+  --primary-foreground: #ffffff;
+  --secondary: #1e1e1c;
+  --secondary-foreground: #f0f0ec;
+  --muted: #252523;
+  --muted-foreground: #a8a8a0;
+  --accent: #23c6a9;
+  --accent-foreground: #ffffff;
+  --destructive: #7f1d1d;
+  --destructive-foreground: #fca5a5;
+  --border: rgba(255, 255, 255, 0.09);
+  --input: #40403e;
+  --ring: #23c6a9;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+.s4-root {
+  font-size: var(--font-size);
+  color: var(--foreground);
+}
+
+/* 배경색은 페이지 전체 wrapper(app/s4/layout.tsx)에만 적용.
+   FloatingNav처럼 .s4-root만 부분적으로 씌우는 곳에서 불투명 배경이
+   깔리는 걸 막기 위해 분리함. */
+.s4-page {
+  background: var(--background);
+}
+
+.s4-root h1 {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.5;
+}
+
+.s4-root h2 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.5;
+}
+
+.s4-root h3 {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.5;
+}
+
+.s4-root h4 {
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.5;
+}
+
+.s4-root button {
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.5;
+}
+
+.s4-root input {
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.5;
+}

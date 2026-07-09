@@ -255,7 +255,7 @@ export default function CategoryManager() {
             options={[
               { value: "", label: "최상위 카테고리" },
               ...flatCategories
-                .filter((c) => c.id !== editingId && c.depth < 2)
+                .filter((c) => c.id !== editingId && c.depth < 1)
                 .map((cat) => ({
                   value: String(cat.id),
                   label: `${"  ".repeat(cat.depth)}${cat.depth > 0 ? "└ " : ""}${cat.name}`,

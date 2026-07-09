@@ -59,6 +59,7 @@ export function AdminLayout({ children, defaultActiveMenu = "tables", isLoggedIn
     { id: "글 작성", icon: Icons.Table, label: "글 작성", link: "/admin/mgmt/posts/write" },
     { id: "글 관리", icon: Icons.CreditCard, label: "글 관리", link: "/admin/mgmt/posts/list" },
     { id: "카테고리 관리", icon: Icons.VR, label: "카테고리 관리", link: "/admin/mgmt/categories" },
+    { id: "프로젝트 관리", icon: Icons.CreditCard, label: "프로젝트 관리", link: "/admin/mgmt/projects" },
   ];
 
   const accountMenuItems = [

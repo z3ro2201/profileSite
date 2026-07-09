@@ -29,9 +29,6 @@ export const metadata: Metadata = {
     description: "처음부터 다시 시작하다.",
     images: ["/preview.png"],
   },
-  alternates: {
-    canonical: "https://2er0.io/s3",
-  },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
 };
 
@@ -69,7 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ClientShell>{children}</ClientShell>
-        <VisitorTracker />
+        {/* <VisitorTracker /> */}
       </body>
     </html>
   );

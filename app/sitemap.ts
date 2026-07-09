@@ -22,7 +22,7 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
       changeFrequency?: Freq;
       priority?: number;
       lastModified?: Date;
-    }
+    },
   ) => {
     routes.push({
       url: joinUrl(baseUrl, path),
@@ -43,6 +43,11 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
 
   add("/s2", { priority: 0.7 });
   add("/s2/profile", { priority: 0.7 });
+
+  add("/s4", { changeFrequency: "weekly", priority: 0.8 });
+  add("/s4/profile", { priority: 0.7 });
+  add("/s4/project", { priority: 0.7 });
+  // /s4/ui는 컴포넌트 쇼케이스 페이지라 metadata에서 noindex 처리했으므로 sitemap에서도 제외
 
   add("/tools", { priority: 1 });
   add("/tools/game/onstove/lostark/auction-chart/gemstone", { priority: 0.9 });

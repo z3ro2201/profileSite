@@ -122,8 +122,9 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
       const newDepth = await calculateDepth(newParentId);
 
       // 4. 최대 깊이 체크 (3단계 = depth 2)
-      if (newDepth > 2) {
-        return NextResponse.json({ ok: false, message: "Maximum 3 levels allowed" }, { status: 400 });
+      // 4. 최대 깊이 체크 (2단계 = depth 0~1)
+      if (newDepth > 1) {
+        return NextResponse.json({ ok: false, message: "Maximum 2 levels allowed" }, { status: 400 });
       }
 
       data.parentId = newParentId;

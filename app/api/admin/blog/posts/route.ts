@@ -83,7 +83,10 @@ export async function POST(req: Request) {
       ...(tagSlugs.length
         ? {
             tags: {
-              connect: tagSlugs.map((slug) => ({ slug })),
+              connectOrCreate: tagSlugs.map((slug) => ({
+                where: { slug },
+                create: { slug, name: slug },
+              })),
             },
           }
         : {}),

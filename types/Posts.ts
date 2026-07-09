@@ -117,6 +117,13 @@ export type PublicPostDetail = {
   author: {
     name: string | null;
   };
+
+  thumbnail: {
+    objectKey: string;
+    mimeType: string | null;
+    width: number | null;
+    height: number | null;
+  } | null;
 };
 
 export type PublicPostDetailResponse = {

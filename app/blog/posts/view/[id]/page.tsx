@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { apiFetch } from "@/lib/apiFetch";
 import type { PublicPostDetailResponse } from "@/types/Posts";
 import { markdownToHtmlWithToc } from "@/lib/markdown";
@@ -32,17 +33,31 @@ export const generateMetadata = async ({ params }: Props): Promise<Metadata> => 
   const source = post.contentHtml ?? post.contentMd ?? "";
   const description = stripAndTrim(source);
 
+  // 글에 썸네일이 있으면 그걸, 없으면 metadataBase의 기본 OG 이미지로 자동 폴백
+  // (openGraph.images를 아예 안 넣으면 루트 layout의 /preview.png가 상속됨)
+  const ogImages = post.thumbnail
+    ? [{ url: post.thumbnail.objectKey, width: post.thumbnail.width ?? undefined, height: post.thumbnail.height ?? undefined, alt: post.title }]
+    : undefined;
+
   return {
     title: post.title,
     description,
+    alternates: {
+      canonical: `https://2er0.io/blog/posts/view/${postId}`,
+    },
     openGraph: {
       title: post.title,
       description,
       type: "article",
+      publishedTime: post.publishedAt ?? undefined,
+      modifiedTime: post.updatedAt,
+      authors: post.author.name ? [post.author.name] : undefined,
+      images: ogImages,
     },
     twitter: {
       title: post.title,
       description,
+      images: ogImages?.map((i) => i.url),
     },
   };
 };
@@ -80,9 +95,25 @@ const BlogPostViewPage = async (props: Props) => {
   // Markdown to HTML
   const { html, toc } = await markdownToHtmlWithToc(post.contentMd);
   const finalHtml = post.contentHtml ?? html;
-  console.log(post);
+
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    datePublished: post.publishedAt ?? post.createdAt,
+    dateModified: post.updatedAt,
+    author: { "@type": "Person", name: post.author.name ?? "2ER0" },
+    ...(post.thumbnail ? { image: [`https://2er0.io${post.thumbnail.objectKey}`] } : {}),
+    mainEntityOfPage: { "@type": "WebPage", "@id": `https://2er0.io/blog/posts/view/${postId}` },
+  };
+
   return (
     <>
+      <Script
+        id={`jsonld-post-${postId}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
       <PostViewClient post={post} finalHtml={finalHtml} toc={toc} isAdmin={isAdminUser} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">

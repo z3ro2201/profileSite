@@ -40,20 +40,14 @@ export async function GET(req: Request) {
   const tree = searchParams.get("tree") === "1"; // ✅ 트리 구조로 반환
 
   if (tree) {
-    // ✅ 트리 구조로 반환
+    // ✅ 트리 구조로 반환 (최상위 + 자식, 2단계까지)
     const categories = await prisma.category.findMany({
       where: { parentId: null }, // 최상위만
       orderBy: [{ order: "asc" }, { id: "asc" }],
       include: {
         children: {
           orderBy: [{ order: "asc" }, { id: "asc" }],
-          include: {
-            children: {
-              orderBy: [{ order: "asc" }, { id: "asc" }],
-              include: includeCounts ? { _count: { select: { posts: true } } } : undefined,
-            },
-            _count: includeCounts ? { select: { posts: true } } : undefined,
-          },
+          include: includeCounts ? { _count: { select: { posts: true } } } : undefined,
         },
         _count: includeCounts ? { select: { posts: true } } : undefined,
       },
@@ -101,9 +95,9 @@ export async function POST(req: Request) {
     // ✅ 깊이 계산
     const depth = await calculateDepth(parentId);
 
-    // ✅ 최대 깊이 제한 (3단계 = depth 2)
-    if (depth > 2) {
-      return NextResponse.json({ ok: false, message: "Maximum 3 levels allowed" }, { status: 400 });
+    // ✅ 최대 깊이 제한 (2단계 = depth 0~1)
+    if (depth > 1) {
+      return NextResponse.json({ ok: false, message: "Maximum 2 levels allowed" }, { status: 400 });
     }
 
     const data = {

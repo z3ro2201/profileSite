@@ -3,7 +3,7 @@ import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faQuestion, faEnvelope, faReply, faBlog, faRss } from "@fortawesome/free-solid-svg-icons";
-import { GalleryVerticalEndIcon, AppWindowIcon } from "lucide-react";
+import { GalleryVerticalEndIcon, AppWindowIcon, HousePlusIcon } from "lucide-react";
 
 import { DEFAULT_LOCALE } from "@/lib/i18n/i18n";
 import { getDict } from "@/lib/i18n/dict";
@@ -36,12 +36,27 @@ const Season3Main = async () => {
 
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center gap-2">
-      <Image src="/s3/profile.webp" width={250} height={250} alt="메인페이지 프로필 사진, 뭐해야 해요 모코콩?" className="mb-4" />
+      <Image
+        src="/s3/profile.webp"
+        width={250}
+        height={250}
+        alt="메인페이지 프로필 사진, 뭐해야 해요 모코콩?"
+        className="mb-4"
+      />
       <h1 className="font-bold text-lg" role="banner">
         2ERO HOME SEASON 3
       </h1>
-      <div className="my-2 p-2 whitespace-pre-line text-center font-bold bg-[rgba(255,255,255,.5)] rounded-lg underline">{social.player}</div>
+      <div className="my-2 p-2 whitespace-pre-line text-center font-bold bg-[rgba(255,255,255,.5)] rounded-lg underline">
+        {social.player}
+      </div>
       <ul className="s3-main mb-2">
+        <li>
+          <Link href="/s4" title={"S4"}>
+            <HousePlusIcon />
+          </Link>
+          <span className="textSubtitles">{social.home}</span>
+        </li>
+
         <li>
           <Link href="/s3/profile" title={social.simpleProfile}>
             <FontAwesomeIcon icon={faQuestion} />
@@ -54,13 +69,6 @@ const Season3Main = async () => {
             <FontAwesomeIcon icon={faGithub} />
           </Link>
           <span className="textSubtitles">{social.github}</span>
-        </li>
-
-        <li>
-          <Link href="/blog/prologue" title={social.blog}>
-            <FontAwesomeIcon icon={faBlog} />
-          </Link>
-          <span className="textSubtitles">{social.blog}</span>
         </li>
 
         <li>

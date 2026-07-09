@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/",
-        destination: "/s3",
+        destination: "/s4",
         permanent: false, // true = 308
       },
     ];

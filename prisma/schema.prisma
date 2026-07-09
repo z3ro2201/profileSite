@@ -108,7 +108,8 @@ model File {
   deletedAt DateTime?
 
   postLinks PostFile[]
-  
+  projectThumbnails Project[]
+
   @@index([storage, objectKey])
   @@index([createdAt])
 }
@@ -231,4 +232,34 @@ enum PostState {
   DRAFT
   PUBLISHED
   ARCHIVED
+}
+
+// s4(포트폴리오) 프로젝트 카드. 코드 재배포 없이 Prisma Studio로 추가/수정하기 위해 DB로 뺌.
+model Project {
+  id           Int      @id @default(autoincrement())
+  slug         String   @unique // 기존 하드코딩의 id("p2025c" 등)와 대응, 프론트 key로도 사용
+  emoji        String   @db.VarChar(16)
+  title        String   @db.VarChar(200)
+  subtitle     String   @db.VarChar(500)
+  category     String   @db.VarChar(50) // FilterKey("Web"|"App"|"PHP"|"Node.js" 등)과 매칭
+  color        String   @db.VarChar(20) // hex
+  period       String   @db.VarChar(50)
+  contribution String   @db.VarChar(50)
+  url          String?  @db.VarChar(500)
+  github       String?  @db.VarChar(500)
+  body         String   @db.Text
+  stack        Json // { label: string; items: string[] }[]
+  year         Int?
+  tags         Json? // string[]
+  order        Int      @default(0)
+  isPublic     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  thumbnailId String?
+  thumbnail   File?   @relation(fields: [thumbnailId], references: [id])
+
+  @@index([order])
+  @@index([thumbnailId])
+  @@map("projects")
 }
