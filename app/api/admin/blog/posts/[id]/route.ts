@@ -2,6 +2,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { generateAiSummary } from "@/lib/ai-summary";
 import type { PostUpsertProp } from "@/types/Posts";
 
 function bad(message: string, status = 400) {
@@ -126,6 +127,8 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
 
   if (typeof body.contentMd === "string") {
     data.contentMd = body.contentMd;
+    // 본문이 바뀔 때만 재생성 (제목/카테고리만 고칠 땐 굳이 다시 호출 안 함 — 비용 절약)
+    data.aiSummary = await generateAiSummary(body.contentMd);
   }
 
   if (body.contentHtml !== undefined) {

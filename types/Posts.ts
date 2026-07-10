@@ -93,6 +93,7 @@ export type PublicPostDetail = {
   title: string;
   contentMd: string;
   contentHtml: string | null;
+  aiSummary?: string | null;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;

@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import OsmMapClient from "@/components/maps/OsmMapClient";
 import { cn } from "@/lib/cn";
 import Link from "next/link";
@@ -20,6 +24,7 @@ type Props = {
     mapOnly?: boolean;
     placeName?: string | null;
     address?: string | null;
+    aiSummary?: string | null;
   };
   finalHtml: string;
   toc: TocItem[];
@@ -32,6 +37,19 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
   const hasCoord = Number.isFinite(post.lat) && Number.isFinite(post.lng);
   const lat = (post.lat ?? 0) as number;
   const lng = (post.lng ?? 0) as number;
+
+  // 본문 이미지 클릭 시 확대 보기. dangerouslySetInnerHTML 내부라 이벤트 위임으로 처리.
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName === "IMG") setLightboxSrc((target as HTMLImageElement).src);
+  };
+
+  const [summaryOpen, setSummaryOpen] = useState(true);
+
+  // 읽는 시간 추정 (한국어 분당 ~500자 기준, 최소 1분)
+  const readingMinutes = Math.max(1, Math.round(finalHtml.replace(/<[^>]*>/g, "").length / 500));
+
   const datePart = publishDate
     .toLocaleDateString("ko-KR", {
       year: "numeric",
@@ -119,38 +137,59 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
           <time dateTime={publishDate.toISOString()}>
             {datePart}&nbsp;{timePart}
           </time>
-          {/* · 읽는 시간 약 5분 */}
+          &nbsp;· 읽는 시간 약 {readingMinutes}분
         </p>
-        {/* AI 요약 collapsible */}
-        {/* <div className="rounded-xl mb-8 overflow-hidden" style={{ background: "var(--secondary)" }}>
-          <button
-            onClick={() => setSummaryOpen((v) => !v)}
-            className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-foreground"
-          >
-            <span style={mono}>✦ AI 요약</span>
-            <ChevronDown
-              size={16}
-              className="text-muted-foreground transition-transform"
-              style={{ transform: summaryOpen ? "rotate(180deg)" : "rotate(0deg)" }}
-            />
-          </button>
-          {summaryOpen && (
-            <div className="px-4 pb-4 text-sm text-muted-foreground leading-relaxed font-light border-t border-border pt-3">
-              이 글은 {selectedPost.title}에 대한 실무 관점의 정리입니다.
-              핵심 개념과 각 케이스별 전략을 코드 예제와 함께 설명하며,
-              실제 프로젝트에서 바로 적용할 수 있는 패턴을 소개합니다.
-            </div>
-          )}
-        </div> */}
+
+        {/* AI 요약 — 발행/수정 시점에 미리 생성해둔 것, 매 조회마다 재생성 안 함 */}
+        {post.aiSummary && (
+          <div className="rounded-xl mb-8 overflow-hidden" style={{ background: "var(--secondary)" }}>
+            <button
+              onClick={() => setSummaryOpen((v) => !v)}
+              className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-foreground"
+            >
+              <span style={mono}>✦ AI 요약</span>
+              <ChevronDown
+                size={16}
+                className="text-muted-foreground transition-transform"
+                style={{ transform: summaryOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+              />
+            </button>
+            {summaryOpen && (
+              <div className="px-4 pb-4 text-sm text-muted-foreground leading-relaxed font-light border-t border-border pt-3">
+                {post.aiSummary}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* article body */}
         {!post.mapOnly && (
           <div
-            className="space-y-5 text-[1.05rem] text-foreground/80 leading-relaxed font-light mb-8"
+            className="space-y-5 text-[1.05rem] text-foreground/80 leading-relaxed font-light mb-8 [&_img]:cursor-zoom-in [&_figure]:m-0 [&_figcaption]:text-sm [&_figcaption]:text-muted-foreground [&_figcaption]:text-center [&_figcaption]:mt-2"
+            onClick={handleContentClick}
             dangerouslySetInnerHTML={{ __html: finalHtml }}
           />
         )}
       </div>
+
+      {/* 이미지 확대 라이트박스 */}
+      {lightboxSrc && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-6 cursor-zoom-out"
+          style={{ background: "rgba(0,0,0,0.85)" }}
+          onClick={() => setLightboxSrc(null)}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- 원본 그대로 확대 표시, next/image 최적화 불필요 */}
+          <img src={lightboxSrc} alt="" className="max-w-full max-h-full object-contain rounded-lg" onClick={(e) => e.stopPropagation()} />
+          <button
+            onClick={() => setLightboxSrc(null)}
+            className="absolute top-5 right-5 w-9 h-9 rounded-full flex items-center justify-center text-white text-xl hover:bg-white/10 transition-colors"
+            aria-label="닫기"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* ✅ 지도: 헤더 바로 아래 */}
       {hasCoord && !compact && (

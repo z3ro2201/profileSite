@@ -166,6 +166,7 @@ model Post {
   categoryId     Int?
   contentHtml    String?     @db.LongText
   contentMd      String      @db.LongText
+  aiSummary      String?     @db.Text // 발행/수정 시 생성해서 저장 (매 조회마다 재생성 안 함)
   publishedAt    DateTime?
   state          PostState   @default(DRAFT)
 

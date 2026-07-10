@@ -64,6 +64,15 @@ export default function BlogListClient({
   const [blogView, setBlogView] = useState<"posts" | "tags" | "categories">("posts");
   const [drilldownCategory, setDrilldownCategory] = useState<Category | null>(null);
 
+  // 태그/카테고리 탭에서 카드를 클릭하면 서버에서 필터링된 글은 잘 받아오는데,
+  // blogView가 "posts"로 안 바뀌면 화면은 계속 태그/카테고리 그리드에 머물러서
+  // "필터링된 글 목록이 안 나온다"는 버그가 있었음. activeTag/activeCategory가
+  // 생기면(=필터가 걸리면) 항상 글 목록 탭으로 전환한다.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 태그/카테고리 필터가 활성화되면 글 목록 탭으로 강제 전환
+    if (activeTag || activeCategory) setBlogView("posts");
+  }, [activeTag, activeCategory]);
+
   const router = useRouter();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");

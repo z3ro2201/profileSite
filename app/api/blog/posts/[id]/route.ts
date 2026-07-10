@@ -20,6 +20,7 @@ export async function GET(_req: Request, ctx: { params: MaybePromise<{ id: strin
       title: true,
       contentMd: true,
       contentHtml: true,
+      aiSummary: true,
       publishedAt: true,
       createdAt: true,
       updatedAt: true,

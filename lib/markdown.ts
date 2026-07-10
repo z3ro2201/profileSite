@@ -29,6 +29,39 @@ type RemarkPluginArgs = {
 };
 
 /**
+ * ✅ 이미지에 lazy loading 적용 + alt 텍스트가 있으면 <figure><figcaption>으로 캡션 표시
+ *    (스크롤 안 된 이미지는 브라우저가 알아서 나중에 로딩 + alt를 설명문으로도 노출)
+ */
+function rehypeEnhanceImages() {
+  return (tree: any) => {
+    visit(tree, "element", (node: any, index: number | undefined, parent: any) => {
+      if (node.tagName !== "img" || !parent || typeof index !== "number") return;
+
+      node.properties = node.properties ?? {};
+      node.properties.loading = "lazy";
+      node.properties.decoding = "async";
+
+      const alt = typeof node.properties.alt === "string" ? node.properties.alt.trim() : "";
+      if (!alt) return;
+
+      // 이미 figure로 감싸져 있으면(연속 처리 등) 중복으로 또 감싸지 않음
+      if (parent.tagName === "figure") return;
+
+      const figure = {
+        type: "element",
+        tagName: "figure",
+        properties: {},
+        children: [
+          node,
+          { type: "element", tagName: "figcaption", properties: {}, children: [{ type: "text", value: alt }] },
+        ],
+      };
+      parent.children.splice(index, 1, figure);
+    });
+  };
+}
+
+/**
  * ✅ 첫 번째 h1(#)을 title로 추출하고 본문에서는 제거
  * ✅ h2~h4(기본)만 TOC 수집 + heading id 주입
  */
@@ -87,6 +120,7 @@ export async function markdownToHtmlWithToc(md: string): Promise<MarkdownToHtmlR
 
   const schema = {
     ...defaultSchema,
+    tagNames: [...(defaultSchema.tagNames ?? []), "figure", "figcaption"],
     attributes: {
       ...(defaultSchema.attributes ?? {}),
       // heading id 허용
@@ -98,6 +132,9 @@ export async function markdownToHtmlWithToc(md: string): Promise<MarkdownToHtmlR
       code: [...(((defaultSchema.attributes as any)?.code as any[]) ?? []), "className"],
       pre: [...(((defaultSchema.attributes as any)?.pre as any[]) ?? []), "className"],
       span: [...(((defaultSchema.attributes as any)?.span as any[]) ?? []), "className"],
+
+      // 이미지 lazy loading 속성 허용
+      img: [...(((defaultSchema.attributes as any)?.img as any[]) ?? []), "loading", "decoding"],
     },
   };
 
@@ -110,6 +147,7 @@ export async function markdownToHtmlWithToc(md: string): Promise<MarkdownToHtmlR
       tocMaxLevel: 4,
     })
     .use(remarkRehype)
+    .use(rehypeEnhanceImages)
     .use(rehypeSanitize, schema as any)
     .use(rehypeStringify)
     .process(md ?? "");

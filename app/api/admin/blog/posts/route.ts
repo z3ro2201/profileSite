@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { generateAiSummary } from "@/lib/ai-summary";
 import type { PostUpsertProp } from "@/types/Posts";
 
 function bad(message: string, status = 400) {
@@ -65,11 +66,15 @@ export async function POST(req: Request) {
   // const latFinal = hasBoth ? lat : null;
   // const lngFinal = hasBoth ? lng : null;
 
+  // 발행/수정 시점에만 한 번 생성해서 저장 (매 조회마다 재생성 안 함 — 비용 절약)
+  const aiSummary = await generateAiSummary(contentMd);
+
   const created = await prisma.post.create({
     data: {
       title,
       contentMd,
       contentHtml: body.contentHtml ?? null,
+      aiSummary,
       state,
       publishedAt,
       authorId,
