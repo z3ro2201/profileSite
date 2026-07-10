@@ -9,32 +9,155 @@ export const PLAYLIST: { title: string; artist: string; ytId: string }[] = [
   {
     ytId: "rxZxOX5LeHU",
     artist: "명탐정 코난 OST (Kuraki Mai)",
-    title: "명탐정 코난 OST - 바람의 라라라 (벅차오르는 파워 락 발라드 어레인지 커버) | GrangChe.Ver",
+    title: "명탐정 코난 OST : 바람의 라라라 (벅차오르는 파워 락 발라드 어레인지 커버) | GrangChe.Ver",
   },
   {
-    ytId: "nieI1ZssoA8",
-    artist: "명탐정 코난 OST (福山 雅治)",
-    title: "명탐정 코난 : 제로의 집행인 닫는곡 / 福山 雅治 - 零 -ZERO- [후쿠야마 마사하루 - 제로 -ZERO-] ",
+    ytId: "6KsD6ftQUGs",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 시한장치의 마천루 닫는 곡 / 杏子 - Happy Birthday (쿄코 - Happy Birthday)",
   },
   {
-    ytId: "m4UuJWVt4Zc",
-    artist: "명탐정 코난 OST (MISIA)",
-    title: "명탐정 코난 : 하이웨이의 타천사 닫는곡 / MISIA - ラストダンスあなたと (MISIA - 라스트 댄스를 그대와)",
+    ytId: "6BHTH_eBwO4",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 14번째 표적 닫는 곡 / ZARD - 少女の頃に戻ったみたいに (ZARD - 소녀 시절로 돌아간 듯이)",
   },
   {
-    ytId: "Q4mR65GIrmE",
-    artist: "명탐정 코난 OST (B’z)",
-    title: "명탐정 코난 : 순흑의 악몽 닫는곡 / B’z - 世界はあなたの色になる(B’z - 세계는 당신의 색이 된다)",
+    ytId: "KEd0sZoPY1o",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 세기말의 마술사 닫는 곡 / B'z - ONE",
+  },
+  {
+    ytId: "MTEzC8ZTsAY",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 천국으로의 카운트다운 닫는 곡 / 小松未歩 - あなたがいるから (코마츠 미호 - 네가 있으니까)",
+  },
+  {
+    ytId: "N-4LBOi8ZZo",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 천국으로의 카운트다운 닫는 곡 / 倉木麻衣 - always (쿠라키 마이 - always)",
+  },
+  {
+    ytId: "ze4zeMlHVHE",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 베이커가의 망령 닫는 곡 / B`z - Everlasting",
+  },
+  {
+    ytId: "arOmXIT3HBA",
+    artist: "명탐정 코난 극장판 OST",
+    title:
+      "명탐정 코난 : 미궁의 십자로 닫는 곡 / 倉木麻衣 - Time after time 〜花舞う街で〜 (쿠라키 마이 - Time after time ~꽃이 흩날리는 거리에서~)",
+  },
+  {
+    ytId: "W_btIac1-QY",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 은빛날개의 마술사 닫는 곡 / 愛内里菜 - Dream×Dream (아이우치 리나 - Dream×Dream)",
   },
   {
     ytId: "CPOcUhe3tIk",
-    artist: "명탐정 코난 OST (ZARD)",
-    title: "명탐정 코난 : 수편선상의 음모 닫는곡 / ZARD - 夏を待つセイル (帆)のように (ZARD - 여름을 기다리는 돛처럼)",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 수편선상의 음모 닫는 곡 / ZARD - 夏を待つセイル (帆)のように (ZARD - 여름을 기다리는 돛처럼)",
+  },
+  {
+    ytId: "6MnSvFKtVH0",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 탐정들의 진혼가 닫는 곡 / B`z - ゆるぎないものひとつ (B`z - 변함없는 단 하나의 것)",
+  },
+  {
+    ytId: "6J2bh-GSjkU",
+    artist: "명탐정 코난 극장판 OST",
+    title:
+      "명탐정 코난 : 감벽의 관 닫는 곡 / 愛内里菜&三枝夕夏 - 七つの海を渡る風のように (아이우치 리나&사에구사 유카 - 일곱 바다를 건너는 바람처럼)",
+  },
+  {
+    ytId: "RDtb6Irwv8JGs",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 전율의 악보 닫는 곡 / ZARD - 翼を広げて (ZARD - 날개를 펼쳐서)",
+  },
+  {
+    ytId: "SWjzwrSGfs8",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 칠흑의 추적자 닫는 곡 / 倉木麻衣 - PUZZLE (쿠라키 마이 - PUZZLE)",
+  },
+  {
+    ytId: "CAFcTtfgul8",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 천공의 난파선 닫는 곡 / GARNET CROW - Over Drive ",
+  },
+  {
+    ytId: "TmTNLZU-FDI",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 침묵의 15분 닫는 곡 / B'z - Don't Wanna Lie ",
   },
   {
     ytId: "FKRY8B42-oo",
     artist: "명탐정 코난 OST (いきものがかり)",
     title: "명탐정 코난 : 11번째 스트라이커 / いきものがかり - ハルウタ (이키모노 가카리 - 봄노래)",
+  },
+  {
+    ytId: "R3y-CWgyuII",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 절해의 탐정 닫는 곡 / 斉藤和義 - ワンモアタイム  (카즈요시 사이토 - 원 모어 타임)",
+  },
+  {
+    ytId: "vfR6byObT7A",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 이차원의 저격수 닫는 곡 / 柴咲コウ - ラブサーチライト (시바사키 코우 - Love Searchlight)",
+  },
+  {
+    ytId: "0_Hns1hqBoA",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 화염의 해바라기 닫는 곡 / ポルノグラフィティ - オー! リバル (포르노 그라피티 - 오! 리발)",
+  },
+  {
+    ytId: "Q4mR65GIrmE",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 순흑의 악몽 닫는 곡 / B’z - 世界はあなたの色になる(B’z - 세계는 당신의 색이 된다)",
+  },
+  {
+    ytId: "sG0QEILgqHA",
+    artist: "명탐정 코난 극장판 OST",
+    title:
+      "명탐정 코난 : 진홍의 연가 닫는 곡 / 倉木麻衣 - 渡月橋とげつきょう ～君きみ 想おもふ～ (쿠라키 마이 - 도월교 ~그대를 생각하며~) ",
+  },
+  {
+    ytId: "nieI1ZssoA8",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 제로의 집행인 닫는 곡 / 福山雅治 - 零 -ZERO- (후쿠야마 마사하루 - 제로 -ZERO-) ",
+  },
+  {
+    ytId: "_vbwXJK1H3c",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 감청의 권 닫는 곡 / HIROOMI TOSAKA - BLUE SAPPHIRE (히로미 토사카 - 블루사파이어)",
+  },
+  {
+    ytId: "zKBCSBfP9TI",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 비색의 탄환 닫는 곡 / 東京事変 - 永遠の不在証明 (도쿄지헨 - 영원의 부재증명)",
+  },
+  {
+    ytId: "fGQmtEKqBwo",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난: 할로윈의 신부 닫는 곡 / BUMP OF CHICKEN - クロノスタシス (BUMP OF CHICKEN - 크로노스타시스)",
+  },
+  {
+    ytId: "n2m9ebS3tEo",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 흑철의 어영 닫는 곡 / Sptiz - 美しい鰭 (스핏츠 - 아름다운 지느러미)",
+  },
+  {
+    ytId: "VmSNNOTB_FE",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 100만 달러의 펜타그램 닫는 곡 / King Gnu - TWILIGHT!!!",
+  },
+  {
+    ytId: "pTQWMK2ILfg",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 척안의 잔상 닫는 곡 / King Gnu - TWILIGHT!!!",
+  },
+  {
+    ytId: "m4UuJWVt4Zc",
+    artist: "명탐정 코난 극장판 OST",
+    title: "명탐정 코난 : 하이웨이의 타천사 닫는 곡 / MISIA - ラストダンスあなたと (MISIA - 라스트 댄스를 그대와)",
   },
   { ytId: "T_MYHHb1Ib0", artist: "로스트아크 OST", title: "모코코 Remix " },
   { ytId: "ffI42h6L_KI", artist: "로스트아크 OST", title: "모코콩 아일랜드 (Mokokong Island) " },

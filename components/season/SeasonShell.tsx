@@ -118,15 +118,26 @@ export function SeasonShell({ children, fullBleed = false }: { children: React.R
         {children}
 
         {/* ── footer ── */}
-        <div className={`mt-16 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 ${fullBleed ? "max-w-5xl mx-auto px-4 sm:px-8 pb-10" : ""}`}>
+        <div
+          className={`mt-16 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 ${fullBleed ? "max-w-5xl mx-auto px-4 sm:px-8 pb-10" : ""}`}
+        >
           <p className="text-xs text-muted-foreground" style={mono}>
             © {new Date().getFullYear()} {PROFILE.name}. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
-            <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors" style={mono}>
+            <Link
+              href="/privacy"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              style={mono}
+            >
               개인정보처리방침
             </Link>
-            <Link href="/admin/login" className="text-xs text-muted-foreground hover:text-foreground transition-colors" style={mono}>
+            <Link
+              href="/admin"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              target="_blank"
+              style={mono}
+            >
               관리자
             </Link>
           </div>

@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import OsmMapClient from "@/components/maps/OsmMapClient";
+import dynamic from "next/dynamic";
+// leaflet은 모듈 로드 시점에 window를 바로 참조해서 SSR에서 깨짐 → 클라이언트에서만 로드
+const OsmMapClient = dynamic(() => import("@/components/maps/OsmMapClient"), { ssr: false });
 import { cn } from "@/lib/cn";
 import Link from "next/link";
 import { TEAL, mono } from "@/lib/nav-shared";
@@ -98,20 +100,18 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
         {/* category badges */}
         <div className="flex flex-wrap gap-2 mb-4 items-center">
           {post.category && (
-            <Link
-              href={`/blog?category=${post.category.name}`}
+            <span
               className="text-xs px-3 py-1 rounded-full border"
               style={{ ...mono, borderColor: `${TEAL}13`, color: "#fff", background: TEAL }}
             >
               {post.category.name}
-            </Link>
+            </span>
           )}
 
           {post.tags &&
             post.tags.length > 0 &&
             post.tags.map((tag, key) => (
-              <Link
-                href={`/blog?tag=${tag.name}`}
+              <span
                 className="flex gap-2 items-center text-xs px-3 py-1 rounded-full border"
                 style={{ ...mono, borderColor: `${TEAL}30`, color: TEAL, background: `${TEAL}14` }}
                 key={`${tag}-${key}`}
@@ -125,7 +125,7 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
                   />
                 </svg>
                 {tag.name}
-              </Link>
+              </span>
             ))}
         </div>
 

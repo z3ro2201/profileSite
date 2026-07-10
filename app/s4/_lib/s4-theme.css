@@ -116,3 +116,20 @@
   font-weight: var(--font-weight-normal);
   line-height: 1.5;
 }
+
+/* github stats 히트맵 점들이 개별적으로 반짝이는 효과.
+   전체 색이 리렌더마다 바뀌는 게 아니라, 각 점이 자기 밝기(peak-opacity)를 기준으로
+   CSS 애니메이션만으로 오르내려서 리액트 리렌더링과 완전히 무관하게 동작함.
+   부드럽게 숨쉬듯 fade하는 대신, 순간적으로 탁 꺼졌다 탁 켜지는 느낌(스냅)으로. */
+@keyframes s4-heatmap-twinkle {
+  0%,
+  30% {
+    opacity: var(--peak-opacity, 0.5);
+  }
+  60% {
+    opacity: calc(var(--peak-opacity, 0.5) * 0.5);
+  }
+  100% {
+    opacity: var(--peak-opacity, 0.5);
+  }
+}

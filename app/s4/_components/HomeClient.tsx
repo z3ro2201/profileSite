@@ -43,6 +43,12 @@ function CountUp({ value }: { value: number }) {
   return <>{animated}</>;
 }
 
+// languages 막대의 각 구간도 숫자랑 같은 방식(0→실제 값)으로 차오르게
+function AnimatedBarSegment({ pct, color }: { pct: number; color: string }) {
+  const animatedPct = useCountUp(pct);
+  return <div style={{ width: `${animatedPct}%`, background: color }} />;
+}
+
 const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
   const [time, setTime] = useState(new Date());
   useEffect(() => {
@@ -56,13 +62,17 @@ const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
   // 매초 갱신되는 시계 때문에 컴포넌트가 1초마다 리렌더되는데,
   // 렌더 중에 Math.random()을 부르면(설령 useMemo 안이라도) 리렌더될 때마다
   // 히트맵 색이 깜빡일 수 있다. 마운트 시 이펙트에서 한 번만 계산해 state로 고정한다.
-  const [heatmap, setHeatmap] = useState<number[]>(() => Array.from({ length: 52 }, () => 0.08));
+  // (반짝이는 효과 자체는 CSS 애니메이션이 담당해서 리렌더링과 무관하게 계속 동작함 — 아래 렌더 부분 참고)
+  const [heatmap, setHeatmap] = useState<{ peak: number; delay: number }[]>(() =>
+    Array.from({ length: 52 }, () => ({ peak: 0.08, delay: 0 })),
+  );
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 시 1회만 랜덤 고정
     setHeatmap(
       Array.from({ length: 52 }, () => {
         const r = Math.random();
-        return r < 0.4 ? 0.08 : r < 0.7 ? 0.3 : r < 0.9 ? 0.6 : 1;
+        const peak = r < 0.4 ? 0.08 : r < 0.7 ? 0.3 : r < 0.9 ? 0.6 : 1;
+        return { peak, delay: Math.random() * 3 };
       }),
     );
   }, []);
@@ -173,8 +183,19 @@ const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
           ))}
         </div>
         <div className="flex gap-0.5 flex-wrap mt-auto">
-          {heatmap.map((a, i) => (
-            <div key={i} className="w-2 h-2 rounded-[2px]" style={{ background: `rgba(35,198,169,${a})` }} />
+          {heatmap.map((dot, i) => (
+            <div
+              key={i}
+              className="w-2 h-2 rounded-[2px]"
+              style={
+                {
+                  background: TEAL,
+                  "--peak-opacity": dot.peak,
+                  opacity: dot.peak,
+                  animation: `s4-heatmap-twinkle 0.9s steps(1, end) ${dot.delay}s infinite`,
+                } as React.CSSProperties
+              }
+            />
           ))}
         </div>
       </div>
@@ -212,7 +233,7 @@ const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
           <>
             <div className="flex rounded-full overflow-hidden h-2 mb-5">
               {githubStats.languages.map((l) => (
-                <div key={l.name} style={{ width: `${l.pct}%`, background: l.color }} />
+                <AnimatedBarSegment key={l.name} pct={l.pct} color={l.color} />
               ))}
             </div>
             <div className="grid grid-cols-2 gap-y-2 gap-x-4">
@@ -353,7 +374,7 @@ const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
             </div>
             <div
               className="max-w-xs px-4 py-2.5 rounded-2xl rounded-bl-sm text-sm leading-relaxed"
-              style={{ background: "var(--secondary)", color: "var(--foreground)" }}
+              style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)" }}
             >
               같이 만들어볼 프로젝트가 있으신가요? 아니면 그냥 안녕이라도 👋
             </div>
