@@ -29,7 +29,11 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, "0");
-    const uploadDir = join(process.cwd(), "public", "uploads", String(year), month);
+    // ⚠️ public/uploads에 저장하면 Next.js(next start)가 새로 추가된 정적 파일을
+    // 프로세스 재시작 전까지 404로 응답하는 캐싱 이슈가 있어서(실서버에서 확인됨),
+    // public 밖(storage/uploads)에 저장하고 별도 라우트(app/uploads/[...path]/route.ts)로
+    // 직접 서빙한다. URL 경로(/uploads/...)는 그대로라 기존 DB의 objectKey는 안 바뀜.
+    const uploadDir = join(process.cwd(), "storage", "uploads", String(year), month);
     await mkdir(uploadDir, { recursive: true });
 
     // 파일 저장
