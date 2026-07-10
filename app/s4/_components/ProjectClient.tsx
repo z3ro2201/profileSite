@@ -29,9 +29,9 @@ export default function ProjectClient({ items }: { items: DetailItem[] }) {
           프로젝트
         </p>
         <h2 className="text-4xl sm:text-5xl font-light leading-tight mb-6" style={serif}>
-          생각했던 부분을
+          상상을 현실로,
           <br />
-          <span className="italic">직접</span> 만들고 있어요.
+          <span className="italic">뚝딱뚝딱</span> 만들고 있어요.
         </h2>
         <div className="flex flex-wrap gap-2">
           {FILTERS.map((f) => (
@@ -102,9 +102,18 @@ export default function ProjectClient({ items }: { items: DetailItem[] }) {
                 {/* thumbnail */}
                 <div
                   className="w-full aspect-video flex items-center justify-center relative overflow-hidden"
-                  style={{ background: `linear-gradient(135deg, ${item.color} 0%, #ddddd9 100%)` }}
+                  style={
+                    item.thumbnailUrl
+                      ? undefined
+                      : { background: `linear-gradient(135deg, ${item.color} 0%, #ddddd9 100%)` }
+                  }
                 >
-                  <span className="text-4xl opacity-50">{item.emoji}</span>
+                  {item.thumbnailUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- 다양한 원본 크기의 업로드 이미지, next/image 최적화 불필요
+                    <img src={item.thumbnailUrl} alt={item.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-4xl opacity-50">{item.emoji}</span>
+                  )}
                   <div
                     className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                     style={{ background: "rgba(255,255,255,0.9)" }}

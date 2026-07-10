@@ -6,6 +6,7 @@ export async function getProjects(): Promise<DetailItem[]> {
   const rows = await prisma.project.findMany({
     where: { isPublic: true },
     orderBy: { order: "asc" },
+    include: { thumbnail: { select: { objectKey: true } } },
   });
 
   return rows.map((r: (typeof rows)[number]) => ({
@@ -23,5 +24,6 @@ export async function getProjects(): Promise<DetailItem[]> {
     stack: r.stack as { label: string; items: string[] }[],
     year: r.year ?? undefined,
     tags: (r.tags as string[] | null) ?? undefined,
+    thumbnailUrl: r.thumbnail?.objectKey ?? undefined,
   }));
 }

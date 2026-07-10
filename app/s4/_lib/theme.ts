@@ -32,6 +32,7 @@ export interface DetailItem {
   stack: { label: string; items: string[] }[];
   year?: number;
   tags?: string[];
+  thumbnailUrl?: string;
 }
 
 // ── home page data ────────────────────────────────────────────────────────
