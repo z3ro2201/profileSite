@@ -25,7 +25,7 @@ export const GET = async () => {
     // 공개된 블로그 글 가져오기
     const posts = await prisma.post.findMany({
       where: { state: "PUBLISHED" },
-      select: { id: true, title: true, content: true, publishedAt: true },
+      select: { id: true, title: true, contentMd: true, publishedAt: true },
       orderBy: { publishedAt: "desc" },
     });
 
