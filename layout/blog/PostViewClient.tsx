@@ -98,18 +98,20 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
         {/* category badges */}
         <div className="flex flex-wrap gap-2 mb-4 items-center">
           {post.category && (
-            <span
+            <Link
+              href={`/blog?category=${post.category.name}`}
               className="text-xs px-3 py-1 rounded-full border"
               style={{ ...mono, borderColor: `${TEAL}13`, color: "#fff", background: TEAL }}
             >
               {post.category.name}
-            </span>
+            </Link>
           )}
 
           {post.tags &&
             post.tags.length > 0 &&
             post.tags.map((tag, key) => (
-              <span
+              <Link
+                href={`/blog?tag=${tag.name}`}
                 className="flex gap-2 items-center text-xs px-3 py-1 rounded-full border"
                 style={{ ...mono, borderColor: `${TEAL}30`, color: TEAL, background: `${TEAL}14` }}
                 key={`${tag}-${key}`}
@@ -123,7 +125,7 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
                   />
                 </svg>
                 {tag.name}
-              </span>
+              </Link>
             ))}
         </div>
 
@@ -180,7 +182,12 @@ const PostViewClient = ({ post, finalHtml, toc, compact, isAdmin }: Props) => {
           onClick={() => setLightboxSrc(null)}
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- 원본 그대로 확대 표시, next/image 최적화 불필요 */}
-          <img src={lightboxSrc} alt="" className="max-w-full max-h-full object-contain rounded-lg" onClick={(e) => e.stopPropagation()} />
+          <img
+            src={lightboxSrc}
+            alt=""
+            className="max-w-full max-h-full object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
           <button
             onClick={() => setLightboxSrc(null)}
             className="absolute top-5 right-5 w-9 h-9 rounded-full flex items-center justify-center text-white text-xl hover:bg-white/10 transition-colors"

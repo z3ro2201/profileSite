@@ -11,6 +11,8 @@ export type Category = {
     slug: string;
   } | null;
   children?: Category[];
+  _count?: { posts: number };
+  description?: string | null;
 };
 
 export type Categories = Category;

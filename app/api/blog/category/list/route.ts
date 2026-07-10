@@ -24,6 +24,8 @@ export async function GET(req: Request) {
         slug: true,
         order: true,
         depth: true,
+        description: true,
+        _count: { select: { posts: { where: { state: "PUBLISHED" } } } },
         children: {
           where: { isPublic: true },
           orderBy: [{ order: "asc" }, { id: "asc" }],
@@ -33,6 +35,8 @@ export async function GET(req: Request) {
             slug: true,
             order: true,
             depth: true,
+            description: true,
+            _count: { select: { posts: { where: { state: "PUBLISHED" } } } },
             children: {
               where: { isPublic: true },
               orderBy: [{ order: "asc" }, { id: "asc" }],
@@ -42,6 +46,8 @@ export async function GET(req: Request) {
                 slug: true,
                 order: true,
                 depth: true,
+                description: true,
+                _count: { select: { posts: { where: { state: "PUBLISHED" } } } },
               },
             },
           },

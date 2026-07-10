@@ -64,6 +64,32 @@ export default function BlogListClient({
   const [blogView, setBlogView] = useState<"posts" | "tags" | "categories">("posts");
   const [drilldownCategory, setDrilldownCategory] = useState<Category | null>(null);
 
+  // 태그/카테고리 카드 클릭 시 페이지 이동 대신 그 자리에서 펼쳐서 글 목록을 보여줌.
+  // 이미 로드된 posts(최근 N개)만 필터링하면 뱃지에 찍힌 카운트랑 실제 보이는 개수가
+  // 안 맞을 수 있어서, 클릭 시점에 그 태그/카테고리 기준으로 다시 불러온다.
+  const [expanded, setExpanded] = useState<{ type: "tag" | "category"; slug: string; name: string } | null>(null);
+  const [expandedPosts, setExpandedPosts] = useState<PublicPostListItem[]>([]);
+  const [expandedLoading, setExpandedLoading] = useState(false);
+
+  const toggleExpand = async (type: "tag" | "category", slug: string, name: string) => {
+    if (expanded?.type === type && expanded.slug === slug) {
+      setExpanded(null);
+      return;
+    }
+    setExpanded({ type, slug, name });
+    setExpandedLoading(true);
+    try {
+      const res = await fetch(`/api/blog/posts/list?${type}=${encodeURIComponent(slug)}&take=50`);
+      const data = await res.json();
+      setExpandedPosts(data.ok ? data.posts : []);
+    } catch (err) {
+      console.error("Failed to load filtered posts:", err);
+      setExpandedPosts([]);
+    } finally {
+      setExpandedLoading(false);
+    }
+  };
+
   // 태그/카테고리 탭에서 카드를 클릭하면 서버에서 필터링된 글은 잘 받아오는데,
   // blogView가 "posts"로 안 바뀌면 화면은 계속 태그/카테고리 그리드에 머물러서
   // "필터링된 글 목록이 안 나온다"는 버그가 있었음. activeTag/activeCategory가
@@ -111,6 +137,78 @@ export default function BlogListClient({
   }, [searchOpen]);
 
   const topCategories = categories.filter((c) => c.depth === 0);
+
+  const renderPostCard = (post: PublicPostListItem) => {
+    const Icon = iconForTag(post.tags[0]?.name);
+    return (
+      <Link
+        key={post.id}
+        href={`/blog/posts/view/${post.id}`}
+        className="group rounded-2xl p-5 flex flex-col justify-between text-left overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
+        style={{ background: "var(--secondary)", minHeight: 220 }}
+      >
+        <div>
+          <div className="flex items-center gap-1.5 mb-4 flex-wrap">
+            {post.category && (
+              <span className="text-[10px] font-medium text-muted-foreground" style={mono}>
+                {post.category.name}
+              </span>
+            )}
+            {post.tags.map((tag) => (
+              <span key={tag.slug} className="text-[10px] text-muted-foreground" style={mono}>
+                #{tag.name}
+              </span>
+            ))}
+          </div>
+          <h3
+            className="text-xl font-semibold leading-snug text-foreground group-hover:text-[#23c6a9] transition-colors"
+            style={serif}
+          >
+            {post.title}
+          </h3>
+          {post.contentHtml && (
+            <p className="text-xs text-muted-foreground mt-2 leading-relaxed line-clamp-2">
+              {stripAndTrim(post.contentHtml)}
+            </p>
+          )}
+        </div>
+        <div className="flex items-end justify-between mt-6">
+          <span className="text-xs text-muted-foreground" style={mono}>
+            {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString("ko-KR") : ""}
+          </span>
+          <Icon size={56} className="flex-shrink-0" style={{ color: "var(--muted-foreground)", opacity: 0.18 }} />
+        </div>
+      </Link>
+    );
+  };
+
+  const expandedSection = expanded && (
+    <div className="mt-8">
+      <hr className="border-border mb-6" />
+      <div className="flex items-center gap-2 mb-4">
+        <h3 className="text-base font-medium text-foreground" style={serif}>
+          {expanded.type === "tag" ? `#${expanded.name}` : expanded.name}
+        </h3>
+        <span className="text-xs text-muted-foreground" style={mono}>
+          {expandedLoading ? "불러오는 중…" : `${expandedPosts.length}편`}
+        </span>
+        <button
+          onClick={() => setExpanded(null)}
+          className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors"
+          style={mono}
+        >
+          닫기
+        </button>
+      </div>
+      {expandedLoading ? (
+        <p className="text-sm text-muted-foreground py-8 text-center">불러오는 중…</p>
+      ) : expandedPosts.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">{expandedPosts.map(renderPostCard)}</div>
+      ) : (
+        <p className="text-sm text-muted-foreground py-8 text-center">해당하는 글이 없습니다</p>
+      )}
+    </div>
+  );
 
   return (
     <div>
@@ -199,7 +297,7 @@ export default function BlogListClient({
             </h2>
           ) : (
             <h2 className="text-4xl sm:text-5xl font-light leading-tight" style={serif}>
-              배운 것들을
+              배운 것들과 일상의 일들을
               <br />
               <span className="italic">기록합니다.</span>
             </h2>
@@ -237,6 +335,7 @@ export default function BlogListClient({
             onClick={() => {
               setBlogView(v);
               setDrilldownCategory(null);
+              setExpanded(null);
             }}
             className="px-4 py-2.5 text-sm transition-colors relative"
             style={
@@ -364,7 +463,7 @@ export default function BlogListClient({
                 className="text-[10px] px-2 py-0.5 rounded-full"
                 style={{ background: `${TEAL}18`, color: TEAL, ...mono }}
               >
-                {posts.length}편
+                {posts.length}
               </span>
             </div>
             <div>
@@ -377,12 +476,13 @@ export default function BlogListClient({
 
           {tags.map((t) => {
             const Icon = iconForTag(t.name);
+            const isActive = expanded?.type === "tag" && expanded.slug === t.slug;
             return (
-              <Link
+              <button
                 key={t.slug}
-                href={`/blog?tag=${encodeURIComponent(t.slug)}`}
+                onClick={() => toggleExpand("tag", t.slug, t.name)}
                 className="group rounded-2xl p-4 flex flex-col gap-3 text-left transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
-                style={{ background: "var(--secondary)" }}
+                style={{ background: "var(--secondary)", outline: isActive ? `2px solid ${TEAL}` : "none" }}
               >
                 <div className="flex items-center justify-between">
                   <div
@@ -395,13 +495,13 @@ export default function BlogListClient({
                     className="text-[10px] px-2 py-0.5 rounded-full"
                     style={{ background: "rgba(35,198,169,0.15)", color: TEAL, ...mono }}
                   >
-                    {t.count}편
+                    {t.count}
                   </span>
                 </div>
                 <p className="text-sm font-semibold text-foreground" style={serif}>
                   {t.name}
                 </p>
-              </Link>
+              </button>
             );
           })}
 
@@ -410,6 +510,7 @@ export default function BlogListClient({
           )}
         </div>
       )}
+      {blogView === "tags" && expanded?.type === "tag" && expandedSection}
 
       {/* ── 카테고리 view (실제 depth 2단계 트리) ── */}
       {blogView === "categories" && (
@@ -446,13 +547,15 @@ export default function BlogListClient({
               {topCategories.map((cat) => {
                 const Icon = iconForTag(cat.name);
                 const hasChildren = (cat.children?.length ?? 0) > 0;
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => (hasChildren ? setDrilldownCategory(cat) : undefined)}
-                    className="group flex items-start gap-4 rounded-2xl p-5 text-left transition-all duration-200 hover:scale-[1.01] hover:shadow-md"
-                    style={{ background: "var(--secondary)" }}
-                  >
+                const isActive = expanded?.type === "category" && expanded.slug === cat.slug;
+                const cardClassName =
+                  "group flex items-start gap-4 rounded-2xl p-5 text-left transition-all duration-200 hover:scale-[1.01] hover:shadow-md";
+                const cardStyle: React.CSSProperties = {
+                  background: "var(--secondary)",
+                  outline: isActive ? `2px solid ${TEAL}` : "none",
+                };
+                const cardContent = (
+                  <>
                     <div
                       className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
                       style={{ background: "rgba(35,198,169,0.15)" }}
@@ -460,17 +563,28 @@ export default function BlogListClient({
                       <Icon size={20} style={{ color: TEAL }} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center justify-between mb-1 gap-2">
                         <p className="text-sm font-semibold text-foreground" style={serif}>
                           {cat.name}
                         </p>
-                        {hasChildren && (
-                          <ChevronRight
-                            size={12}
-                            className="text-muted-foreground group-hover:translate-x-0.5 transition-transform flex-shrink-0"
-                          />
-                        )}
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <span
+                            className="text-[10px] px-2 py-0.5 rounded-full"
+                            style={{ background: "rgba(35,198,169,0.15)", color: TEAL, ...mono }}
+                          >
+                            {cat._count?.posts ?? 0}
+                          </span>
+                          {hasChildren && (
+                            <ChevronRight
+                              size={12}
+                              className="text-muted-foreground group-hover:translate-x-0.5 transition-transform"
+                            />
+                          )}
+                        </div>
                       </div>
+                      {cat.description && (
+                        <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{cat.description}</p>
+                      )}
                       {hasChildren && (
                         <div className="flex flex-wrap gap-1 mt-2">
                           {cat.children!.map((s) => (
@@ -485,6 +599,26 @@ export default function BlogListClient({
                         </div>
                       )}
                     </div>
+                  </>
+                );
+
+                return hasChildren ? (
+                  <button
+                    key={cat.id}
+                    onClick={() => setDrilldownCategory(cat)}
+                    className={cardClassName}
+                    style={cardStyle}
+                  >
+                    {cardContent}
+                  </button>
+                ) : (
+                  <button
+                    key={cat.id}
+                    onClick={() => toggleExpand("category", cat.slug, cat.name)}
+                    className={cardClassName}
+                    style={cardStyle}
+                  >
+                    {cardContent}
                   </button>
                 );
               })}
@@ -498,26 +632,40 @@ export default function BlogListClient({
 
           {drilldownCategory && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {(drilldownCategory.children ?? []).map((sub) => (
-                <Link
-                  key={sub.id}
-                  href={`/blog?category=${encodeURIComponent(sub.slug)}`}
-                  className="group rounded-2xl p-5 flex flex-col gap-3 text-left transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
-                  style={{ background: "var(--secondary)" }}
-                >
-                  <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center"
-                    style={{ background: "rgba(35,198,169,0.15)" }}
+              {(drilldownCategory.children ?? []).map((sub) => {
+                const isActive = expanded?.type === "category" && expanded.slug === sub.slug;
+                return (
+                  <button
+                    key={sub.id}
+                    onClick={() => toggleExpand("category", sub.slug, sub.name)}
+                    className="group rounded-2xl p-5 flex flex-col gap-3 text-left transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
+                    style={{ background: "var(--secondary)", outline: isActive ? `2px solid ${TEAL}` : "none" }}
                   >
-                    <FileText size={17} style={{ color: TEAL }} />
-                  </div>
-                  <p className="text-sm font-semibold text-foreground" style={serif}>
-                    {sub.name}
-                  </p>
-                </Link>
-              ))}
+                    <div className="flex items-center justify-between">
+                      <div
+                        className="w-9 h-9 rounded-xl flex items-center justify-center"
+                        style={{ background: "rgba(35,198,169,0.15)" }}
+                      >
+                        <FileText size={17} style={{ color: TEAL }} />
+                      </div>
+                      <span
+                        className="text-[10px] px-2 py-0.5 rounded-full"
+                        style={{ background: "rgba(35,198,169,0.15)", color: TEAL, ...mono }}
+                      >
+                        {sub._count?.posts ?? 0}
+                      </span>
+                    </div>
+                    <p className="text-sm font-semibold text-foreground" style={serif}>
+                      {sub.name}
+                    </p>
+                    {sub.description && <p className="text-xs text-muted-foreground line-clamp-2">{sub.description}</p>}
+                  </button>
+                );
+              })}
             </div>
           )}
+
+          {expanded?.type === "category" && expandedSection}
         </section>
       )}
     </div>
