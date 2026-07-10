@@ -46,7 +46,7 @@ export const GET = async () => {
     for (const post of posts) {
       const postUrl = `${baseUrl}/blog/posts/view/${post.id}`;
       const pubDate = new Date(post.publishedAt ?? new Date()).toUTCString();
-      const cleanDescription = stripMarkdownAndHtml(post.content);
+      const cleanDescription = stripMarkdownAndHtml(post.contentMd);
 
       rssXml += `    <item>
       <title><![CDATA[${post.title}]]></title>
