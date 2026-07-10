@@ -2,6 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { GEMSTONE_LIST } from "@/lib/lostark";
 import type { MetadataRoute } from "next";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type Freq = NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>;
 
 const joinUrl = (base: string, path: string): string => {
@@ -37,12 +40,12 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   // (올려도 구글이 어차피 리다이렉트 따라가서 /s4만 색인함 — 중복/혼란만 생김).
   add("/blog", { changeFrequency: "daily", priority: 0.9 });
 
-  add("/s3", { priority: 0.7 });
-  add("/s3/profile", { priority: 0.7 });
-  add("/s3/portfolio", { priority: 0.7 });
+  add("/s3", { priority: 0.3 });
+  add("/s3/profile", { priority: 0.3 });
+  add("/s3/portfolio", { priority: 0.3 });
 
-  add("/s2", { priority: 0.7 });
-  add("/s2/profile", { priority: 0.7 });
+  add("/s2", { priority: 0.3 });
+  add("/s2/profile", { priority: 0.3 });
 
   add("/s4", { changeFrequency: "weekly", priority: 1 });
   add("/s4/profile", { priority: 0.7 });
@@ -75,12 +78,17 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
     orderBy: { publishedAt: "desc" },
   });
 
-  const postRoutes: MetadataRoute.Sitemap = posts.map((p) => ({
-    url: joinUrl(baseUrl, `/blog/posts/view/${p.id}`),
-    lastModified: p.updatedAt ?? p.publishedAt ?? now,
-    changeFrequency: "monthly",
-    priority: 0.7,
-  }));
+  const postRoutes: MetadataRoute.Sitemap = posts.map((p) => {
+    // 발행/수정된 지 7일 이내인 글은 daily, 그 외 오래된 글은 weekly 또는 monthly로 서빙
+    const isRecent = new Date().getTime() - new Date(p.updatedAt).getTime() < 7 * 24 * 60 * 60 * 1000;
+
+    return {
+      url: joinUrl(baseUrl, `/blog/posts/view/${p.id}`),
+      lastModified: p.updatedAt ?? p.publishedAt ?? now,
+      changeFrequency: isRecent ? "daily" : "weekly", // 최신 글은 매일, 옛날 글은 매주 점검 유도
+      priority: isRecent ? 0.8 : 0.6, // 최신 글에 검색 가중치 더 주기
+    };
+  });
 
   return [...routes, ...postRoutes];
 };
