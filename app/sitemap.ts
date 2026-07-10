@@ -33,7 +33,8 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   };
 
   // 정적 페이지
-  add("/", { changeFrequency: "weekly", priority: 1 });
+  // "/"는 next.config.ts에서 /s4로 308(영구) 리다이렉트되므로 sitemap엔 안 올림
+  // (올려도 구글이 어차피 리다이렉트 따라가서 /s4만 색인함 — 중복/혼란만 생김).
   add("/blog", { changeFrequency: "daily", priority: 0.9 });
 
   add("/s3", { priority: 0.7 });
@@ -43,7 +44,7 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   add("/s2", { priority: 0.7 });
   add("/s2/profile", { priority: 0.7 });
 
-  add("/s4", { changeFrequency: "weekly", priority: 0.8 });
+  add("/s4", { changeFrequency: "weekly", priority: 1 });
   add("/s4/profile", { priority: 0.7 });
   add("/s4/project", { priority: 0.7 });
   // /s4/ui는 컴포넌트 쇼케이스 페이지라 metadata에서 noindex 처리했으므로 sitemap에서도 제외

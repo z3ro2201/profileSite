@@ -6,17 +6,20 @@ import type { Metadata } from "next";
 
 export const generateMetadata = async (): Promise<Metadata> => {
   return {
-    title: "OCR · Vibe Coding | 2ER0",
-    description: "필요해서 바이브 코딩(Vibe Coding)으로 만든 개인용 OCR 도구입니다. 업로드된 이미지는 서버에 저장하지 않으며, 처리 후 즉시 삭제됩니다.",
+    title: "이미지 텍스트 추출 OCR - 무료 온라인 도구 | 2ER0",
+    description: "이미지 속 텍스트를 무료로 추출하세요. 업로드한 이미지는 서버에 저장하지 않고 처리 후 즉시 삭제됩니다. (개인이 필요해서 만든 도구입니다)",
+    keywords: "OCR, 이미지 텍스트 추출, 사진 글자 추출, 온라인 OCR, 무료 OCR, 이미지에서 텍스트 추출",
+    alternates: { canonical: "https://2er0.io/tools/ocr" },
+    robots: { index: true, follow: true },
     openGraph: {
-      title: "OCR · Vibe Coding | 2ER0",
-      description: "실사용 필요에 의해 바이브 코딩으로 구현한 OCR 페이지. 이미지 파일은 저장되지 않고, 텍스트 추출 후 즉시 폐기됩니다.",
+      title: "이미지 텍스트 추출 OCR - 무료 온라인 도구",
+      description: "이미지 속 텍스트를 무료로 추출하세요. 이미지 파일은 저장되지 않고, 처리 후 즉시 삭제됩니다.",
       url: "https://2er0.io/tools/ocr",
       type: "website",
     },
     twitter: {
-      title: "OCR · Vibe Coding | 2ER0",
-      description: "필요해서 만든 바이브 코딩 OCR. 이미지 저장 없이 즉시 텍스트만 추출합니다.",
+      title: "이미지 텍스트 추출 OCR - 무료 온라인 도구",
+      description: "이미지 속 텍스트를 무료로 추출하세요. 이미지 저장 없이 즉시 텍스트만 추출합니다.",
     },
   };
 };

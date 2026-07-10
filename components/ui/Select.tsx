@@ -25,6 +25,7 @@ export const Select: React.FC<SelectProps> = ({ label, options, placeholder = "�
 
   useEffect(() => {
     if (value !== undefined) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 외부 value prop과 내부 상태 동기화
       setSelectedValue(value);
     }
   }, [value]);
@@ -50,25 +51,25 @@ export const Select: React.FC<SelectProps> = ({ label, options, placeholder = "�
 
   return (
     <div className={`mb-4 ${className}`}>
-      {label && <label className="block text-sm font-semibold text-gray-700 mb-2">{label}</label>}
+      {label && <label className="block text-sm font-semibold text-foreground mb-2">{label}</label>}
       <div className="relative" ref={dropdownRef}>
         <div
           onClick={() => setIsOpen(!isOpen)}
-          className={`px-4 py-3 border border-gray-300 rounded-lg bg-white cursor-pointer transition flex items-center justify-between ${isOpen ? "ring-2 ring-blue-500 border-transparent" : "hover:border-gray-400"}`}
+          className={`px-4 py-3 border border-border rounded-lg bg-[var(--input-background)] cursor-pointer transition flex items-center justify-between ${isOpen ? "ring-2 ring-[#23c6a9] border-transparent" : "hover:border-[var(--muted-foreground)]"}`}
         >
-          <span className={selectedValue ? "text-gray-900" : "text-gray-400"}>{displayText}</span>
-          <svg className={`w-5 h-5 text-gray-400 transition-transform ml-2 flex-shrink-0 ${isOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <span className={selectedValue ? "text-foreground" : "text-muted-foreground"}>{displayText}</span>
+          <svg className={`w-5 h-5 text-muted-foreground transition-transform ml-2 flex-shrink-0 ${isOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </div>
 
         {isOpen && (
-          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+          <div className="absolute z-10 w-full mt-1 bg-[var(--card)] border border-border rounded-lg shadow-lg max-h-60 overflow-auto">
             {options.map((option) => (
               <div
                 key={option.value}
                 onClick={() => handleSelect(option.value)}
-                className={`px-4 py-3 cursor-pointer transition ${option.value === selectedValue ? "bg-blue-50 text-blue-600 font-medium" : "hover:bg-gray-50 text-gray-900"}`}
+                className={`px-4 py-3 cursor-pointer transition ${option.value === selectedValue ? "bg-[rgba(35,198,169,0.1)] text-[#23c6a9] font-medium" : "hover:bg-[var(--secondary)] text-foreground"}`}
               >
                 {option.label}
               </div>

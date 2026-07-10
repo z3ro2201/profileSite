@@ -21,16 +21,16 @@ export function Badge({ children, variant = "neutral", size = "md", className = 
   const baseStyles = "inline-flex items-center font-medium rounded-full transition-colors";
 
   const variantStyles: Record<BadgeVariant, string> = {
-    success: "bg-emerald-100 text-emerald-700",
-    error: "bg-red-100 text-red-700",
-    warning: "bg-amber-100 text-amber-700",
-    info: "bg-blue-100 text-blue-700",
-    neutral: "bg-gray-100 text-gray-600",
-    primary: "bg-blue-500 text-white",
-    secondary: "bg-gray-500 text-white",
-    purple: "bg-purple-100 text-purple-700",
-    pink: "bg-pink-100 text-pink-700",
-    indigo: "bg-indigo-100 text-indigo-700",
+    success: "bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
+    error: "bg-red-100 dark:bg-red-500/15 text-red-700 dark:text-red-400",
+    warning: "bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400",
+    info: "bg-blue-100 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400",
+    neutral: "bg-[var(--secondary)] text-muted-foreground",
+    primary: "bg-[#23c6a9] text-white",
+    secondary: "bg-[var(--muted)] text-foreground",
+    purple: "bg-purple-100 dark:bg-purple-500/15 text-purple-700 dark:text-purple-400",
+    pink: "bg-pink-100 dark:bg-pink-500/15 text-pink-700 dark:text-pink-400",
+    indigo: "bg-indigo-100 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-400",
     teal: "bg-teal-100 text-teal-700",
   };
 

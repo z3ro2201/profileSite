@@ -1,5 +1,6 @@
 "use client";
 import "@toast-ui/editor/dist/toastui-editor.css";
+import "@toast-ui/editor/dist/theme/toastui-editor-dark.css";
 
 import { Editor } from "@toast-ui/react-editor";
 import { useEffect, useRef, useState } from "react";
@@ -15,6 +16,20 @@ import { Checkbox } from "@/components/ui/Checkbox";
 
 const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostTag, PostCategoryId, PostFiles, PostLat, PostLng, PostPlaceName, PostPlaceAddress, PostMapOnly }: PostEditorProp) => {
   const editorRef = useRef<Editor>(null);
+
+  // 관리자 셸(layout/admin/mainLayout.tsx)의 다크모드 토글은 상위 wrapper div에 .dark 클래스를
+  // 붙이는 방식이라, 여기서는 조상 중 .dark가 있는지 감지해서 Toast UI 에디터 테마를 맞춘다.
+  const editorWrapRef = useRef<HTMLDivElement>(null);
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
+
+  useEffect(() => {
+    const checkDark = () => setIsDarkTheme(!!editorWrapRef.current?.closest(".dark"));
+    checkDark();
+
+    const observer = new MutationObserver(checkDark);
+    observer.observe(document.body, { attributes: true, attributeFilter: ["class"], subtree: true });
+    return () => observer.disconnect();
+  }, []);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState<string>(PostTitle ?? "");
@@ -224,8 +239,8 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
   return (
     <form onSubmit={onSubmit} className="max-w-5xl mx-auto space-y-6 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">글 {PostType === "new" ? "작성" : "수정"}</h1>
-        {PostType === "update" && PostId && <span className="text-sm text-gray-500">ID: {PostId}</span>}
+        <h1 className="text-2xl font-bold text-foreground">글 {PostType === "new" ? "작성" : "수정"}</h1>
+        {PostType === "update" && PostId && <span className="text-sm text-muted-foreground">ID: {PostId}</span>}
       </div>
       {/* 카테고리 + 제목 */}
       <div className="flex gap-3">
@@ -243,13 +258,14 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
         <Input type="text" className="flex-1" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="제목을 입력하세요" />
       </div>
       {/* 에디터 */}
-      <div className="border border-gray-200 rounded-lg overflow-hidden">
+      <div ref={editorWrapRef} className="border border-border rounded-lg overflow-hidden">
         <Editor
           ref={editorRef}
           initialValue={PostContent ?? ""}
           previewStyle="vertical"
           height="600px"
           initialEditType="markdown"
+          theme={isDarkTheme ? "dark" : "light"}
           useCommandShortcut={true}
           hooks={{
             addImageBlobHook: handleImageUpload,
@@ -257,9 +273,9 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
         />
       </div>
       {/* 🆕 파일 업로드 섹션 */}
-      <div className="border border-gray-200 rounded-lg p-4">
+      <div className="border border-border rounded-lg p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-medium text-gray-700">첨부 파일</h3>
+          <h3 className="text-sm font-medium text-foreground">첨부 파일</h3>
           <div>
             <input ref={fileInputRef} type="file" multiple accept="image/*,video/*,application/pdf,.doc,.docx,.zip" onChange={handleFileUpload} className="hidden" id="file-upload" />
             <label htmlFor="file-upload">
@@ -279,25 +295,25 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
               const isVideo = mimeType.startsWith("video/");
 
               return (
-                <div key={pf.fileId} className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
+                <div key={pf.fileId} className="flex items-center justify-between p-3 bg-[var(--secondary)] rounded border border-border">
                   <div className="flex items-center gap-3 flex-1">
                     {/* 썸네일 */}
                     {isImage && <img src={pf.file.objectKey} alt={pf.file.originalName ?? ""} className="w-16 h-16 object-cover rounded" />}
                     {isVideo && (
-                      <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
+                      <div className="w-16 h-16 bg-[var(--muted)] rounded flex items-center justify-center">
                         <span className="text-2xl">🎥</span>
                       </div>
                     )}
                     {!isImage && !isVideo && (
-                      <div className="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
+                      <div className="w-16 h-16 bg-[var(--muted)] rounded flex items-center justify-center">
                         <span className="text-2xl">📎</span>
                       </div>
                     )}
 
                     {/* 파일 정보 */}
                     <div className="text-sm flex-1">
-                      <p className="font-medium text-gray-700">{pf.file.originalName}</p>
-                      <p className="text-gray-500 text-xs">
+                      <p className="font-medium text-foreground">{pf.file.originalName}</p>
+                      <p className="text-muted-foreground text-xs">
                         {pf.file.mimeType}
                         {pf.file.sizeBytes && ` • ${(Number(pf.file.sizeBytes) / 1024).toFixed(1)}KB`}
                       </p>
@@ -307,7 +323,7 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
                   {/* 액션 버튼들 */}
                   <div className="flex gap-2">
                     {/* 🆕 본문 삽입 버튼 */}
-                    <button type="button" onClick={() => insertFileToEditor(pf)} className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded border border-blue-200">
+                    <button type="button" onClick={() => insertFileToEditor(pf)} className="px-3 py-1 text-sm text-[#23c6a9] hover:opacity-80 hover:bg-[rgba(35,198,169,0.08)] rounded border border-[rgba(35,198,169,0.3)]">
                       {isImage && "🖼️ 이미지 삽입"}
                       {isVideo && "🎥 동영상 삽입"}
                       {!isImage && !isVideo && "📎 링크 삽입"}
@@ -323,17 +339,17 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
             })}
           </div>
         ) : (
-          <p className="text-sm text-gray-500 text-center py-4">첨부된 파일이 없습니다.</p>
+          <p className="text-sm text-muted-foreground text-center py-4">첨부된 파일이 없습니다.</p>
         )}
       </div>
       {/* 태그 */}
       <Input type="text" className="w-full" value={tagText} onChange={(event) => setTagText(event.target.value)} placeholder="태그 (쉼표로 구분, 예: react, nextjs, typescript)" label="태그" />
       {/* 위치정보 */}
-      <div className="flex flex-col pt-4 border-t border-gray-200 gap-4">
+      <div className="flex flex-col pt-4 border-t border-border gap-4">
         <div className="w-full">
           <Checkbox checked={mapOnly} onChange={() => setMapOnly((prev) => !prev)} label="본문 작성없이 장소만 기록" />
         </div>
-        <div className="pt-4 w-full border-t border-gray-200">
+        <div className="pt-4 w-full border-t border-border">
           <Input
             type="text"
             value={placeName ?? ""}
@@ -343,7 +359,7 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
             label="장소명(PlaceName)"
           />
         </div>
-        <div className="flex pt-4 justify-between items-center gap-4 border-t border-gray-200">
+        <div className="flex pt-4 justify-between items-center gap-4 border-t border-border">
           <div className="w-full">
             <Input
               type="text"
@@ -369,7 +385,7 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
             />
           </div>
         </div>
-        <div className="w-full pt-4 border-t border-gray-200">
+        <div className="w-full pt-4 border-t border-border">
           <Input
             type="text"
             value={placeAddress ?? ""}
@@ -382,7 +398,7 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
       </div>
 
       {/* 상태 + 저장 버튼 */}
-      <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+      <div className="flex justify-between items-center pt-4 border-t border-border">
         <div className="flex gap-4">
           {[
             { label: "임시저장", value: "DRAFT" },

@@ -1,9 +1,29 @@
+import type { Metadata } from "next";
 import { GEMSTONE_LIST } from "@/lib/lostark";
 import Link from "next/link";
 
-export const metadata = {
-  title: "로스트아크 보석 시세 차트",
-  description: "로스트아크 경매장 보석 시세를 확인하세요",
+const CANONICAL = "https://2er0.io/tools/game/onstove/lostark/auction-chart";
+
+export const metadata: Metadata = {
+  title: "로스트아크 보석 시세 차트 - 전체 보석 실시간 경매장 시세 | 2ER0",
+  description: "로스트아크 작열/겁화/멸화/홍염 등 전체 보석의 경매장 시세를 실시간 차트로 확인하세요. 레벨별 시세 비교, OpenAPI 데이터 제공.",
+  keywords: "로스트아크 보석 시세, 로아 보석 시세, 로아 경매장, 보석 시세 차트, 작열 시세, 겁화 시세, 멸화 시세, 홍염 시세, 로스트아크 경매장",
+  alternates: { canonical: CANONICAL },
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: "website",
+    title: "로스트아크 보석 시세 차트",
+    description: "전체 보석 경매장 시세를 실시간으로 확인하세요.",
+    url: CANONICAL,
+    siteName: "2ER0",
+    images: [{ url: "/LostArkGemChart.webp", width: 1200, height: 630, alt: "로스트아크 보석 시세 차트" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "로스트아크 보석 시세 차트",
+    description: "전체 보석 경매장 시세를 실시간으로 확인하세요.",
+    images: ["/LostArkGemChart.webp"],
+  },
 };
 
 const GemstonePage = () => {

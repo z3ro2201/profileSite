@@ -38,10 +38,10 @@ export function Button({ children, variant = "primary", size = "md", loading = f
   const baseStyles = "inline-flex items-center justify-center font-medium rounded-lg transition-all " + "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 " + "disabled:opacity-50 disabled:cursor-not-allowed";
 
   const variantStyles: Record<ButtonVariant, string> = {
-    primary: "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg focus-visible:ring-blue-500",
-    secondary: "bg-gray-800 text-white hover:bg-gray-900 focus-visible:ring-gray-500",
-    outline: "border-2 border-gray-300 text-gray-700 hover:bg-gray-50 focus-visible:ring-gray-500",
-    ghost: "text-gray-600 hover:bg-gray-50 focus-visible:ring-gray-500",
+    primary: "bg-[#23c6a9] text-white hover:opacity-90 focus-visible:ring-[#23c6a9]",
+    secondary: "bg-[var(--secondary)] text-foreground hover:bg-[var(--muted)] focus-visible:ring-[#23c6a9]",
+    outline: "border-2 border-border text-foreground hover:bg-[var(--secondary)] focus-visible:ring-[#23c6a9]",
+    ghost: "text-muted-foreground hover:bg-[var(--secondary)] focus-visible:ring-[#23c6a9]",
     danger: "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500",
     warning: "bg-gradient-to-r from-amber-400 to-orange-500 text-white hover:shadow-lg focus-visible:ring-amber-500",
     success: "bg-gradient-to-r from-teal-400 to-emerald-500 text-white hover:shadow-lg focus-visible:ring-teal-500",

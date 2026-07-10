@@ -53,8 +53,9 @@ export const TECH_STACK = [
   "Git",
 ];
 
-export type FilterKey = "전체" | "Web" | "App" | "PHP" | "Node.js";
-export const FILTERS: FilterKey[] = ["전체", "Web", "App", "PHP", "Node.js"];
+export type FilterKey = "전체" | "웹" | "앱" | "도구" | "게임";
+export const FILTERS: FilterKey[] = ["전체", "웹", "앱", "도구", "게임"];
+export const FILTER_ICON: Record<Exclude<FilterKey, "전체">, string> = { 웹: "🌐", 앱: "📱", 도구: "🔧", 게임: "🎮" };
 
 // ── nav ───────────────────────────────────────────────────────────────────
 export type S4NavKey = "home" | "profile" | "project" | "ui";

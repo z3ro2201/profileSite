@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
       {
         source: "/",
         destination: "/s4",
-        permanent: false, // true = 308
+        permanent: true, // 308 — 구글에 "/s4가 진짜 목적지"라는 신호를 명확히 줌
       },
     ];
   },

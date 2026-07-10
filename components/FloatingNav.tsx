@@ -33,7 +33,7 @@ import { useNavTheme } from "@/components/theme/NavThemeContext";
 // 블로그/앱은 이미 있는 라우트를 그대로 사용 (구조 변경 예정이라 s4에 복제하지 않음)
 const S4_NAV = [
   { href: "/s4", label: "첫화면", icon: House },
-  // { href: "/s4/profile", label: "프로필", icon: User },
+  { href: "/s4/profile", label: "프로필", icon: User },
   { href: "/blog", label: "블로그", icon: Newspaper },
   { href: "/s4/project", label: "프로젝트", icon: Briefcase },
   { href: "/s4/ui", label: "UI", icon: Layers },
@@ -115,14 +115,18 @@ export function FloatingNav() {
   // 트랙이 바뀌거나(trackIdx) 플레이어가 뒤늦게 준비되면(playerReady) 현재 선택된 곡을 로드.
   // playerReady를 의존성에 넣어야, "플레이어 준비 전에 트랙을 클릭"한 경우에도
   // 준비되는 순간 그때의 최신 trackIdx를 다시 반영한다 (버튼 클릭 ↔ 실제 재생 영상 불일치 버그 수정).
+  //
+  // ⚠️ loadVideoById()는 muted/playing 상태와 무관하게 항상 자동재생을 시작시킴(유튜브 API 자체 동작).
+  // 그래서 일시정지 상태에서 트랙을 바꾸면 "실제로는 재생 중인데 재생 버튼은 계속 일시정지로 보이는"
+  // 불일치가 생겼음. playing이 false면 재생을 시작하지 않는 cueVideoById()를 대신 써서 방지한다.
   useEffect(() => {
     const yt = ytRef.current;
     if (!yt || !playerReady) return;
-    yt.loadVideoById(currentTrack.ytId);
+    if (playing) yt.loadVideoById(currentTrack.ytId);
+    else yt.cueVideoById(currentTrack.ytId);
     if (muted) yt.mute();
     else yt.unMute();
-    if (playing) yt.playVideo();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- muted/playing은 아래 별도 effect에서 처리
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- muted는 아래 별도 effect에서 처리, playing은 분기에 이미 반영됨
   }, [trackIdx, playerReady]);
 
   // 재생/일시정지, 음소거는 버튼 클릭 시 곧바로 API 호출 (아래는 외부 요인 대비 동기화용)
@@ -142,8 +146,14 @@ export function FloatingNav() {
 
   const togglePlay = useCallback(() => setPlaying((v) => !v), []);
   const toggleMute = useCallback(() => setMuted((v) => !v), []);
-  const prevTrack = useCallback(() => setTrackIdx((i) => (i - 1 + PLAYLIST.length) % PLAYLIST.length), []);
-  const nextTrack = useCallback(() => setTrackIdx((i) => (i + 1) % PLAYLIST.length), []);
+  const prevTrack = useCallback(() => {
+    setTrackIdx((i) => (i - 1 + PLAYLIST.length) % PLAYLIST.length);
+    setPlaying(true);
+  }, []);
+  const nextTrack = useCallback(() => {
+    setTrackIdx((i) => (i + 1) % PLAYLIST.length);
+    setPlaying(true);
+  }, []);
 
   // FloatingNav는 ClientShell에서 children의 형제로 렌더링돼서 SeasonShell의
   // .s4-root 스코프 밖에 있음. SeasonShell을 쓰는 경로(/s4, /privacy 등)에서만

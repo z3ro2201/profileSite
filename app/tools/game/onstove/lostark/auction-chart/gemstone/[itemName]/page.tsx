@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { GEMSTONE_LIST } from "@/lib/lostark";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -11,17 +12,30 @@ function toSafeGemStone(input?: string) {
   return (GEMSTONE_LIST as readonly string[]).includes(s) ? s : null;
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { itemName } = await params;
   const gemStone = toSafeGemStone(itemName);
 
   if (!gemStone) {
-    return { title: "보석을 찾을 수 없습니다" };
+    return { title: "보석을 찾을 수 없습니다", robots: { index: false, follow: false } };
   }
 
+  const canonical = `https://2er0.io/tools/game/onstove/lostark/auction-chart/gemstone/${encodeURIComponent(gemStone)}`;
+
   return {
-    title: `${gemStone} 보석 시세 - 로스트아크`,
-    description: `${gemStone} 보석의 레벨별 시세를 확인하세요`,
+    title: `로아 ${gemStone} 보석 시세 - 레벨별 실시간 경매장 차트 | 2ER0`,
+    description: `로스트아크 ${gemStone} 보석의 1~10레벨별 경매장 시세를 실시간 차트로 확인하세요.`,
+    keywords: `${gemStone}, ${gemStone}보석, ${gemStone}시세, ${gemStone}차트, 로아${gemStone}, 로스트아크${gemStone}, 로스트아크 보석 시세`,
+    alternates: { canonical },
+    robots: { index: true, follow: true },
+    openGraph: {
+      type: "website",
+      title: `로아 ${gemStone} 보석 시세`,
+      description: `${gemStone} 보석 레벨별 실시간 경매장 시세`,
+      url: canonical,
+      siteName: "2ER0",
+      images: [{ url: "/LostArkGemChart.webp", width: 1200, height: 630, alt: `${gemStone} 보석 시세` }],
+    },
   };
 }
 

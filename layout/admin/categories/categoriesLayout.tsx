@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { Badge } from "@/components/ui/Badge";
 import { Select } from "@/components/ui/Select";
 import { apiFetch } from "@/lib/apiFetch";
+import { mono } from "@/lib/nav-shared";
 
 type Category = {
   id: number;
@@ -67,6 +68,7 @@ export default function CategoryManager() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 시 1회 목록 로드
     loadCategories();
   }, []);
 
@@ -97,9 +99,9 @@ export default function CategoryManager() {
       setFormData(INITIAL_FORM);
       setEditingId(null);
       loadCategories();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Save error:", err);
-      alert(err.message || "저장 실패");
+      alert(err instanceof Error ? err.message : String(err) || "저장 실패");
     } finally {
       setLoading(false);
     }
@@ -130,9 +132,9 @@ export default function CategoryManager() {
 
       alert("카테고리가 삭제되었습니다");
       loadCategories();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Delete error:", err);
-      alert(err.message || "삭제 실패");
+      alert(err instanceof Error ? err.message : String(err) || "삭제 실패");
     } finally {
       setLoading(false);
     }
@@ -209,9 +211,9 @@ export default function CategoryManager() {
       });
 
       loadCategories();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Reorder error:", err);
-      alert(err.message || "순서 변경 실패");
+      alert(err instanceof Error ? err.message : String(err) || "순서 변경 실패");
     } finally {
       setLoading(false);
       setDraggedId(null);
@@ -220,16 +222,19 @@ export default function CategoryManager() {
   };
 
   return (
-    <div className="flex gap-6 p-6 max-w-[1400px] mx-auto">
+    <div className="flex flex-col lg:flex-row gap-6">
       {/* 왼쪽: 카테고리 목록 */}
-      <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="flex-1 bg-[var(--card)] rounded-xl border border-border p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">카테고리 목록 ({categories.length}개)</h2>
+          <div>
+            <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1" style={mono}>Categories</p>
+            <h2 className="text-lg font-semibold text-foreground">카테고리 목록 ({categories.length}개)</h2>
+          </div>
         </div>
 
-        {loading && <div className="text-center py-8 text-gray-500">로딩 중...</div>}
+        {loading && <div className="text-center py-8 text-muted-foreground">로딩 중...</div>}
 
-        {!loading && categories.length === 0 && <div className="text-center py-8 text-gray-500">카테고리가 없습니다</div>}
+        {!loading && categories.length === 0 && <div className="text-center py-8 text-muted-foreground">카테고리가 없습니다</div>}
 
         {!loading && categories.length > 0 && (
           <div className="space-y-1">
@@ -241,12 +246,13 @@ export default function CategoryManager() {
       </div>
 
       {/* 오른쪽: 생성/수정 폼 */}
-      <div className="w-[500px] bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold mb-4">{editingId ? "카테고리 수정" : "카테고리 생성"}</h2>
+      <div className="w-full lg:w-[420px] flex-shrink-0 bg-[var(--card)] rounded-xl border border-border p-6">
+        <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1" style={mono}>{editingId ? "Edit" : "New"}</p>
+        <h2 className="text-lg font-semibold text-foreground mb-4">{editingId ? "카테고리 수정" : "카테고리 생성"}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input label="Slug (URL)" value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} placeholder="ex) travel" required disabled={!!editingId} />
-          <p className="text-xs text-gray-500 -mt-2">지정 시: /{formData.slug}</p>
+          <p className="text-xs text-muted-foreground -mt-2">지정 시: /{formData.slug}</p>
 
           <Input label="Name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="ex) 여행" required />
 
@@ -275,13 +281,13 @@ export default function CategoryManager() {
           <Checkbox checked={formData.isPublic} onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })} label="Public" />
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+            <label className="block text-sm font-semibold text-foreground mb-2">Description</label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="설명"
               rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
+              className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none"
             />
           </div>
 
@@ -295,7 +301,7 @@ export default function CategoryManager() {
             </Button>
           )}
 
-          <div className="text-xs text-gray-500 pt-2 border-t">
+          <div className="text-xs text-muted-foreground pt-2 border-t">
             <p>EN: Slug should be lowercase and hyphen-separated.</p>
             <p>JP: slugは小文字＋ハイフン区切りが推奨。</p>
           </div>
@@ -340,19 +346,19 @@ function CategoryTreeItem({
         className={`
           flex items-center justify-between p-3 rounded-lg transition cursor-move
           ${isDragging ? "opacity-40" : ""}
-          ${isDragOver ? "bg-blue-50 border-2 border-blue-400" : "hover:bg-gray-50 border-2 border-transparent"}
+          ${isDragOver ? "border-2" : "hover:bg-[var(--secondary)] border-2 border-transparent"}
         `}
-        style={{ marginLeft: level * 24 }}
+        style={{ marginLeft: level * 24, ...(isDragOver ? { background: "rgba(35,198,169,0.08)", borderColor: "#23c6a9" } : {}) }}
       >
         <div className="flex items-center gap-3 flex-1">
-          <span className="text-gray-400 cursor-grab">⋮⋮</span>
-          <span className="text-gray-400">{level > 0 && "└ "}</span>
+          <span className="text-muted-foreground cursor-grab">⋮⋮</span>
+          <span className="text-muted-foreground">{level > 0 && "└ "}</span>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <div className="font-medium text-gray-900">{category.name}</div>
+              <div className="font-medium text-foreground">{category.name}</div>
               {!category.isPublic && <Badge variant="neutral">비공개</Badge>}
             </div>
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-muted-foreground">
               /{category.slug}
               {category._count && (
                 <>
