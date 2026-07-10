@@ -109,6 +109,7 @@ model File {
 
   postLinks PostFile[]
   projectThumbnails Project[]
+  projectImages     ProjectImage[]
 
   @@index([storage, objectKey])
   @@index([createdAt])
@@ -204,6 +205,19 @@ model PostFile {
   @@index([postId, role, sort])
 }
 
+model ProjectImage {
+  projectId Int
+  fileId    String
+  sort      Int     @default(0)
+  alt       String?
+  file      File    @relation(fields: [fileId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, fileId])
+  @@index([fileId])
+  @@index([projectId, sort])
+}
+
 model PageVisit {
   id               String   @id @default(cuid())
   visitorId        String   @map("visitor_id")
@@ -258,6 +272,7 @@ model Project {
 
   thumbnailId String?
   thumbnail   File?   @relation(fields: [thumbnailId], references: [id])
+  images      ProjectImage[]
 
   @@index([order])
   @@index([thumbnailId])

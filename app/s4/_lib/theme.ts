@@ -33,6 +33,7 @@ export interface DetailItem {
   year?: number;
   tags?: string[];
   thumbnailUrl?: string;
+  images?: string[];
 }
 
 // ── home page data ────────────────────────────────────────────────────────

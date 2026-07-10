@@ -9,6 +9,8 @@ import { Select } from "@/components/ui/Select";
 import { apiFetch } from "@/lib/apiFetch";
 import { TEAL, mono } from "@/lib/nav-shared";
 
+type ProjectImage = { fileId: string; objectKey: string };
+
 type Project = {
   id: number;
   slug: string;
@@ -29,6 +31,7 @@ type Project = {
   isPublic: boolean;
   thumbnailId: string | null;
   thumbnail?: { objectKey: string } | null;
+  images?: { fileId: string; file: { objectKey: string } }[];
 };
 
 type FormData = {
@@ -50,14 +53,14 @@ type FormData = {
   isPublic: boolean;
   thumbnailId: string;
   thumbnailPreview: string; // objectKey (미리보기용)
+  images: ProjectImage[]; // 미리보기 갤러리 (여러 장)
 };
 
 const CATEGORY_OPTIONS = ["웹", "앱", "도구", "게임"];
 const CATEGORY_ICON: Record<string, string> = { 웹: "🌐", 앱: "📱", 도구: "🔧", 게임: "🎮" };
 type CategoryFilter = "전체" | (typeof CATEGORY_OPTIONS)[number];
 
-const getErrorMessage = (err: unknown, fallback: string): string =>
-  err instanceof Error && err.message ? err.message : fallback;
+const getErrorMessage = (err: unknown, fallback: string): string => (err instanceof Error && err.message ? err.message : fallback);
 
 const INITIAL_FORM: FormData = {
   slug: "",
@@ -78,10 +81,10 @@ const INITIAL_FORM: FormData = {
   isPublic: true,
   thumbnailId: "",
   thumbnailPreview: "",
+  images: [],
 };
 
-const inputCls =
-  "w-full rounded-xl border px-3 py-2 text-sm bg-[var(--input-background)] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#23c6a9]/40 transition-all";
+const inputCls = "w-full rounded-xl border px-3 py-2 text-sm bg-[var(--input-background)] text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#23c6a9]/40 transition-all";
 const inputStyle: React.CSSProperties = { borderColor: "var(--border)" };
 
 export default function ProjectsManager() {
@@ -141,6 +144,33 @@ export default function ProjectsManager() {
     }
   };
 
+  // 미리보기 갤러리는 여러 장 선택 가능 (썸네일과 별개)
+  const handleGalleryUpload = async (files: FileList) => {
+    setUploading(true);
+    try {
+      const uploaded: ProjectImage[] = [];
+      for (const file of Array.from(files)) {
+        const fd = new FormData();
+        fd.append("image", file);
+        const res = await apiFetch<{ url: string; fileId: string }>("/admin/blog/posts/upload", {
+          method: "POST",
+          body: fd,
+        });
+        uploaded.push({ fileId: res.fileId, objectKey: res.url });
+      }
+      setFormData((f) => ({ ...f, images: [...f.images, ...uploaded] }));
+    } catch (err) {
+      console.error("Gallery upload error:", err);
+      alert(getErrorMessage(err, "이미지 업로드 실패"));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeGalleryImage = (fileId: string) => {
+    setFormData((f) => ({ ...f, images: f.images.filter((img) => img.fileId !== fileId) }));
+  };
+
   const openCreate = () => {
     setEditingId(null);
     setStackError(null);
@@ -170,6 +200,7 @@ export default function ProjectsManager() {
       isPublic: p.isPublic,
       thumbnailId: p.thumbnailId ?? "",
       thumbnailPreview: p.thumbnail?.objectKey ?? "",
+      images: (p.images ?? []).map((img) => ({ fileId: img.fileId, objectKey: img.file.objectKey })),
     });
     setMode("edit");
   };
@@ -219,6 +250,7 @@ export default function ProjectsManager() {
       order: formData.order,
       isPublic: formData.isPublic,
       thumbnailId: formData.thumbnailId || null,
+      imageIds: formData.images.map((img) => img.fileId),
     };
 
     setLoading(true);
@@ -253,56 +285,27 @@ export default function ProjectsManager() {
     }
   };
 
-  const f = (field: keyof FormData, val: string | number | boolean) =>
-    setFormData((prev) => ({ ...prev, [field]: val }));
+  const f = (field: keyof FormData, val: string | number | boolean) => setFormData((prev) => ({ ...prev, [field]: val }));
 
   /* ── form view ── */
   if (mode === "create" || mode === "edit") {
     return (
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <button
-            onClick={cancelForm}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            style={mono}
-          >
+          <button onClick={cancelForm} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors" style={mono}>
             <ChevronLeft size={13} /> 목록으로
           </button>
-          <h2 className="text-lg font-medium text-foreground">
-            {mode === "create" ? "새 프로젝트 등록" : "프로젝트 수정"}
-          </h2>
+          <h2 className="text-lg font-medium text-foreground">{mode === "create" ? "새 프로젝트 등록" : "프로젝트 수정"}</h2>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-2xl border p-6 space-y-4"
-          style={{ background: "var(--card)", borderColor: "var(--border)" }}
-        >
+        <form onSubmit={handleSubmit} className="rounded-2xl border p-6 space-y-4" style={{ background: "var(--card)", borderColor: "var(--border)" }}>
           <div className="grid grid-cols-2 gap-3">
-            <Input
-              label="Slug"
-              value={formData.slug}
-              onChange={(e) => f("slug", e.target.value)}
-              placeholder="ex) p2026a"
-              required
-              disabled={mode === "edit"}
-            />
+            <Input label="Slug" value={formData.slug} onChange={(e) => f("slug", e.target.value)} placeholder="ex) p2026a" required disabled={mode === "edit"} />
             <Input label="Emoji" value={formData.emoji} onChange={(e) => f("emoji", e.target.value)} placeholder="📻" />
           </div>
 
-          <Input
-            label="프로젝트명"
-            value={formData.title}
-            onChange={(e) => f("title", e.target.value)}
-            placeholder="프로젝트명을 입력하세요"
-            required
-          />
-          <Input
-            label="한 줄 설명"
-            value={formData.subtitle}
-            onChange={(e) => f("subtitle", e.target.value)}
-            placeholder="간략한 설명"
-          />
+          <Input label="프로젝트명" value={formData.title} onChange={(e) => f("title", e.target.value)} placeholder="프로젝트명을 입력하세요" required />
+          <Input label="한 줄 설명" value={formData.subtitle} onChange={(e) => f("subtitle", e.target.value)} placeholder="간략한 설명" />
 
           <div>
             <label className="block text-sm font-semibold text-foreground mb-2">상세 설명</label>
@@ -318,35 +321,16 @@ export default function ProjectsManager() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block" style={mono}>
-                유형
-              </label>
-              <Select
-                label=""
-                options={CATEGORY_OPTIONS.map((c) => ({ value: c, label: `${CATEGORY_ICON[c]} ${c}` }))}
-                value={formData.category}
-                onChange={(value) => f("category", value)}
-              />
+              <label className="text-xs text-muted-foreground mb-1 block" style={mono}>유형</label>
+              <Select label="" options={CATEGORY_OPTIONS.map((c) => ({ value: c, label: `${CATEGORY_ICON[c]} ${c}` }))} value={formData.category} onChange={(value) => f("category", value)} />
             </div>
-            <Input
-              label="기간"
-              value={formData.period}
-              onChange={(e) => f("period", e.target.value)}
-              placeholder="25.03. / 2023"
-            />
+            <Input label="기간" value={formData.period} onChange={(e) => f("period", e.target.value)} placeholder="25.03. / 2023" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block" style={mono}>
-                기여
-              </label>
-              <select
-                className={inputCls}
-                style={inputStyle}
-                value={formData.contribution}
-                onChange={(e) => f("contribution", e.target.value)}
-              >
+              <label className="text-xs text-muted-foreground mb-1 block" style={mono}>기여</label>
+              <select className={inputCls} style={inputStyle} value={formData.contribution} onChange={(e) => f("contribution", e.target.value)}>
                 <option value="개인">개인</option>
                 <option value="팀">팀</option>
               </select>
@@ -355,65 +339,27 @@ export default function ProjectsManager() {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Input
-              label="URL"
-              value={formData.url}
-              onChange={(e) => f("url", e.target.value)}
-              placeholder="https://…"
-            />
-            <Input
-              label="GitHub"
-              value={formData.github}
-              onChange={(e) => f("github", e.target.value)}
-              placeholder="https://github.com/…"
-            />
+            <Input label="URL" value={formData.url} onChange={(e) => f("url", e.target.value)} placeholder="https://…" />
+            <Input label="GitHub" value={formData.github} onChange={(e) => f("github", e.target.value)} placeholder="https://github.com/…" />
           </div>
 
           <div>
-            <label className="text-xs text-muted-foreground mb-1 block" style={mono}>
-              카드 색상
-            </label>
+            <label className="text-xs text-muted-foreground mb-1 block" style={mono}>카드 색상</label>
             <div className="flex items-center gap-2">
-              <input
-                type="color"
-                className="w-9 h-9 rounded-lg border cursor-pointer"
-                style={{ borderColor: "var(--border)", padding: 2 }}
-                value={formData.color}
-                onChange={(e) => f("color", e.target.value)}
-              />
-              <input
-                className={inputCls}
-                style={inputStyle}
-                value={formData.color}
-                onChange={(e) => f("color", e.target.value)}
-                placeholder="#f0f0ec"
-              />
+              <input type="color" className="w-9 h-9 rounded-lg border cursor-pointer" style={{ borderColor: "var(--border)", padding: 2 }} value={formData.color} onChange={(e) => f("color", e.target.value)} />
+              <input className={inputCls} style={inputStyle} value={formData.color} onChange={(e) => f("color", e.target.value)} placeholder="#f0f0ec" />
             </div>
           </div>
 
-          <Input
-            label="Tags (쉼표 구분)"
-            value={formData.tagsText}
-            onChange={(e) => f("tagsText", e.target.value)}
-            placeholder="Web, PHP"
-          />
-          <Input
-            label="Order"
-            type="number"
-            value={formData.order}
-            onChange={(e) => f("order", Number(e.target.value))}
-          />
+          <Input label="Tags (쉼표 구분)" value={formData.tagsText} onChange={(e) => f("tagsText", e.target.value)} placeholder="Web, PHP" />
+          <Input label="Order" type="number" value={formData.order} onChange={(e) => f("order", Number(e.target.value))} />
 
           {/* 썸네일 */}
           <div>
             <label className="block text-sm font-semibold text-foreground mb-2">썸네일</label>
             {formData.thumbnailPreview && (
               // eslint-disable-next-line @next/next/no-img-element -- 업로드 미리보기, 최적화 불필요
-              <img
-                src={formData.thumbnailPreview}
-                alt="thumbnail preview"
-                className="w-full h-32 object-cover rounded-lg mb-2"
-              />
+              <img src={formData.thumbnailPreview} alt="thumbnail preview" className="w-full h-32 object-cover rounded-lg mb-2" />
             )}
             <input
               type="file"
@@ -428,32 +374,54 @@ export default function ProjectsManager() {
             {uploading && <p className="text-xs text-muted-foreground mt-1">업로드 중...</p>}
           </div>
 
+          {/* 미리보기 갤러리 (여러 장, 상세 모달에 표시됨) */}
           <div>
             <label className="block text-sm font-semibold text-foreground mb-2">
-              Stack (JSON){" "}
-              <span className="text-muted-foreground font-normal">
-                예: [{"{"}label, items[]{"}"}]
-              </span>
+              미리보기 갤러리 <span className="text-muted-foreground font-normal">(여러 장 선택 가능, 상세보기 모달에 표시됨)</span>
             </label>
-            <textarea
-              value={formData.stackText}
-              onChange={(e) => f("stackText", e.target.value)}
-              rows={6}
-              className={`${inputCls} font-mono text-xs`}
-              style={inputStyle}
+            {formData.images.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 mb-2">
+                {formData.images.map((img) => (
+                  <div key={img.fileId} className="relative group">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- 업로드 미리보기, 최적화 불필요 */}
+                    <img src={img.objectKey} alt="gallery preview" className="w-full aspect-video object-cover rounded-lg" />
+                    <button
+                      type="button"
+                      onClick={() => removeGalleryImage(img.fileId)}
+                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label="이미지 삭제"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              disabled={uploading}
+              onChange={(e) => {
+                if (e.target.files && e.target.files.length > 0) handleGalleryUpload(e.target.files);
+                e.target.value = ""; // 같은 파일 다시 선택 가능하게
+              }}
+              className="block w-full text-sm text-muted-foreground file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[var(--secondary)] file:text-sm file:font-medium hover:file:bg-[var(--muted)]"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">
+              Stack (JSON) <span className="text-muted-foreground font-normal">예: [{"{"}label, items[]{"}"}]</span>
+            </label>
+            <textarea value={formData.stackText} onChange={(e) => f("stackText", e.target.value)} rows={6} className={`${inputCls} font-mono text-xs`} style={inputStyle} />
             {stackError && <p className="text-xs text-red-600 mt-1">{stackError}</p>}
           </div>
 
           <Checkbox checked={formData.isPublic} onChange={(e) => f("isPublic", e.target.checked)} label="Public" />
 
           <div className="flex items-center justify-end gap-2 pt-2 border-t" style={{ borderColor: "var(--border)" }}>
-            <button
-              type="button"
-              onClick={cancelForm}
-              className="text-sm px-4 py-2 rounded-xl border transition-colors hover:bg-[var(--secondary)]"
-              style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
-            >
+            <button type="button" onClick={cancelForm} className="text-sm px-4 py-2 rounded-xl border transition-colors hover:bg-[var(--secondary)]" style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}>
               취소
             </button>
             <Button type="submit" loading={loading} disabled={!formData.title.trim()}>
@@ -475,11 +443,7 @@ export default function ProjectsManager() {
             등록된 프로젝트를 추가, 수정, 삭제합니다.
           </p>
         </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-1.5 text-sm px-4 py-2 rounded-xl font-medium text-white transition-opacity hover:opacity-90"
-          style={{ background: TEAL }}
-        >
+        <button onClick={openCreate} className="flex items-center gap-1.5 text-sm px-4 py-2 rounded-xl font-medium text-white transition-opacity hover:opacity-90" style={{ background: TEAL }}>
           <Plus size={14} /> 새 프로젝트
         </button>
       </div>
@@ -501,11 +465,7 @@ export default function ProjectsManager() {
               key={c}
               onClick={() => setFilterCategory(c)}
               className="text-xs px-3 py-1.5 rounded-lg border transition-all"
-              style={
-                filterCategory === c
-                  ? { background: TEAL, color: "#fff", borderColor: TEAL, ...mono }
-                  : { borderColor: "var(--border)", color: "var(--muted-foreground)", ...mono }
-              }
+              style={filterCategory === c ? { background: TEAL, color: "#fff", borderColor: TEAL, ...mono } : { borderColor: "var(--border)", color: "var(--muted-foreground)", ...mono }}
             >
               {c !== "전체" && <span className="mr-0.5">{CATEGORY_ICON[c]}</span>}
               {c}
@@ -519,59 +479,24 @@ export default function ProjectsManager() {
           <table className="w-full text-sm">
             <thead>
               <tr style={{ background: "var(--secondary)", borderBottom: "1px solid var(--border)" }}>
-                <th className="px-4 py-3 text-left text-xs text-muted-foreground font-medium" style={mono}>
-                  프로젝트
-                </th>
-                <th
-                  className="px-4 py-3 text-left text-xs text-muted-foreground font-medium hidden sm:table-cell"
-                  style={mono}
-                >
-                  유형
-                </th>
-                <th
-                  className="px-4 py-3 text-left text-xs text-muted-foreground font-medium hidden md:table-cell"
-                  style={mono}
-                >
-                  기간
-                </th>
-                <th
-                  className="px-4 py-3 text-left text-xs text-muted-foreground font-medium hidden md:table-cell"
-                  style={mono}
-                >
-                  공개
-                </th>
-                <th
-                  className="px-4 py-3 text-left text-xs text-muted-foreground font-medium hidden lg:table-cell"
-                  style={mono}
-                >
-                  링크
-                </th>
-                <th className="px-4 py-3 text-right text-xs text-muted-foreground font-medium" style={mono}>
-                  관리
-                </th>
+                <th className="px-4 py-3 text-left text-xs text-muted-foreground font-medium" style={mono}>프로젝트</th>
+                <th className="px-4 py-3 text-left text-xs text-muted-foreground font-medium hidden sm:table-cell" style={mono}>유형</th>
+                <th className="px-4 py-3 text-left text-xs text-muted-foreground font-medium hidden md:table-cell" style={mono}>기간</th>
+                <th className="px-4 py-3 text-left text-xs text-muted-foreground font-medium hidden md:table-cell" style={mono}>공개</th>
+                <th className="px-4 py-3 text-left text-xs text-muted-foreground font-medium hidden lg:table-cell" style={mono}>링크</th>
+                <th className="px-4 py-3 text-right text-xs text-muted-foreground font-medium" style={mono}>관리</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((p, i) => (
-                <tr
-                  key={p.id}
-                  style={{ borderTop: i > 0 ? "1px solid var(--border)" : undefined }}
-                  className="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors"
-                >
+                <tr key={p.id} style={{ borderTop: i > 0 ? "1px solid var(--border)" : undefined }} className="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
                       {p.thumbnail?.objectKey ? (
                         // eslint-disable-next-line @next/next/no-img-element -- 관리자 미리보기 썸네일, 최적화 불필요
-                        <img
-                          src={p.thumbnail.objectKey}
-                          alt=""
-                          className="w-8 h-8 rounded-lg object-cover flex-shrink-0"
-                        />
+                        <img src={p.thumbnail.objectKey} alt="" className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
                       ) : (
-                        <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-base flex-shrink-0"
-                          style={{ background: p.color }}
-                        >
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-base flex-shrink-0" style={{ background: p.color }}>
                           {p.emoji || "—"}
                         </div>
                       )}
@@ -582,43 +507,16 @@ export default function ProjectsManager() {
                     </div>
                   </td>
                   <td className="px-4 py-3 hidden sm:table-cell">
-                    <span
-                      className="text-xs px-2 py-0.5 rounded-full whitespace-nowrap"
-                      style={{ ...mono, background: "rgba(35,198,169,0.13)", color: TEAL }}
-                    >
+                    <span className="text-xs px-2 py-0.5 rounded-full whitespace-nowrap" style={{ ...mono, background: "rgba(35,198,169,0.13)", color: TEAL }}>
                       {CATEGORY_ICON[p.category] ?? "📁"} {p.category}
                     </span>
                   </td>
-                  <td className="px-4 py-3 hidden md:table-cell text-xs text-muted-foreground" style={mono}>
-                    {p.period}
-                  </td>
-                  <td className="px-4 py-3 hidden md:table-cell text-xs text-muted-foreground" style={mono}>
-                    {p.isPublic ? "공개" : "비공개"}
-                  </td>
+                  <td className="px-4 py-3 hidden md:table-cell text-xs text-muted-foreground" style={mono}>{p.period}</td>
+                  <td className="px-4 py-3 hidden md:table-cell text-xs text-muted-foreground" style={mono}>{p.isPublic ? "공개" : "비공개"}</td>
                   <td className="px-4 py-3 hidden lg:table-cell">
                     <div className="flex items-center gap-2">
-                      {p.url && (
-                        <a
-                          href={p.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-xs text-muted-foreground hover:text-[#23c6a9] transition-colors"
-                          style={mono}
-                        >
-                          URL
-                        </a>
-                      )}
-                      {p.github && (
-                        <a
-                          href={p.github}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-xs text-muted-foreground hover:text-[#23c6a9] transition-colors"
-                          style={mono}
-                        >
-                          GitHub
-                        </a>
-                      )}
+                      {p.url && <a href={p.url} target="_blank" rel="noreferrer" className="text-xs text-muted-foreground hover:text-[#23c6a9] transition-colors" style={mono}>URL</a>}
+                      {p.github && <a href={p.github} target="_blank" rel="noreferrer" className="text-xs text-muted-foreground hover:text-[#23c6a9] transition-colors" style={mono}>GitHub</a>}
                       {!p.url && !p.github && <span className="text-xs text-muted-foreground">—</span>}
                     </div>
                   </td>
@@ -626,35 +524,19 @@ export default function ProjectsManager() {
                     {deleteConfirmId === p.id ? (
                       <div className="flex items-center justify-end gap-1">
                         <span className="text-xs text-muted-foreground mr-1 hidden sm:inline">삭제할까요?</span>
-                        <button
-                          onClick={() => handleDelete(p.id)}
-                          className="text-xs px-2 py-1 rounded-lg text-white transition-colors"
-                          style={{ background: "#ef4444" }}
-                        >
+                        <button onClick={() => handleDelete(p.id)} className="text-xs px-2 py-1 rounded-lg text-white transition-colors" style={{ background: "#ef4444" }}>
                           삭제
                         </button>
-                        <button
-                          onClick={() => setDeleteConfirmId(null)}
-                          className="text-xs px-2 py-1 rounded-lg border transition-colors hover:bg-[var(--secondary)]"
-                          style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
-                        >
+                        <button onClick={() => setDeleteConfirmId(null)} className="text-xs px-2 py-1 rounded-lg border transition-colors hover:bg-[var(--secondary)]" style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}>
                           취소
                         </button>
                       </div>
                     ) : (
                       <div className="flex items-center justify-end gap-0.5">
-                        <button
-                          onClick={() => openEdit(p)}
-                          className="p-1.5 rounded-lg hover:bg-[var(--secondary)] transition-colors text-muted-foreground hover:text-foreground"
-                          title="수정"
-                        >
+                        <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-[var(--secondary)] transition-colors text-muted-foreground hover:text-foreground" title="수정">
                           <Pencil size={13} />
                         </button>
-                        <button
-                          onClick={() => setDeleteConfirmId(p.id)}
-                          className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors text-muted-foreground hover:text-red-500"
-                          title="삭제"
-                        >
+                        <button onClick={() => setDeleteConfirmId(p.id)} className="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors text-muted-foreground hover:text-red-500" title="삭제">
                           <Trash2 size={13} />
                         </button>
                       </div>
@@ -665,9 +547,7 @@ export default function ProjectsManager() {
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-4 py-10 text-center text-sm text-muted-foreground">
-                    {searchQ || filterCategory !== "전체"
-                      ? "조건에 맞는 프로젝트가 없습니다."
-                      : "등록된 프로젝트가 없습니다."}
+                    {searchQ || filterCategory !== "전체" ? "조건에 맞는 프로젝트가 없습니다." : "등록된 프로젝트가 없습니다."}
                   </td>
                 </tr>
               )}

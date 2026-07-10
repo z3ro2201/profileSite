@@ -22,17 +22,28 @@ export default function Home() {
         <p className="text-base">브금이 흘러나오니 소리를 켜주세요.</p>
       </div>
       <div className="flex justify-center">
-        <Link className="mr-5 flex justify-center items-center w-[60px] h-[60px] rounded-full bg-slate-800 text-[1.5em]" href="/s2/profile">
-          <FontAwesomeIcon icon={faInfo} />
+        <Link
+          className="mr-5 relative flex justify-center items-center w-[60px] h-[60px] rounded-full bg-slate-800 text-[1.5em]"
+          href="/s2/profile"
+        >
+          <FontAwesomeIcon icon={faInfo} size="sm" style={{ height: "45px" }} />
         </Link>
-        <Link className="flex justify-center items-center w-[60px] h-[60px] rounded-full bg-slate-800 text-[1.5em]" href="//github.com/z3ro2201" target={"_blank"}>
-          <FontAwesomeIcon icon={faGithub} />
+        <Link
+          className="relative flex justify-center items-center w-[60px] h-[60px] rounded-full bg-slate-800 text-[1.5em]"
+          href="//github.com/z3ro2201"
+          target={"_blank"}
+        >
+          <FontAwesomeIcon icon={faGithub} size="sm" style={{ height: "45px" }} />
         </Link>
       </div>
       <div className="mt-4">
         <Link href="/s3" className="flex justify-center items-center gap-1 underline">
           <FontAwesomeIcon icon={faReply} className="w-4" />
-          리뉴얼 된 사이트로 이동
+          season 3 페이지로 이동
+        </Link>
+        <Link href="/s4" className="flex justify-center items-center gap-1 underline">
+          <FontAwesomeIcon icon={faReply} className="w-4" />
+          season 4 페이지로 이동
         </Link>
       </div>
     </div>

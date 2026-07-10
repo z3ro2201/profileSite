@@ -21,6 +21,7 @@ type SaveBody = {
   order?: number;
   isPublic?: boolean;
   thumbnailId?: string | null;
+  imageIds?: string[]; // 미리보기 갤러리 이미지들 (순서대로)
 };
 
 function bad(message: string, status = 400) {
@@ -36,7 +37,10 @@ export async function GET(_req: Request, ctx: { params: MaybePromise<{ id: strin
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
-    include: { thumbnail: { select: { objectKey: true } } },
+    include: {
+      thumbnail: { select: { objectKey: true } },
+      images: { orderBy: { sort: "asc" }, include: { file: { select: { objectKey: true } } } },
+    },
   });
   if (!project) return bad("프로젝트를 찾을 수 없습니다.", 404);
 
@@ -63,7 +67,22 @@ export async function PUT(req: Request, ctx: { params: MaybePromise<{ id: string
     if (body[key] !== undefined) data[key] = body[key];
   }
 
-  const updated = await prisma.project.update({ where: { id: projectId }, data });
+  // 갤러리 이미지는 전체 교체 방식 (기존 연결 삭제 후 새로 생성) — 순서 변경도 이걸로 처리됨
+  const updated = await prisma.$transaction(async (tx) => {
+    const project = await tx.project.update({ where: { id: projectId }, data });
+
+    if (body.imageIds !== undefined) {
+      await tx.projectImage.deleteMany({ where: { projectId } });
+      if (body.imageIds.length > 0) {
+        await tx.projectImage.createMany({
+          data: body.imageIds.map((fileId, sort) => ({ projectId, fileId, sort })),
+        });
+      }
+    }
+
+    return project;
+  });
+
   return NextResponse.json({ ok: true, project: updated });
 }
 

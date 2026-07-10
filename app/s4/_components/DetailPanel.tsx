@@ -155,23 +155,22 @@ export function DetailPanel({ item, onClose }: { item: DetailItem; onClose: () =
               </div>
             </div>
 
-            {/* ── image gallery ── */}
-            <div className="border-t border-border px-6 py-5">
-              <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-4" style={mono}>미리보기</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {[0, 1, 2].map((i) => (
-                  <div
-                    key={i}
-                    className="aspect-video rounded-xl flex items-center justify-center"
-                    style={{ background: i === 0 ? item.color : "var(--secondary)" }}
-                  >
-                    <span className={`${i === 0 ? "text-3xl" : "text-2xl opacity-20"}`}>
-                      {i === 0 ? item.emoji : "🖼"}
-                    </span>
+            {/* ── gallery ── */}
+            {(() => {
+              const gallery = item.images && item.images.length > 0 ? item.images : item.thumbnailUrl ? [item.thumbnailUrl] : [];
+              if (gallery.length === 0) return null;
+              return (
+                <div className="border-t border-border px-6 py-5">
+                  <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-4" style={mono}>미리보기</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {gallery.map((src, i) => (
+                      // eslint-disable-next-line @next/next/no-img-element -- 다양한 원본 크기의 업로드 이미지, next/image 최적화 불필요
+                      <img key={i} src={src} alt={`${item.title} 미리보기 ${i + 1}`} className="w-full aspect-video rounded-xl object-cover" />
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              );
+            })()}
 
           </div>
         </div>
