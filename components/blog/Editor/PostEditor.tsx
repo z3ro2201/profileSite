@@ -4,6 +4,7 @@ import "@toast-ui/editor/dist/theme/toastui-editor-dark.css";
 
 import { Editor } from "@toast-ui/react-editor";
 import { useEffect, useRef, useState } from "react";
+import { parseFrontmatter } from "@/lib/frontmatter";
 import type { PostStateProp, PostEditorProp, PostFileInfo } from "@/types/Posts";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -14,7 +15,21 @@ import { AdminCategoryListResponse, Categories } from "@/types/Category";
 import { apiFetch } from "@/lib/apiFetch";
 import { Checkbox } from "@/components/ui/Checkbox";
 
-const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostTag, PostCategoryId, PostFiles, PostLat, PostLng, PostPlaceName, PostPlaceAddress, PostMapOnly }: PostEditorProp) => {
+const PostEditor = ({
+  PostType,
+  PostId,
+  PostTitle,
+  PostState,
+  PostContent,
+  PostTag,
+  PostCategoryId,
+  PostFiles,
+  PostLat,
+  PostLng,
+  PostPlaceName,
+  PostPlaceAddress,
+  PostMapOnly,
+}: PostEditorProp) => {
   const editorRef = useRef<Editor>(null);
 
   // 관리자 셸(layout/admin/mainLayout.tsx)의 다크모드 토글은 상위 wrapper div에 .dark 클래스를
@@ -50,6 +65,43 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
   const [uploadedFiles, setUploadedFiles] = useState<PostFileInfo[]>(PostFiles ?? []);
 
   const [isUploading, setIsUploading] = useState(false);
+
+  // frontmatter(---title: ...---) 붙여넣으면 제목/카테고리/태그 자동 채우고 본문에서 제거
+  const [importOpen, setImportOpen] = useState(false);
+  const [importText, setImportText] = useState("");
+  const [importWarnings, setImportWarnings] = useState<string[]>([]);
+
+  const handleImport = () => {
+    const { data, body } = parseFrontmatter(importText);
+    const warnings: string[] = [];
+
+    if (typeof data.title === "string" && data.title) setTitle(data.title);
+
+    if (typeof data.category === "string" && data.category) {
+      const matched = categories.find((c) => c.name === data.category || c.slug === data.category);
+      if (matched) setCategoryId(matched.id.toString());
+      else warnings.push(`카테고리 "${data.category}"를 찾을 수 없어 직접 선택해주세요.`);
+    }
+
+    if (Array.isArray(data.tags) && data.tags.length > 0) {
+      setTagText(data.tags.join(", "));
+    } else if (typeof data.tags === "string" && data.tags) {
+      setTagText(data.tags);
+    }
+
+    // description/date/series/part는 지금 글 스키마에 대응하는 입력칸이 없어서 자동 반영 안 됨 — 필요하면 본문에 남겨둠
+    const unmapped = Object.keys(data).filter((k) => !["title", "category", "tags"].includes(k));
+    if (unmapped.length > 0) {
+      warnings.push(`"${unmapped.join(", ")}" 항목은 대응하는 입력칸이 없어서 자동으로 안 채워졌어요.`);
+    }
+
+    editorRef.current?.getInstance().setMarkdown(body, false);
+    setImportWarnings(warnings);
+    if (warnings.length === 0) {
+      setImportOpen(false);
+      setImportText("");
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -240,8 +292,71 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
     <form onSubmit={onSubmit} className="max-w-5xl mx-auto space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground">글 {PostType === "new" ? "작성" : "수정"}</h1>
-        {PostType === "update" && PostId && <span className="text-sm text-muted-foreground">ID: {PostId}</span>}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setImportOpen(true)}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
+          >
+            frontmatter로 가져오기
+          </button>
+          {PostType === "update" && PostId && <span className="text-sm text-muted-foreground">ID: {PostId}</span>}
+        </div>
       </div>
+
+      {importOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          style={{ background: "rgba(0,0,0,0.5)" }}
+        >
+          <div
+            className="w-full max-w-2xl rounded-xl border border-border p-5 space-y-3"
+            style={{ background: "var(--card)" }}
+          >
+            <p className="text-sm font-semibold text-foreground">frontmatter 포함 글 붙여넣기</p>
+            <p className="text-xs text-muted-foreground">
+              {"---title: ...\ncategory: ...\ntags: [...]---"} 형식의 글 전체를 붙여넣으면, 제목/카테고리/태그를
+              자동으로 채우고 본문에서는 지워줘요.
+            </p>
+            <textarea
+              value={importText}
+              onChange={(e) => setImportText(e.target.value)}
+              rows={10}
+              placeholder={'---\ntitle: "..."\ncategory: Infra\ntags: [a, b]\n---\n\n본문...'}
+              className="w-full rounded-lg border border-border p-3 text-xs font-mono bg-[var(--input-background)] text-foreground focus:outline-none focus:ring-2 focus:ring-[#23c6a9]"
+            />
+            {importWarnings.length > 0 && (
+              <ul className="text-xs text-amber-600 list-disc pl-4 space-y-0.5">
+                {importWarnings.map((w) => (
+                  <li key={w}>{w}</li>
+                ))}
+              </ul>
+            )}
+            <div className="flex justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setImportOpen(false);
+                  setImportText("");
+                  setImportWarnings([]);
+                }}
+                className="text-sm px-4 py-2 rounded-lg border border-border text-muted-foreground hover:text-foreground transition-colors"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={handleImport}
+                disabled={!importText.trim()}
+                className="text-sm px-4 py-2 rounded-lg text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                style={{ background: "#23c6a9" }}
+              >
+                가져오기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* 카테고리 + 제목 */}
       <div className="flex gap-3">
         <Select
@@ -255,7 +370,13 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
             label: cat.name,
           }))}
         />
-        <Input type="text" className="flex-1" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="제목을 입력하세요" />
+        <Input
+          type="text"
+          className="flex-1"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          placeholder="제목을 입력하세요"
+        />
       </div>
       {/* 에디터 */}
       <div ref={editorWrapRef} className="border border-border rounded-lg overflow-hidden">
@@ -277,9 +398,22 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-medium text-foreground">첨부 파일</h3>
           <div>
-            <input ref={fileInputRef} type="file" multiple accept="image/*,video/*,application/pdf,.doc,.docx,.zip" onChange={handleFileUpload} className="hidden" id="file-upload" />
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*,video/*,application/pdf,.doc,.docx,.zip"
+              onChange={handleFileUpload}
+              className="hidden"
+              id="file-upload"
+            />
             <label htmlFor="file-upload">
-              <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+              >
                 {isUploading ? "업로드 중..." : "파일 추가"}
               </Button>
             </label>
@@ -295,10 +429,19 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
               const isVideo = mimeType.startsWith("video/");
 
               return (
-                <div key={pf.fileId} className="flex items-center justify-between p-3 bg-[var(--secondary)] rounded border border-border">
+                <div
+                  key={pf.fileId}
+                  className="flex items-center justify-between p-3 bg-[var(--secondary)] rounded border border-border"
+                >
                   <div className="flex items-center gap-3 flex-1">
                     {/* 썸네일 */}
-                    {isImage && <img src={pf.file.objectKey} alt={pf.file.originalName ?? ""} className="w-16 h-16 object-cover rounded" />}
+                    {isImage && (
+                      <img
+                        src={pf.file.objectKey}
+                        alt={pf.file.originalName ?? ""}
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                    )}
                     {isVideo && (
                       <div className="w-16 h-16 bg-[var(--muted)] rounded flex items-center justify-center">
                         <span className="text-2xl">🎥</span>
@@ -323,14 +466,22 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
                   {/* 액션 버튼들 */}
                   <div className="flex gap-2">
                     {/* 🆕 본문 삽입 버튼 */}
-                    <button type="button" onClick={() => insertFileToEditor(pf)} className="px-3 py-1 text-sm text-[#23c6a9] hover:opacity-80 hover:bg-[rgba(35,198,169,0.08)] rounded border border-[rgba(35,198,169,0.3)]">
+                    <button
+                      type="button"
+                      onClick={() => insertFileToEditor(pf)}
+                      className="px-3 py-1 text-sm text-[#23c6a9] hover:opacity-80 hover:bg-[rgba(35,198,169,0.08)] rounded border border-[rgba(35,198,169,0.3)]"
+                    >
                       {isImage && "🖼️ 이미지 삽입"}
                       {isVideo && "🎥 동영상 삽입"}
                       {!isImage && !isVideo && "📎 링크 삽입"}
                     </button>
 
                     {/* 삭제 버튼 */}
-                    <button type="button" onClick={() => handleFileRemove(pf.fileId)} className="px-3 py-1 text-sm text-red-500 hover:text-red-700 hover:bg-red-50 rounded">
+                    <button
+                      type="button"
+                      onClick={() => handleFileRemove(pf.fileId)}
+                      className="px-3 py-1 text-sm text-red-500 hover:text-red-700 hover:bg-red-50 rounded"
+                    >
                       삭제
                     </button>
                   </div>
@@ -343,7 +494,14 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
         )}
       </div>
       {/* 태그 */}
-      <Input type="text" className="w-full" value={tagText} onChange={(event) => setTagText(event.target.value)} placeholder="태그 (쉼표로 구분, 예: react, nextjs, typescript)" label="태그" />
+      <Input
+        type="text"
+        className="w-full"
+        value={tagText}
+        onChange={(event) => setTagText(event.target.value)}
+        placeholder="태그 (쉼표로 구분, 예: react, nextjs, typescript)"
+        label="태그"
+      />
       {/* 위치정보 */}
       <div className="flex flex-col pt-4 border-t border-border gap-4">
         <div className="w-full">
@@ -405,7 +563,14 @@ const PostEditor = ({ PostType, PostId, PostTitle, PostState, PostContent, PostT
             { label: "발행", value: "PUBLISHED" },
             { label: "보관", value: "ARCHIVED" },
           ].map((item) => (
-            <Radio key={item.value} name="postState" value={item.value} label={item.label} checked={postState === item.value} onChange={(e) => setPostState(e.target.value as PostStateProp)} />
+            <Radio
+              key={item.value}
+              name="postState"
+              value={item.value}
+              label={item.label}
+              checked={postState === item.value}
+              onChange={(e) => setPostState(e.target.value as PostStateProp)}
+            />
           ))}
         </div>
 

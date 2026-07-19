@@ -50,14 +50,20 @@ function AnimatedBarSegment({ pct, color }: { pct: number; color: string }) {
 }
 
 const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
-  const [time, setTime] = useState(new Date());
+  // new Date()를 useState 초기값으로 바로 넣으면 서버가 렌더링한 시각과
+  // 클라이언트가 하이드레이션하는 시각 사이에 실제 시간이 흘러서(초 단위라도)
+  // 하이드레이션 불일치가 남. null로 시작해서 서버/클라이언트 첫 렌더를 동일하게 만들고,
+  // 실제 시각은 마운트 이후(useEffect, 클라이언트 전용)에만 채운다.
+  const [time, setTime] = useState<Date | null>(null);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 마운트 시 최초 시각 반영 + 매초 갱신 시작
+    setTime(new Date());
     const t = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
-  const hh = String(time.getHours()).padStart(2, "0");
-  const mm = String(time.getMinutes()).padStart(2, "0");
-  const ss = String(time.getSeconds()).padStart(2, "0");
+  const hh = time ? String(time.getHours()).padStart(2, "0") : "--";
+  const mm = time ? String(time.getMinutes()).padStart(2, "0") : "--";
+  const ss = time ? String(time.getSeconds()).padStart(2, "0") : "--";
 
   // 매초 갱신되는 시계 때문에 컴포넌트가 1초마다 리렌더되는데,
   // 렌더 중에 Math.random()을 부르면(설령 useMemo 안이라도) 리렌더될 때마다
@@ -374,7 +380,7 @@ const HomeClient = ({ githubStats }: { githubStats: GithubStats }) => {
             </div>
             <div
               className="max-w-xs px-4 py-2.5 rounded-2xl rounded-bl-sm text-sm leading-relaxed"
-              style={{ background: "var(--secondary)", color: "var(--foreground)", border: "1px solid var(--border)" }}
+              style={{ background: "var(--secondary)", color: "var(--foreground)" }}
             >
               같이 만들어볼 프로젝트가 있으신가요? 아니면 그냥 안녕이라도 👋
             </div>
