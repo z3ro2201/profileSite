@@ -112,6 +112,13 @@ export function FloatingNav() {
     }
   };
 
+  // 영상이 삭제/비공개/임베드 차단 등으로 재생 자체가 불가능할 때(에러 코드 2/5/100/101/150)
+  // 자동으로 다음 곡으로 넘어감. 안 그러면 그 트랙에서 영영 멈춰있게 됨.
+  const onPlayerError: YouTubeProps["onError"] = () => {
+    setIsBuffering(false);
+    setTrackIdx((i) => (i + 1) % PLAYLIST.length);
+  };
+
   // 트랙이 바뀌거나(trackIdx) 플레이어가 뒤늦게 준비되면(playerReady) 현재 선택된 곡을 로드.
   // playerReady를 의존성에 넣어야, "플레이어 준비 전에 트랙을 클릭"한 경우에도
   // 준비되는 순간 그때의 최신 trackIdx를 다시 반영한다 (버튼 클릭 ↔ 실제 재생 영상 불일치 버그 수정).
@@ -290,6 +297,7 @@ export function FloatingNav() {
                 opts={opts}
                 onReady={onReady}
                 onStateChange={onPlayerState}
+                onError={onPlayerError}
                 className="w-full h-full"
                 iframeClassName="w-full h-full"
               />

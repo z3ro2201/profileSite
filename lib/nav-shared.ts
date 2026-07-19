@@ -7,6 +7,21 @@ export const mono = { fontFamily: "'JetBrains Mono', monospace" } as CSSProperti
 
 export const PLAYLIST: { title: string; artist: string; ytId: string }[] = [
   {
+    ytId: "d9ZctO8o7lU",
+    artist: "다!다!다! 2기 OST (김연정), AI REMIX",
+    title: "다!다!다! 2기 오프닝 내게 와 줘 Full.ver - REMIX [ ♀️ AI COVER ]",
+  },
+  {
+    ytId: "OKMZNLUUbPw",
+    artist: "다!다!다! 2기 OST (이지영, 정여진), AI REMIX",
+    title: "다!다!다! 2기 엔딩 너에게 Full.ver - REMIX [ ♀️ AI COVER ]",
+  },
+  {
+    ytId: "Si9i1J81A_w",
+    artist: "보노보노 OST",
+    title: "보노보노 오프닝 - 지름길로 가고파 (한국판 자체 편집 풀버전)",
+  },
+  {
     ytId: "rxZxOX5LeHU",
     artist: "명탐정 코난 OST (Kuraki Mai)",
     title: "명탐정 코난 OST : 바람의 라라라 (벅차오르는 파워 락 발라드 어레인지 커버) | GrangChe.Ver",
