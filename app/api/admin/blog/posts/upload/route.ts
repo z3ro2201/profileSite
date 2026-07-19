@@ -16,13 +16,29 @@ export async function POST(request: NextRequest) {
 
     // 파일 버퍼 생성
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    let buffer: Buffer<ArrayBufferLike> = Buffer.from(bytes);
+    let mimeType = file.type;
+    let ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
 
-    // 체크섬 생성
+    // 이미지는 webp로 변환해서 저장 (용량 절감). SVG는 벡터라 그대로 두고,
+    // GIF는 애니메이션 보존을 시도하되 실패하면 원본 그대로 저장.
+    if (mimeType.startsWith("image/") && mimeType !== "image/svg+xml" && mimeType !== "image/webp") {
+      try {
+        const isGif = mimeType === "image/gif";
+        buffer = await sharp(buffer, isGif ? { animated: true } : undefined)
+          .webp({ quality: 82 })
+          .toBuffer();
+        mimeType = "image/webp";
+        ext = "webp";
+      } catch (error) {
+        console.error("webp 변환 실패, 원본 형식으로 저장합니다:", error);
+      }
+    }
+
+    // 체크섬 생성 (webp로 바뀌었으면 바뀐 버퍼 기준으로)
     const hash = crypto.createHash("sha256").update(buffer).digest("hex");
 
     // 파일명 생성
-    const ext = file.name.split(".").pop() || "jpg";
     const fileName = `${Date.now()}-${hash.substring(0, 12)}.${ext}`;
 
     // 저장 경로 (년/월)
@@ -44,7 +60,7 @@ export async function POST(request: NextRequest) {
     let width: number | null = null;
     let height: number | null = null;
 
-    if (file.type.startsWith("image/")) {
+    if (mimeType.startsWith("image/")) {
       try {
         const metadata = await sharp(buffer).metadata();
         width = metadata.width || null;
@@ -60,7 +76,7 @@ export async function POST(request: NextRequest) {
         storage: "local",
         objectKey: `/uploads/${year}/${month}/${fileName}`,
         originalName: file.name,
-        mimeType: file.type,
+        mimeType,
         sizeBytes: BigInt(buffer.length),
         checksumSha256: hash,
         width,
