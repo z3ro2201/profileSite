@@ -9,6 +9,8 @@ type PatchBody = {
   parentId?: number | null;
   order?: number;
   isPublic?: boolean;
+  icon?: string | null;
+  color?: string | null;
 };
 
 // ========================================
@@ -92,6 +94,16 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   // ----------------------------------------
   if ("description" in body) {
     data.description = body.description ?? null;
+  }
+
+  // ----------------------------------------
+  // 아이콘/색상 변경
+  // ----------------------------------------
+  if ("icon" in body) {
+    data.icon = body.icon?.trim() || null;
+  }
+  if ("color" in body) {
+    data.color = body.color?.trim() || null;
   }
 
   // ----------------------------------------

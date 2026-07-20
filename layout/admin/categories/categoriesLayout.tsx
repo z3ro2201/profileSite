@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Select } from "@/components/ui/Select";
 import { apiFetch } from "@/lib/apiFetch";
 import { mono } from "@/lib/nav-shared";
+import { resolveIcon, isValidIconName } from "@/lib/icon-registry";
 
 type Category = {
   id: number;
@@ -19,6 +20,8 @@ type Category = {
   order: number;
   isPublic: boolean;
   description: string | null;
+  icon: string | null;
+  color: string | null;
   parent?: { id: number; name: string; slug: string } | null;
   _count?: { posts: number; children: number };
   children?: Category[];
@@ -31,6 +34,8 @@ type FormData = {
   description: string;
   order: number;
   isPublic: boolean;
+  icon: string;
+  color: string;
 };
 
 const INITIAL_FORM: FormData = {
@@ -40,7 +45,18 @@ const INITIAL_FORM: FormData = {
   description: "",
   order: 0,
   isPublic: true,
+  icon: "",
+  color: "",
 };
+
+// resolveIcon()이 리턴한 컴포넌트를 JSX 안에서 바로 <Icon .../>으로 안 쓰고
+// 이 컴포넌트로 감싸서 렌더링. (인라인으로 쓰면 "렌더 중 컴포넌트를 만든다"고
+// React Compiler가 오인해서 정적 분석 경고가 남)
+function IconPreview({ name, size = 18, className }: { name?: string; size?: number; className?: string }) {
+  const Icon = resolveIcon(name);
+  // eslint-disable-next-line react-hooks/static-components -- 아이콘 이름 자유 입력을 지원하려면 동적 조회가 필수라 의도된 패턴
+  return <Icon size={size} className={className} />;
+}
 
 export default function CategoryManager() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -117,6 +133,8 @@ export default function CategoryManager() {
       description: category.description || "",
       order: category.order,
       isPublic: category.isPublic,
+      icon: category.icon || "",
+      color: category.color || "",
     });
   };
 
@@ -279,6 +297,45 @@ export default function CategoryManager() {
           <Input label="Order" type="number" value={formData.order} onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })} placeholder="ex) 10" />
 
           <Checkbox checked={formData.isPublic} onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })} label="Public" />
+
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">
+              아이콘 <span className="text-muted-foreground font-normal">(lucide-react 아이콘 이름, 예: Coffee)</span>
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                value={formData.icon}
+                onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                placeholder="비워두면 기본 아이콘"
+                className="flex-1 px-4 py-3 border border-border rounded-lg bg-[var(--input-background)] text-foreground focus:ring-2 focus:ring-[#23c6a9] focus:border-transparent outline-none transition"
+              />
+              <div className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "var(--secondary)" }}>
+                <IconPreview name={formData.icon} className="text-foreground" />
+              </div>
+            </div>
+            {formData.icon.trim() && !isValidIconName(formData.icon) && (
+              <p className="text-xs text-amber-600 mt-1">이름을 못 찾아서 기본 아이콘으로 대체돼요. 정확한 lucide 아이콘 이름인지 확인해주세요.</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">카드 배경색</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={formData.color || "#eeeeee"}
+                onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                className="w-11 h-11 rounded-lg border border-border cursor-pointer"
+                style={{ padding: 2 }}
+              />
+              <input
+                value={formData.color}
+                onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                placeholder="비워두면 기본 배경색"
+                className="flex-1 px-4 py-3 border border-border rounded-lg bg-[var(--input-background)] text-foreground focus:ring-2 focus:ring-[#23c6a9] focus:border-transparent outline-none transition"
+              />
+            </div>
+          </div>
 
           <div>
             <label className="block text-sm font-semibold text-foreground mb-2">Description</label>

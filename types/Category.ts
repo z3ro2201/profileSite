@@ -13,6 +13,8 @@ export type Category = {
   children?: Category[];
   _count?: { posts: number };
   description?: string | null;
+  icon?: string | null;
+  color?: string | null;
 };
 
 export type Categories = Category;

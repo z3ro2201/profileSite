@@ -9,6 +9,8 @@ type SaveBody = {
   parentId?: number | null; // ✅ 추가
   order?: number;
   isPublic?: boolean;
+  icon?: string | null;
+  color?: string | null;
 };
 
 const slugify = (v: string) =>
@@ -108,6 +110,8 @@ export async function POST(req: Request) {
       depth,
       order: Number.isFinite(body.order as number) ? Number(body.order) : 0,
       isPublic: typeof body.isPublic === "boolean" ? body.isPublic : true,
+      icon: body.icon?.trim() || null,
+      color: body.color?.trim() || null,
     };
 
     const saved = body.id

@@ -13,13 +13,19 @@ import {
   Layers,
   Database,
   Cpu,
-  FileText,
   Search,
   X,
+  Server,
+  FileCode,
+  Plane,
+  Coffee,
+  Heart,
+  StickyNote,
 } from "lucide-react";
 import type { PublicPostListItem } from "@/types/Posts";
 import type { Category } from "@/types/Category";
 import { TEAL, mono } from "@/lib/nav-shared";
+import { resolveIcon } from "@/lib/icon-registry";
 import { serif } from "@/app/s4/_lib/theme";
 
 type TagWithCount = { id: number; slug: string; name: string; count: number };
@@ -33,18 +39,54 @@ const stripAndTrim = (html: string | null | undefined, maxLen = 90) => {
   return text.length > maxLen ? text.slice(0, maxLen - 1) + "…" : text;
 };
 
-// 태그 이름으로 아이콘을 골라줌 (장식용. 모르는 태그는 기본 아이콘)
+// 태그 이름으로 아이콘을 골라줌 (장식용, 카테고리 매핑에 없을 때의 보조 신호)
 const TAG_ICONS: Record<string, React.ElementType> = {
   "Next.js": Globe,
   React: Zap,
   TypeScript: Terminal,
   CSS: Layers,
+  PHP: FileCode,
   PostgreSQL: Database,
   MariaDB: Database,
   MySQL: Database,
   Prisma: Database,
 };
-const iconForTag = (tagName?: string) => TAG_ICONS[tagName ?? ""] ?? Cpu;
+
+// 카테고리 이름으로 성향에 맞는 아이콘을 골라줌 (명시적 지정이 없을 때의 이름 기반 추정용)
+const CATEGORY_ICONS: Record<string, React.ElementType> = {
+  Frontend: Globe,
+  Backend: Server,
+  Infra: Server,
+  Development: Terminal,
+  JavaScript: Zap,
+  "HTML & CSS": Layers,
+  PHP: FileCode,
+  "Java / Spring": FileCode,
+  Places: Plane,
+  Travel: Plane,
+  Food: Coffee,
+  Cafes: Coffee,
+  Life: Heart,
+  Diary: BookOpen,
+};
+
+// 아이콘 판단 순서: 글에 직접 지정 → 카테고리 기본값 → (둘 다 없으면) 이름 기반 추정 → 그래도 없으면 기본 아이콘
+const iconForPost = (
+  postIcon?: string | null,
+  categoryIcon?: string | null,
+  categoryName?: string | null,
+  tagName?: string,
+): React.ElementType => {
+  if (postIcon) return resolveIcon(postIcon);
+  if (categoryIcon) return resolveIcon(categoryIcon);
+  if (categoryName && CATEGORY_ICONS[categoryName]) return CATEGORY_ICONS[categoryName];
+  if (tagName && TAG_ICONS[tagName]) return TAG_ICONS[tagName];
+  if (categoryName || tagName) return Cpu; // 카테고리/태그는 있는데 매핑을 안 해둔 경우
+  return StickyNote; // 카테고리도 태그도 아예 없는 경우
+};
+
+// 카드 배경색: 글에 직접 지정 → 카테고리 기본값 → 기본 배경
+const colorForPost = (postColor?: string | null, categoryColor?: string | null): string => postColor || categoryColor || "var(--secondary)";
 
 export default function BlogListClient({
   posts,
@@ -139,13 +181,13 @@ export default function BlogListClient({
   const topCategories = categories.filter((c) => c.depth === 0);
 
   const renderPostCard = (post: PublicPostListItem) => {
-    const Icon = iconForTag(post.tags[0]?.name);
+    const Icon = iconForPost(post.icon, post.category?.icon, post.category?.name, post.tags[0]?.name);
     return (
       <Link
         key={post.id}
         href={`/blog/posts/view/${post.id}`}
         className="group rounded-2xl p-5 flex flex-col justify-between text-left overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
-        style={{ background: "var(--secondary)", minHeight: 220 }}
+        style={{ background: colorForPost(post.color, post.category?.color), minHeight: 220 }}
       >
         <div>
           <div className="flex items-center gap-1.5 mb-4 flex-wrap">
@@ -160,17 +202,10 @@ export default function BlogListClient({
               </span>
             ))}
           </div>
-          <h3
-            className="text-xl font-semibold leading-snug text-foreground group-hover:text-[#23c6a9] transition-colors"
-            style={serif}
-          >
+          <h3 className="text-xl font-semibold leading-snug text-foreground group-hover:text-[#23c6a9] transition-colors" style={serif}>
             {post.title}
           </h3>
-          {post.contentHtml && (
-            <p className="text-xs text-muted-foreground mt-2 leading-relaxed line-clamp-2">
-              {stripAndTrim(post.contentHtml)}
-            </p>
-          )}
+          {post.contentHtml && <p className="text-xs text-muted-foreground mt-2 leading-relaxed line-clamp-2">{stripAndTrim(post.contentHtml)}</p>}
         </div>
         <div className="flex items-end justify-between mt-6">
           <span className="text-xs text-muted-foreground" style={mono}>
@@ -192,11 +227,7 @@ export default function BlogListClient({
         <span className="text-xs text-muted-foreground" style={mono}>
           {expandedLoading ? "불러오는 중…" : `${expandedPosts.length}편`}
         </span>
-        <button
-          onClick={() => setExpanded(null)}
-          className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors"
-          style={mono}
-        >
+        <button onClick={() => setExpanded(null)} className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors" style={mono}>
           닫기
         </button>
       </div>
@@ -209,6 +240,7 @@ export default function BlogListClient({
       )}
     </div>
   );
+
 
   return (
     <div>
@@ -297,7 +329,7 @@ export default function BlogListClient({
             </h2>
           ) : (
             <h2 className="text-4xl sm:text-5xl font-light leading-tight" style={serif}>
-              배운 것들과 일상의 일들을
+              배운 것들을
               <br />
               <span className="italic">기록합니다.</span>
             </h2>
@@ -386,13 +418,13 @@ export default function BlogListClient({
           {posts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {posts.map((post) => {
-                const Icon = iconForTag(post.tags[0]?.name);
+                const Icon = iconForPost(post.icon, post.category?.icon, post.category?.name, post.tags[0]?.name);
                 return (
                   <Link
                     key={post.id}
                     href={`/blog/posts/view/${post.id}`}
                     className="group rounded-2xl p-5 flex flex-col justify-between text-left overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
-                    style={{ background: "var(--secondary)", minHeight: 220 }}
+                    style={{ background: colorForPost(post.color, post.category?.color), minHeight: 220 }}
                   >
                     <div>
                       <div className="flex items-center gap-1.5 mb-4 flex-wrap">
@@ -463,7 +495,7 @@ export default function BlogListClient({
                 className="text-[10px] px-2 py-0.5 rounded-full"
                 style={{ background: `${TEAL}18`, color: TEAL, ...mono }}
               >
-                {posts.length}
+                {posts.length}편
               </span>
             </div>
             <div>
@@ -475,7 +507,7 @@ export default function BlogListClient({
           </Link>
 
           {tags.map((t) => {
-            const Icon = iconForTag(t.name);
+            const Icon = TAG_ICONS[t.name] ?? Cpu;
             const isActive = expanded?.type === "tag" && expanded.slug === t.slug;
             return (
               <button
@@ -495,7 +527,7 @@ export default function BlogListClient({
                     className="text-[10px] px-2 py-0.5 rounded-full"
                     style={{ background: "rgba(35,198,169,0.15)", color: TEAL, ...mono }}
                   >
-                    {t.count}
+                    {t.count}편
                   </span>
                 </div>
                 <p className="text-sm font-semibold text-foreground" style={serif}>
@@ -545,15 +577,11 @@ export default function BlogListClient({
           {!drilldownCategory && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {topCategories.map((cat) => {
-                const Icon = iconForTag(cat.name);
+                const Icon = iconForPost(null, cat.icon, cat.name);
                 const hasChildren = (cat.children?.length ?? 0) > 0;
                 const isActive = expanded?.type === "category" && expanded.slug === cat.slug;
-                const cardClassName =
-                  "group flex items-start gap-4 rounded-2xl p-5 text-left transition-all duration-200 hover:scale-[1.01] hover:shadow-md";
-                const cardStyle: React.CSSProperties = {
-                  background: "var(--secondary)",
-                  outline: isActive ? `2px solid ${TEAL}` : "none",
-                };
+                const cardClassName = "group flex items-start gap-4 rounded-2xl p-5 text-left transition-all duration-200 hover:scale-[1.01] hover:shadow-md";
+                const cardStyle: React.CSSProperties = { background: colorForPost(cat.color), outline: isActive ? `2px solid ${TEAL}` : "none" };
                 const cardContent = (
                   <>
                     <div
@@ -572,7 +600,7 @@ export default function BlogListClient({
                             className="text-[10px] px-2 py-0.5 rounded-full"
                             style={{ background: "rgba(35,198,169,0.15)", color: TEAL, ...mono }}
                           >
-                            {cat._count?.posts ?? 0}
+                            {cat._count?.posts ?? 0}편
                           </span>
                           {hasChildren && (
                             <ChevronRight
@@ -582,9 +610,7 @@ export default function BlogListClient({
                           )}
                         </div>
                       </div>
-                      {cat.description && (
-                        <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{cat.description}</p>
-                      )}
+                      {cat.description && <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{cat.description}</p>}
                       {hasChildren && (
                         <div className="flex flex-wrap gap-1 mt-2">
                           {cat.children!.map((s) => (
@@ -603,21 +629,11 @@ export default function BlogListClient({
                 );
 
                 return hasChildren ? (
-                  <button
-                    key={cat.id}
-                    onClick={() => setDrilldownCategory(cat)}
-                    className={cardClassName}
-                    style={cardStyle}
-                  >
+                  <button key={cat.id} onClick={() => setDrilldownCategory(cat)} className={cardClassName} style={cardStyle}>
                     {cardContent}
                   </button>
                 ) : (
-                  <button
-                    key={cat.id}
-                    onClick={() => toggleExpand("category", cat.slug, cat.name)}
-                    className={cardClassName}
-                    style={cardStyle}
-                  >
+                  <button key={cat.id} onClick={() => toggleExpand("category", cat.slug, cat.name)} className={cardClassName} style={cardStyle}>
                     {cardContent}
                   </button>
                 );
@@ -634,25 +650,26 @@ export default function BlogListClient({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {(drilldownCategory.children ?? []).map((sub) => {
                 const isActive = expanded?.type === "category" && expanded.slug === sub.slug;
+                const SubIcon = iconForPost(null, sub.icon, sub.name);
                 return (
                   <button
                     key={sub.id}
                     onClick={() => toggleExpand("category", sub.slug, sub.name)}
                     className="group rounded-2xl p-5 flex flex-col gap-3 text-left transition-all duration-200 hover:scale-[1.02] hover:shadow-md"
-                    style={{ background: "var(--secondary)", outline: isActive ? `2px solid ${TEAL}` : "none" }}
+                    style={{ background: colorForPost(sub.color), outline: isActive ? `2px solid ${TEAL}` : "none" }}
                   >
                     <div className="flex items-center justify-between">
                       <div
                         className="w-9 h-9 rounded-xl flex items-center justify-center"
                         style={{ background: "rgba(35,198,169,0.15)" }}
                       >
-                        <FileText size={17} style={{ color: TEAL }} />
+                        <SubIcon size={17} style={{ color: TEAL }} />
                       </div>
                       <span
                         className="text-[10px] px-2 py-0.5 rounded-full"
                         style={{ background: "rgba(35,198,169,0.15)", color: TEAL, ...mono }}
                       >
-                        {sub._count?.posts ?? 0}
+                        {sub._count?.posts ?? 0}편
                       </span>
                     </div>
                     <p className="text-sm font-semibold text-foreground" style={serif}>

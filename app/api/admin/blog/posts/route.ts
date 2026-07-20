@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { generateAiSummary } from "@/lib/ai-summary";
+import { pingIndexNow } from "@/lib/indexnow";
 import type { PostUpsertProp } from "@/types/Posts";
 
 function bad(message: string, status = 400) {
@@ -66,8 +67,8 @@ export async function POST(req: Request) {
   // const latFinal = hasBoth ? lat : null;
   // const lngFinal = hasBoth ? lng : null;
 
-  // 발행/수정 시점에만 한 번 생성해서 저장 (매 조회마다 재생성 안 함 — 비용 절약)
-  const aiSummary = await generateAiSummary(contentMd);
+  // AI 요약은 "발행" 시점에만 생성 — 초안으로 저장할 땐 굳이 API를 호출하지 않음 (비용 절약)
+  const aiSummary = state === "PUBLISHED" && !body.noAiSummary ? await generateAiSummary(contentMd) : null;
 
   const created = await prisma.post.create({
     data: {
@@ -85,6 +86,9 @@ export async function POST(req: Request) {
       placeName,
       address,
       mapOnly,
+      icon: body.icon?.trim() || null,
+      color: body.color?.trim() || null,
+      noAiSummary: body.noAiSummary ?? false,
 
       ...(tagSlugs.length
         ? {
@@ -123,6 +127,11 @@ export async function POST(req: Request) {
   // 새 글이 PUBLISHED 상태로 생성됐을 수도 있으니 목록/개별 페이지 캐시 즉시 갱신
   revalidatePath("/blog/posts");
   revalidatePath(`/blog/posts/view/${created.id}`);
+
+  // 발행 상태로 만들어졌으면 네이버/빙에 바로 알림 (초안이면 스킵)
+  if (created.state === "PUBLISHED") {
+    pingIndexNow([`https://2er0.io/blog/posts/view/${created.id}`]);
+  }
 
   return NextResponse.json({ ok: true, post: created }, { status: 201 });
 }

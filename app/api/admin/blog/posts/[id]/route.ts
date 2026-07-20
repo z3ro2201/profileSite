@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { generateAiSummary } from "@/lib/ai-summary";
+import { pingIndexNow } from "@/lib/indexnow";
 import type { PostUpsertProp } from "@/types/Posts";
 
 function bad(message: string, status = 400) {
@@ -35,6 +36,9 @@ export async function GET(_req: Request, ctx: { params: MaybePromise<{ id: strin
       placeName: true,
       address: true,
       mapOnly: true,
+      icon: true,
+      color: true,
+      noAiSummary: true,
 
       categoryId: true,
       category: {
@@ -113,7 +117,7 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
   // 기존 포스트 확인
   const existing = await prisma.post.findUnique({
     where: { id: postId },
-    select: { id: true, publishedAt: true, state: true },
+    select: { id: true, publishedAt: true, state: true, contentMd: true, noAiSummary: true },
   });
 
   if (!existing) return bad("Post not found", 404);
@@ -127,8 +131,6 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
 
   if (typeof body.contentMd === "string") {
     data.contentMd = body.contentMd;
-    // 본문이 바뀔 때만 재생성 (제목/카테고리만 고칠 땐 굳이 다시 호출 안 함 — 비용 절약)
-    data.aiSummary = await generateAiSummary(body.contentMd);
   }
 
   if (body.contentHtml !== undefined) {
@@ -159,6 +161,16 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
     data.mapOnly = body.mapOnly;
   }
 
+  if ("icon" in body) {
+    data.icon = body.icon?.trim() || null;
+  }
+  if ("color" in body) {
+    data.color = body.color?.trim() || null;
+  }
+  if ("noAiSummary" in body) {
+    data.noAiSummary = body.noAiSummary ?? false;
+  }
+
   // 상태 변경 처리
   if (body.state) {
     data.state = body.state;
@@ -172,6 +184,17 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
     if (body.state !== "PUBLISHED" && existing.publishedAt) {
       data.publishedAt = null;
     }
+  }
+
+  // AI 요약은 "발행" 시점에만 생성 — 초안 저장 중엔 굳이 API를 호출하지 않음 (비용 절약).
+  // 본문이 이번 요청에 안 왔으면(제목만 고친 경우 등) 기존 본문으로 생성.
+  const resultingState = body.state ?? existing.state;
+  const noAiSummary = "noAiSummary" in body ? (body.noAiSummary ?? false) : existing.noAiSummary;
+  if (resultingState === "PUBLISHED" && !noAiSummary) {
+    const contentForSummary = typeof body.contentMd === "string" ? body.contentMd : existing.contentMd;
+    data.aiSummary = await generateAiSummary(contentForSummary);
+  } else if (noAiSummary) {
+    data.aiSummary = null;
   }
 
   // 태그 업데이트
@@ -227,6 +250,11 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
   // 수정된 글 캐시 즉시 갱신 (force-cache라 이거 없으면 재배포 전까지 옛날 내용 그대로 보임)
   revalidatePath("/blog/posts");
   revalidatePath(`/blog/posts/view/${postId}`);
+
+  // 결과 상태가 발행이면 네이버/빙에 알림 (임시저장/보관이면 스킵)
+  if (updated.state === "PUBLISHED") {
+    pingIndexNow([`https://2er0.io/blog/posts/view/${postId}`]);
+  }
 
   return NextResponse.json({ ok: true, post: updated });
 }

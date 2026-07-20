@@ -17,6 +17,9 @@ export type PostEditorProp = {
   PostPlaceName?: string | null;
   PostPlaceAddress?: string | null;
   PostMapOnly?: boolean;
+  PostIcon?: string | null;
+  PostColor?: string | null;
+  PostNoAiSummary?: boolean;
 };
 
 export type PostUpsertProp = {
@@ -35,6 +38,9 @@ export type PostUpsertProp = {
   placeName?: string | null;
   address?: string | null;
   mapOnly?: boolean;
+  icon?: string | null;
+  color?: string | null;
+  noAiSummary?: boolean;
 };
 
 export interface PostFileInfo {
@@ -64,9 +70,14 @@ export type PublicPostListItem = {
   createdAt: string;
   updatedAt: string;
 
+  icon?: string | null;
+  color?: string | null;
+
   category: {
     slug: string;
     name: string;
+    icon?: string | null;
+    color?: string | null;
   } | null;
 
   tags: {
@@ -105,9 +116,14 @@ export type PublicPostDetail = {
   address?: string | null;
   mapOnly?: boolean;
 
+  icon?: string | null;
+  color?: string | null;
+
   category: {
     slug: string;
     name: string;
+    icon?: string | null;
+    color?: string | null;
   } | null;
 
   tags: {
@@ -186,6 +202,9 @@ export type AdminPostDetail = {
   placeName?: string | null;
   address?: string | null;
   mapOnly?: boolean;
+  icon?: string | null;
+  color?: string | null;
+  noAiSummary?: boolean;
 
   categoryId: number | null;
   category: {

@@ -36,6 +36,9 @@ export default function PostEditorWrapper({ postId, post }: Props) {
       PostPlaceName={post?.placeName}
       PostPlaceAddress={post?.address}
       PostMapOnly={post?.mapOnly ?? false}
+      PostIcon={post?.icon}
+      PostColor={post?.color}
+      PostNoAiSummary={post?.noAiSummary}
     />
   );
 }

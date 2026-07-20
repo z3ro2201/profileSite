@@ -29,7 +29,9 @@ export async function GET(_req: Request, ctx: { params: MaybePromise<{ id: strin
       placeName: true,
       address: true,
       mapOnly: true,
-      category: { select: { slug: true, name: true } },
+      icon: true,
+      color: true,
+      category: { select: { slug: true, name: true, icon: true, color: true } },
       tags: { select: { slug: true, name: true } },
       author: { select: { name: true } },
       files: {

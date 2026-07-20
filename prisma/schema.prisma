@@ -74,6 +74,8 @@ model Category {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   description String?
+  icon        String? // lucide-react 아이콘 이름 (예: "Coffee"). 글에서 따로 안 정하면 이걸 기본값으로 씀
+  color       String? // 카드 배경 hex color. 마찬가지로 글의 기본값
   posts       Post[]
   
   @@index([parentId])
@@ -166,9 +168,12 @@ model Post {
   categoryId     Int?
   contentHtml    String?     @db.LongText
   contentMd      String      @db.LongText
-  aiSummary      String?     @db.Text // 발행/수정 시 생성해서 저장 (매 조회마다 재생성 안 함)
+  aiSummary      String?     @db.Text // 발행 시점에 생성해서 저장 (매 조회마다 재생성 안 함)
+  noAiSummary    Boolean     @default(false) // 체크하면 발행해도 AI 요약을 안 만듦
   publishedAt    DateTime?
   state          PostState   @default(DRAFT)
+  icon           String? // 안 정하면 카테고리의 icon을 씀. lucide-react 아이콘 이름.
+  color          String? // 안 정하면 카테고리의 color를 씀.
 
   placeName      String?     @map("place_name") @db.VarChar(200)
   address        String?     @db.VarChar(500)
