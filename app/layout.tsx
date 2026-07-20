@@ -66,7 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <ClientShell>{children}</ClientShell>
-        {/* <VisitorTracker /> */}
+        <VisitorTracker />
       </body>
     </html>
   );
