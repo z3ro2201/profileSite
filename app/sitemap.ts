@@ -53,9 +53,12 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   // /s4/ui는 컴포넌트 쇼케이스 페이지라 metadata에서 noindex 처리했으므로 sitemap에서도 제외
 
   add("/tools", { priority: 1 });
+  add("/tools/game/onstove/lostark/auction-chart", { priority: 0.85 });
   add("/tools/game/onstove/lostark/auction-chart/gemstone", { priority: 0.9 });
   add("/tools/game/onstove/lostark/sasaFind", { priority: 0.95 });
   add("/tools/ocr", { priority: 0.8 });
+
+  add("/privacy", { priority: 0.3, changeFrequency: "yearly" });
 
   // 로스트아크 보석 차트 동적 페이지
   const gemstones = GEMSTONE_LIST as readonly string[];

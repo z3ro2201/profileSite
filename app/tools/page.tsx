@@ -47,6 +47,7 @@ type AppItem = {
   image: string;
   badge: string;
   openApi?: boolean;
+  listHref?: string; // 카드 자체는 딥링크(바로 쓸 수 있는 기본 화면)로 보내되, 전체 목록 페이지로 가는 보조 링크도 따로 노출
 };
 
 const APPS: AppItem[] = [
@@ -55,6 +56,7 @@ const APPS: AppItem[] = [
     title: "로스트아크 보석 시세 차트",
     desc: "로스트아크 보석 시세를 차트로 확인하고, 변동 내역과 OpenAPI를 제공합니다. (모코코봇에 제공된 기능입니다.)",
     href: "/tools/game/onstove/lostark/auction-chart/gemstone/작열/10",
+    listHref: "/tools/game/onstove/lostark/auction-chart",
     image: "/app/LostArkGemChart.webp",
     badge: "GAME",
     openApi: true,
@@ -99,41 +101,49 @@ const ToolsPage = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {APPS.map((app) => (
-            <Link
+            <div
               key={app.key}
-              href={app.href}
               className="group rounded-2xl bg-white/80 backdrop-blur-md border border-white/20 shadow-sm overflow-hidden hover:bg-white transition"
             >
-              <div className="relative w-full aspect-[1200/630] bg-black/5">
-                <Image
-                  src={app.image}
-                  alt={app.title}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover"
-                  priority
-                />
-              </div>
-
-              <div className="p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[11px] px-2 py-1 rounded-full border border-black/10 bg-white/70 text-gray-700">
-                    {app.badge}
-                  </span>
-
-                  {app.openApi && (
-                    <span className="text-[11px] px-2 py-1 rounded-full border border-black/10 bg-white/70 text-gray-700">
-                      OpenAPI
-                    </span>
-                  )}
+              <Link href={app.href}>
+                <div className="relative w-full aspect-[1200/630] bg-black/5">
+                  <Image
+                    src={app.image}
+                    alt={app.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover"
+                    priority
+                  />
                 </div>
 
-                <div className="text-base font-semibold text-gray-900 group-hover:underline">{app.title}</div>
-                <div className="text-sm text-gray-700 mt-1 line-clamp-2">{app.desc}</div>
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[11px] px-2 py-1 rounded-full border border-black/10 bg-white/70 text-gray-700">
+                      {app.badge}
+                    </span>
 
-                <div className="mt-3 text-xs text-gray-500 font-mono">{`https://2er0.io${app.href}`}</div>
-              </div>
-            </Link>
+                    {app.openApi && (
+                      <span className="text-[11px] px-2 py-1 rounded-full border border-black/10 bg-white/70 text-gray-700">
+                        OpenAPI
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="text-base font-semibold text-gray-900 group-hover:underline">{app.title}</div>
+                  <div className="text-sm text-gray-700 mt-1 line-clamp-2">{app.desc}</div>
+
+                  <div className="mt-3 text-xs text-gray-500 font-mono">{`https://2er0.io${app.href}`}</div>
+                </div>
+              </Link>
+              {app.listHref && (
+                <div className="px-4 pb-4 -mt-1">
+                  <Link href={app.listHref} className="text-xs text-blue-600 underline">
+                    전체 목록 보기 →
+                  </Link>
+                </div>
+              )}
+            </div>
           ))}
         </div>
 

@@ -1,4 +1,3 @@
-// app/blog/page.tsx — prologue + posts 목록을 통합한 블로그 메인
 import { headers } from "next/headers";
 import { apiFetch } from "@/lib/apiFetch";
 import type { PublicPostListResponse } from "@/types/Posts";
@@ -61,6 +60,9 @@ export const generateMetadata = async ({ searchParams }: Props): Promise<Metadat
     openGraph: { title, description, url, type: "website" },
     twitter: { card: "summary", title, description },
     alternates: { canonical: url },
+    // 검색어(q) 조합은 사실상 무한히 생길 수 있는 얇은 콘텐츠라 색인에서 제외.
+    // 카테고리/태그는 그 자체로 의미 있는 아카이브 페이지라 계속 색인 허용.
+    robots: q ? { index: false, follow: true } : undefined,
   };
 };
 
@@ -141,6 +143,8 @@ const BlogMainPage = async ({ searchParams }: Props) => {
         category={typeof sp.category === "string" ? sp.category : undefined}
         tag={typeof sp.tag === "string" ? sp.tag : undefined}
         q={typeof sp.q === "string" ? sp.q : undefined}
+        categories={treeData.ok ? treeData.categories : []}
+        tags={tagsData.ok ? tagsData.tags : []}
       />
     );
   }
@@ -173,15 +177,28 @@ const BlogMainPage = async ({ searchParams }: Props) => {
 export default BlogMainPage;
 
 // SSR 버전 (봇용)
-function PostListSSR({ posts, pageTitle, pageDescription, isEmpty, isFeed, category, tag, q }: any) {
+type PostListSSRProps = {
+  posts: PublicPostListResponse["posts"];
+  pageTitle: string;
+  pageDescription?: string | null;
+  isEmpty: boolean;
+  isFeed: boolean;
+  category?: string;
+  tag?: string;
+  q?: string;
+  categories: { id: number; slug: string; name: string; depth: number }[];
+  tags: { id: number; slug: string; name: string; count: number }[];
+};
+
+function PostListSSR({ posts, pageTitle, pageDescription, isEmpty, isFeed, categories, tags }: PostListSSRProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": isFeed ? "Blog" : "CollectionPage",
     name: pageTitle,
-    blogPost: posts.map((post: any) => ({
+    blogPost: posts.map((post) => ({
       "@type": "BlogPosting",
       headline: post.title,
-      datePublished: post.publishedAt,
+      datePublished: post.publishedAt ?? undefined,
       url: `https://2er0.io/blog/posts/view/${post.id}`,
     })),
   };
@@ -192,25 +209,63 @@ function PostListSSR({ posts, pageTitle, pageDescription, isEmpty, isFeed, categ
       <div className="mx-auto w-full px-5 py-10">
         <header className="mb-8">
           <h1 className="text-3xl font-bold">{pageTitle}</h1>{" "}
-          {pageDescription && <h4 className="text-md text-gray-500">{pageDescription}</h4>}
-          {posts.length > 0 && <p className="mt-2 text-gray-600">총 {posts.length}개</p>}
+          {pageDescription && <h4 className="text-md text-muted-foreground">{pageDescription}</h4>}
+          {posts.length > 0 && <p className="mt-2 text-muted-foreground">총 {posts.length}개</p>}
         </header>
+
         <section>
           {isEmpty ? (
             <p className="text-center py-20">등록된 글이 없습니다</p>
           ) : (
             <div className="space-y-6">
-              {posts.map((post: any) => (
-                <article key={post.id} className="p-6 bg-white rounded-xl border">
+              {posts.map((post) => (
+                <article key={post.id} className="p-6 bg-[var(--card)] rounded-xl border border-border">
                   <Link href={`/blog/posts/view/${post.id}`}>
                     <h2 className="text-2xl font-bold mb-2">{post.title}</h2>
-                    <time className="text-sm text-gray-600">{new Date(post.publishedAt).toLocaleDateString()}</time>
+                    {post.publishedAt && (
+                      <time className="text-sm text-muted-foreground">
+                        {new Date(post.publishedAt).toLocaleDateString()}
+                      </time>
+                    )}
                   </Link>
                 </article>
               ))}
             </div>
           )}
         </section>
+
+        {/* 카테고리/태그로 들어가는 링크. CSR 버전(BlogListClient)의 탭 UI는 JS로만 렌더링되는데
+            그 안의 /blog?category=X, /blog?tag=Y 링크가 봇이 이 페이지들을 발견하는 유일한 경로였음.
+            사이트맵엔 개별 글만 있고 이 필터 페이지들은 없어서, SSR 버전에 안 넣으면
+            봇이 이 URL들의 존재 자체를 알 방법이 없었음. */}
+        {categories.length > 0 && (
+          <nav className="mt-12 pt-8 border-t border-border" aria-label="카테고리 목록">
+            <h3 className="text-sm font-semibold text-muted-foreground mb-3">카테고리</h3>
+            <ul className="flex flex-wrap gap-3">
+              {categories.map((c) => (
+                <li key={c.id}>
+                  <Link href={`/blog?category=${encodeURIComponent(c.slug)}`} className="text-sm underline">
+                    {c.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+        {tags.length > 0 && (
+          <nav className="mt-6" aria-label="태그 목록">
+            <h3 className="text-sm font-semibold text-muted-foreground mb-3">태그</h3>
+            <ul className="flex flex-wrap gap-3">
+              {tags.map((t) => (
+                <li key={t.id}>
+                  <Link href={`/blog?tag=${encodeURIComponent(t.slug)}`} className="text-sm underline">
+                    #{t.name} ({t.count})
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
       </div>
     </>
   );
