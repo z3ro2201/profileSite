@@ -86,7 +86,8 @@ const iconForPost = (
 };
 
 // 카드 배경색: 글에 직접 지정 → 카테고리 기본값 → 기본 배경
-const colorForPost = (postColor?: string | null, categoryColor?: string | null): string => postColor || categoryColor || "var(--secondary)";
+const colorForPost = (postColor?: string | null, categoryColor?: string | null): string =>
+  postColor || categoryColor || "var(--secondary)";
 
 export default function BlogListClient({
   posts,
@@ -202,10 +203,17 @@ export default function BlogListClient({
               </span>
             ))}
           </div>
-          <h3 className="text-xl font-semibold leading-snug text-foreground group-hover:text-[#23c6a9] transition-colors" style={serif}>
+          <h3
+            className="text-xl font-semibold leading-snug text-foreground group-hover:text-[#23c6a9] transition-colors"
+            style={serif}
+          >
             {post.title}
           </h3>
-          {post.contentHtml && <p className="text-xs text-muted-foreground mt-2 leading-relaxed line-clamp-2">{stripAndTrim(post.contentHtml)}</p>}
+          {post.contentHtml && (
+            <p className="text-xs text-muted-foreground mt-2 leading-relaxed line-clamp-2">
+              {stripAndTrim(post.contentHtml)}
+            </p>
+          )}
         </div>
         <div className="flex items-end justify-between mt-6">
           <span className="text-xs text-muted-foreground" style={mono}>
@@ -227,7 +235,11 @@ export default function BlogListClient({
         <span className="text-xs text-muted-foreground" style={mono}>
           {expandedLoading ? "불러오는 중…" : `${expandedPosts.length}편`}
         </span>
-        <button onClick={() => setExpanded(null)} className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors" style={mono}>
+        <button
+          onClick={() => setExpanded(null)}
+          className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors"
+          style={mono}
+        >
           닫기
         </button>
       </div>
@@ -240,7 +252,6 @@ export default function BlogListClient({
       )}
     </div>
   );
-
 
   return (
     <div>
@@ -324,15 +335,15 @@ export default function BlogListClient({
             블로그
           </p>
           {activeQuery ? (
-            <h2 className="text-3xl sm:text-4xl font-light leading-tight" style={serif}>
+            <h1 className="text-3xl sm:text-4xl font-light leading-tight" style={serif}>
               &ldquo;{activeQuery}&rdquo; 검색 결과
-            </h2>
+            </h1>
           ) : (
-            <h2 className="text-4xl sm:text-5xl font-light leading-tight" style={serif}>
+            <h1 className="text-4xl sm:text-5xl font-light leading-tight" style={serif}>
               배운 것들을
               <br />
               <span className="italic">기록합니다.</span>
-            </h2>
+            </h1>
           )}
         </div>
 
@@ -580,8 +591,12 @@ export default function BlogListClient({
                 const Icon = iconForPost(null, cat.icon, cat.name);
                 const hasChildren = (cat.children?.length ?? 0) > 0;
                 const isActive = expanded?.type === "category" && expanded.slug === cat.slug;
-                const cardClassName = "group flex items-start gap-4 rounded-2xl p-5 text-left transition-all duration-200 hover:scale-[1.01] hover:shadow-md";
-                const cardStyle: React.CSSProperties = { background: colorForPost(cat.color), outline: isActive ? `2px solid ${TEAL}` : "none" };
+                const cardClassName =
+                  "group flex items-start gap-4 rounded-2xl p-5 text-left transition-all duration-200 hover:scale-[1.01] hover:shadow-md";
+                const cardStyle: React.CSSProperties = {
+                  background: colorForPost(cat.color),
+                  outline: isActive ? `2px solid ${TEAL}` : "none",
+                };
                 const cardContent = (
                   <>
                     <div
@@ -610,7 +625,9 @@ export default function BlogListClient({
                           )}
                         </div>
                       </div>
-                      {cat.description && <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{cat.description}</p>}
+                      {cat.description && (
+                        <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{cat.description}</p>
+                      )}
                       {hasChildren && (
                         <div className="flex flex-wrap gap-1 mt-2">
                           {cat.children!.map((s) => (
@@ -629,11 +646,21 @@ export default function BlogListClient({
                 );
 
                 return hasChildren ? (
-                  <button key={cat.id} onClick={() => setDrilldownCategory(cat)} className={cardClassName} style={cardStyle}>
+                  <button
+                    key={cat.id}
+                    onClick={() => setDrilldownCategory(cat)}
+                    className={cardClassName}
+                    style={cardStyle}
+                  >
                     {cardContent}
                   </button>
                 ) : (
-                  <button key={cat.id} onClick={() => toggleExpand("category", cat.slug, cat.name)} className={cardClassName} style={cardStyle}>
+                  <button
+                    key={cat.id}
+                    onClick={() => toggleExpand("category", cat.slug, cat.name)}
+                    className={cardClassName}
+                    style={cardStyle}
+                  >
                     {cardContent}
                   </button>
                 );

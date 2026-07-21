@@ -7,7 +7,7 @@ import { mono } from "@/app/s4/_lib/theme";
 import { Button } from "@/components/ui-v2/button";
 import { Textarea } from "@/components/ui-v2/textarea";
 
-type CommentType = {
+export type CommentType = {
   id: number;
   authorName: string;
   authorEmail?: string | null;

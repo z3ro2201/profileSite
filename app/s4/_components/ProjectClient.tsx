@@ -28,11 +28,11 @@ export default function ProjectClient({ items }: { items: DetailItem[] }) {
         <p className="text-xs tracking-widest uppercase mb-2" style={{ color: TEAL, ...mono }}>
           프로젝트
         </p>
-        <h2 className="text-4xl sm:text-5xl font-light leading-tight mb-6" style={serif}>
+        <h1 className="text-4xl sm:text-5xl font-light leading-tight mb-6" style={serif}>
           상상을 현실로,
           <br />
           <span className="italic">뚝딱뚝딱</span> 만들고 있어요.
-        </h2>
+        </h1>
         <div className="flex flex-wrap gap-2">
           {FILTERS.map((f) => (
             <button

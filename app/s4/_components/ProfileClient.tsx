@@ -32,11 +32,11 @@ export default function ProfileClient() {
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 lg:gap-12 items-start">
       {/* ── left: narrative ── */}
       <div>
-        <h2 className="text-5xl sm:text-6xl font-light leading-[1.05] mb-10" style={serif}>
+        <h1 className="text-5xl sm:text-6xl font-light leading-[1.05] mb-10" style={serif}>
           저는 <span className="italic">이런</span>
           <br />
           사람입니다.
-        </h2>
+        </h1>
 
         <div className="space-y-8">
           {sections.map((s) => (
