@@ -12,6 +12,15 @@ export type AuctionGemChartProp = {
   initialUpdatetime?: string;
 };
 
+// 재료(정제된 파괴강석 등)는 레벨 개념이 없어서 보석용 Prop이랑 다름
+export type MaterialChartProp = {
+  MATERIAL_ITEM_LIST: readonly string[];
+  initialItemName?: string;
+  initialData?: GemChartResponse;
+  UPDATETIME_LIST?: readonly string[];
+  initialUpdatetime?: string;
+};
+
 export type GemChartRow = {
   item_name: string;
   item_amount: number | null;
