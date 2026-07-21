@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { GEMSTONE_LIST } from "@/lib/lostark";
 import type { MetadataRoute } from "next";
+import { MATERIAL_ITEM_LIST } from "@/lib/lostark";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -55,6 +56,7 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
   add("/tools", { priority: 1 });
   add("/tools/game/onstove/lostark/auction-chart", { priority: 0.85 });
   add("/tools/game/onstove/lostark/auction-chart/gemstone", { priority: 0.9 });
+  add("/tools/game/onstove/lostark/market-chart/material", { priority: 0.9 });
   add("/tools/game/onstove/lostark/sasaFind", { priority: 0.95 });
   add("/tools/ocr", { priority: 0.8 });
 
@@ -72,6 +74,16 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
         priority: level === "10" ? 0.9 : level === "9" ? 0.8 : level === "8" ? 0.75 : 0.7,
       });
     }
+  }
+
+  // 로스트아크 재련 재료 동적 페이지
+  const meterials = MATERIAL_ITEM_LIST as readonly string[];
+  for (const itemName of meterials) {
+    // 기본 URL만 포함 (쿼리 파라미터 URL은 제외하여 중복 콘텐츠 방지)
+    add(`/tools/game/onstove/lostark/market-chart/material/${encodeURIComponent(itemName)}`, {
+      changeFrequency: "daily",
+      priority: 0.7,
+    });
   }
 
   // 공개된 블로그 글
